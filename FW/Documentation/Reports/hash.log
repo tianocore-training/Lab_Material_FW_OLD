@@ -1,0 +1,1426 @@
+Platform Summary
+Platform Name:        Ovmf
+Platform DSC Path:    /home/u-uefi/src/edk2/OvmfPkg/OvmfPkgX64.dsc
+Architectures:        X64
+Tool Chain:           GCC5
+Target:               DEBUG
+SKUID:                DEFAULT
+DefaultStore:         STANDARD
+Output Path:          /home/u-uefi/src/edk2/Build/OvmfX64
+Build Environment:    Linux-4.13.0-38-generic-x86_64-with-Ubuntu-16.04-xenial
+Build Duration:       00:00:19
+AutoGen Duration:     00:00:07
+Make Duration:        00:00:07
+GenFds Duration:      00:00:04
+Report Content:       HASH
+>======================================================================================================================<
+Module Summary
+Module Name:          ResetVector
+Module INF Path:      OvmfPkg/ResetVector/ResetVector.inf
+File GUID:            1BA0062E-C779-4582-8566-336AE8F78F09
+Module Build Time:    478ms
+Driver Type:          0x3 (SECURITY_CORE)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          SecMain
+Module INF Path:      OvmfPkg/Sec/SecMain.inf
+File GUID:            df1ccef6-f301-4a63-9661-fc6030dcc880
+Size:                 0x5580 (21.38K)
+SHA1 HASH:            4ff58da9274f75b4f04ed9dc63465be2e3a7c8f2 *SecMain.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    24ms
+Driver Type:          0x3 (SECURITY_CORE)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          PeiCore
+Module INF Path:      MdeModulePkg/Core/Pei/PeiMain.inf
+File GUID:            52C05B14-0B98-496c-BC3B-04B50211D680
+Size:                 0xC480 (49.12K)
+SHA1 HASH:            825f3211e24936cffa24fd7b9b07c598b202ede2 *PeiCore.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    27ms
+Driver Type:          0x4 (PEI_CORE)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          PcdPeim
+Module INF Path:      MdeModulePkg/Universal/PCD/Pei/Pcd.inf
+File GUID:            9B3ADA4F-AE56-4c24-8DEA-F03B7558AE50
+Size:                 0x4D40 (19.31K)
+SHA1 HASH:            7145afd824308d7231ac53af088a1bfea4ce9a5b *PcdPeim.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    23ms
+Driver Type:          0x6 (PEIM)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          ReportStatusCodeRouterPei
+Module INF Path:      MdeModulePkg/Universal/ReportStatusCodeRouter/Pei/ReportStatusCodeRouterPei.inf
+File GUID:            A3610442-E69F-4DF3-82CA-2360C4031A23
+Size:                 0x2080 (8.12K)
+SHA1 HASH:            c6acf23b87833661d77b57ec9b90dcc421e1bc2e *ReportStatusCodeRouterPei.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    23ms
+Driver Type:          0x6 (PEIM)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          StatusCodeHandlerPei
+Module INF Path:      MdeModulePkg/Universal/StatusCodeHandler/Pei/StatusCodeHandlerPei.inf
+File GUID:            9D225237-FA01-464C-A949-BAABC02D31D0
+Size:                 0x2140 (8.31K)
+SHA1 HASH:            2b9c6ddedd7a3a76454ad1b81f2be08f5305e516 *StatusCodeHandlerPei.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    21ms
+Driver Type:          0x6 (PEIM)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          DxeIpl
+Module INF Path:      MdeModulePkg/Core/DxeIplPeim/DxeIpl.inf
+File GUID:            86D70125-BAA3-4296-A62F-602BEBBB9081
+Size:                 0x4D00 (19.25K)
+SHA1 HASH:            66523f43c706a69d4ce17d9bbea7a321c535642f *DxeIpl.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    28ms
+Driver Type:          0x6 (PEIM)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          PlatformPei
+Module INF Path:      OvmfPkg/PlatformPei/PlatformPei.inf
+File GUID:            222c386d-5abc-4fb4-b124-fbb82488acf4
+Size:                 0x8800 (34.00K)
+SHA1 HASH:            c43c56408472171f11a74966015f6418af46277f *PlatformPei.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    30ms
+Driver Type:          0x6 (PEIM)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          S3Resume2Pei
+Module INF Path:      UefiCpuPkg/Universal/Acpi/S3Resume2Pei/S3Resume2Pei.inf
+File GUID:            89E549B0-7CFE-449d-9BA3-10D8B2312D71
+Size:                 0x4580 (17.38K)
+SHA1 HASH:            2fb03807362253b0c5168f3268d96b9afe8cb7fb *S3Resume2Pei.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    27ms
+Driver Type:          0x6 (PEIM)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          CpuMpPei
+Module INF Path:      UefiCpuPkg/CpuMpPei/CpuMpPei.inf
+File GUID:            EDADEB9D-DDBA-48BD-9D22-C1C169C8C5C6
+Size:                 0x8240 (32.56K)
+SHA1 HASH:            63d71fa6542e4baf1b8f9627b3f78ed4caf7d444 *CpuMpPei.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    25ms
+Driver Type:          0x6 (PEIM)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          DxeCore
+Module INF Path:      MdeModulePkg/Core/Dxe/DxeMain.inf
+File GUID:            D6A2CB7F-6A18-4e2f-B43B-9920A733700A
+Size:                 0x26840 (154.06K)
+SHA1 HASH:            1d69d65b2195207e2fca38b56265dee2d43ab5e3 *DxeCore.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    34ms
+Driver Type:          0x5 (DXE_CORE)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          ReportStatusCodeRouterRuntimeDxe
+Module INF Path:      MdeModulePkg/Universal/ReportStatusCodeRouter/RuntimeDxe/ReportStatusCodeRouterRuntimeDxe.inf
+File GUID:            D93CE3D8-A7EB-4730-8C8E-CC466A9ECC3C
+Size:                 0x6000 (24.00K)
+SHA1 HASH:            c28ab8bd9bfa9fdee3e2bfdcc1e90c3039e1c3c5 *ReportStatusCodeRouterRuntimeDxe.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    23ms
+Driver Type:          0x7 (DRIVER)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          StatusCodeHandlerRuntimeDxe
+Module INF Path:      MdeModulePkg/Universal/StatusCodeHandler/RuntimeDxe/StatusCodeHandlerRuntimeDxe.inf
+File GUID:            6C2004EF-4E0E-4BE4-B14C-340EB4AA5891
+Size:                 0x6000 (24.00K)
+SHA1 HASH:            81aad786b3d813852ca5caecd3b59cfd38ea0209 *StatusCodeHandlerRuntimeDxe.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    22ms
+Driver Type:          0x7 (DRIVER)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          PcdDxe
+Module INF Path:      MdeModulePkg/Universal/PCD/Dxe/Pcd.inf
+File GUID:            80CF7257-87AB-47f9-A3FE-D50B76D89541
+Size:                 0x5EC0 (23.69K)
+SHA1 HASH:            9ffbf360a84213ce0b6ba722a70ff1db567d1c68 *PcdDxe.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    25ms
+Driver Type:          0x7 (DRIVER)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          RuntimeDxe
+Module INF Path:      MdeModulePkg/Core/RuntimeDxe/RuntimeDxe.inf
+File GUID:            B601F8C4-43B7-4784-95B1-F4226CB40CEE
+Size:                 0x6000 (24.00K)
+SHA1 HASH:            83397839035df5c9d2daab5d3e5846922595e54a *RuntimeDxe.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    28ms
+Driver Type:          0x7 (DRIVER)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          SecurityStubDxe
+Module INF Path:      MdeModulePkg/Universal/SecurityStubDxe/SecurityStubDxe.inf
+File GUID:            F80697E9-7FD6-4665-8646-88E33EF71DFC
+Size:                 0x2D80 (11.38K)
+SHA1 HASH:            77fc44b7374f6df1deb07049e17f1ebd0f8fa095 *SecurityStubDxe.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    26ms
+Driver Type:          0x7 (DRIVER)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          EbcDxe
+Module INF Path:      MdeModulePkg/Universal/EbcDxe/EbcDxe.inf
+File GUID:            13AC6DD0-73D0-11D4-B06B-00AA00BD6DE7
+Size:                 0x53C0 (20.94K)
+SHA1 HASH:            ebd4d8186a6909fe85ca134369798e38bc5e22bb *EbcDxe.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    14ms
+Driver Type:          0x7 (DRIVER)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          Legacy8259
+Module INF Path:      PcAtChipsetPkg/8259InterruptControllerDxe/8259.inf
+File GUID:            79CA4208-BBA1-4a9a-8456-E1E66A81484E
+Size:                 0x1E80 (7.62K)
+SHA1 HASH:            12f18dafedaa8600c609e1fef4cc3dec24abdc5f *Legacy8259.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    21ms
+Driver Type:          0x7 (DRIVER)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          CpuIo2Dxe
+Module INF Path:      UefiCpuPkg/CpuIo2Dxe/CpuIo2Dxe.inf
+File GUID:            A19B1FE7-C1BC-49F8-875F-54A5D542443F
+Size:                 0x2240 (8.56K)
+SHA1 HASH:            a33f282cf594d1c4e30b8f43b65e4ec0daafcd17 *CpuIo2Dxe.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    19ms
+Driver Type:          0x7 (DRIVER)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          CpuDxe
+Module INF Path:      UefiCpuPkg/CpuDxe/CpuDxe.inf
+File GUID:            1A1E4886-9517-440e-9FDE-3BE44CEE2136
+Size:                 0xEF80 (59.88K)
+SHA1 HASH:            b6d9872e5eecc27fe6a45b83c769604435e5dc32 *CpuDxe.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    26ms
+Driver Type:          0x7 (DRIVER)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          Timer
+Module INF Path:      PcAtChipsetPkg/8254TimerDxe/8254Timer.inf
+File GUID:            f2765dec-6b41-11d5-8e71-00902707b35e
+Size:                 0x1F40 (7.81K)
+SHA1 HASH:            d41619ceafb3bf917512aac31f6295dc0299086e *Timer.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    16ms
+Driver Type:          0x7 (DRIVER)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          IncompatiblePciDeviceSupportDxe
+Module INF Path:      OvmfPkg/IncompatiblePciDeviceSupportDxe/IncompatiblePciDeviceSupport.inf
+File GUID:            F6697AC4-A776-4EE1-B643-1FEFF2B615BB
+Size:                 0x2200 (8.50K)
+SHA1 HASH:            9db78c6c8cbb23307d17cba6fb81ca238499e2ef *IncompatiblePciDeviceSupportDxe.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    14ms
+Driver Type:          0x7 (DRIVER)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          PciHotPlugInitDxe
+Module INF Path:      OvmfPkg/PciHotPlugInitDxe/PciHotPlugInit.inf
+File GUID:            11A6EDF6-A9BE-426D-A6CC-B22FE51D9224
+Size:                 0x3380 (12.88K)
+SHA1 HASH:            d541901f1b8fb904e7c5ce0e6df32fb3bd2e5b53 *PciHotPlugInitDxe.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    16ms
+Driver Type:          0x7 (DRIVER)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          PciHostBridgeDxe
+Module INF Path:      MdeModulePkg/Bus/Pci/PciHostBridgeDxe/PciHostBridgeDxe.inf
+File GUID:            128FB770-5E79-4176-9E51-9BB268A17DD1
+Size:                 0x9900 (38.25K)
+SHA1 HASH:            c66605a7baed5d6f62d56c8df012afc5fb7cff51 *PciHostBridgeDxe.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    22ms
+Driver Type:          0x7 (DRIVER)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          PciBusDxe
+Module INF Path:      MdeModulePkg/Bus/Pci/PciBusDxe/PciBusDxe.inf
+File GUID:            93B80004-9FB3-11d4-9A3A-0090273FC14D
+Size:                 0xFFC0 (63.94K)
+SHA1 HASH:            562b29c730c07eb7483992ec6af593eac4e8e931 *PciBusDxe.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    22ms
+Driver Type:          0x7 (DRIVER)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          ResetSystemRuntimeDxe
+Module INF Path:      MdeModulePkg/Universal/ResetSystemRuntimeDxe/ResetSystemRuntimeDxe.inf
+File GUID:            4B28E4C7-FF36-4e10-93CF-A82159E777C5
+Size:                 0x7000 (28.00K)
+SHA1 HASH:            5e520c7685365f7ee5fb58d4fd2ebb4b9f80d11e *ResetSystemRuntimeDxe.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    20ms
+Driver Type:          0x7 (DRIVER)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          Metronome
+Module INF Path:      MdeModulePkg/Universal/Metronome/Metronome.inf
+File GUID:            C8339973-A563-4561-B858-D8476F9DEFC4
+Size:                 0x2080 (8.12K)
+SHA1 HASH:            7730b9347094e1f0441e747ee0aea6d76385323c *Metronome.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    21ms
+Driver Type:          0x7 (DRIVER)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          PcRtc
+Module INF Path:      PcAtChipsetPkg/PcatRealTimeClockRuntimeDxe/PcatRealTimeClockRuntimeDxe.inf
+File GUID:            378D7B65-8DA9-4773-B6E4-A47826A833E1
+Size:                 0x7000 (28.00K)
+SHA1 HASH:            3e2fbf7cf097c077063c48d89324be51d097351d *PcRtc.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    26ms
+Driver Type:          0x7 (DRIVER)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          DriverHealthManagerDxe
+Module INF Path:      MdeModulePkg/Universal/DriverHealthManagerDxe/DriverHealthManagerDxe.inf
+File GUID:            EBF8ED7C-0DD1-4787-84F1-F48D537DCACF
+Size:                 0x6880 (26.12K)
+SHA1 HASH:            f68a8f91b035ce259e2707f08010685d722ba83f *DriverHealthManagerDxe.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    31ms
+Driver Type:          0x7 (DRIVER)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          BdsDxe
+Module INF Path:      MdeModulePkg/Universal/BdsDxe/BdsDxe.inf
+File GUID:            6D33944A-EC75-4855-A54D-809C75241F6C
+Size:                 0x1BE00 (111.50K)
+SHA1 HASH:            b0bba9bdb7c52f2bbd49ef03ae4fafc3e72fb4d4 *BdsDxe.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    37ms
+Driver Type:          0x7 (DRIVER)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          LogoDxe
+Module INF Path:      MdeModulePkg/Logo/LogoDxe.inf
+File GUID:            F74D20EE-37E7-48FC-97F7-9B1047749C69
+Size:                 0x4C80 (19.12K)
+SHA1 HASH:            bd1cae7f4dfdcdffbf7ead45397d6f7877169685 *LogoDxe.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    20ms
+Driver Type:          0x7 (DRIVER)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          UiApp
+Module INF Path:      MdeModulePkg/Application/UiApp/UiApp.inf
+File GUID:            462CAA21-7614-4503-836E-8AB6F4662331
+Size:                 0x25FC0 (151.94K)
+SHA1 HASH:            9e592cd50d0fab102eec23e7ba8955521194e5e2 *UiApp.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    26ms
+Driver Type:          0x9 (APPLICATION)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          BlockMmioToBlockIoDxe
+Module INF Path:      OvmfPkg/BlockMmioToBlockIoDxe/BlockIo.inf
+File GUID:            33cb97af-6c33-4c42-986b-07581fa366d4
+Size:                 0x2E00 (11.50K)
+SHA1 HASH:            a8770cf40e86849a77fa0fcffee21bd8f7ec6c46 *BlockMmioToBlockIoDxe.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    14ms
+Driver Type:          0x7 (DRIVER)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          VirtioPciDeviceDxe
+Module INF Path:      OvmfPkg/VirtioPciDeviceDxe/VirtioPciDeviceDxe.inf
+File GUID:            83dd3b39-7caf-4fac-a542-e050b767e3a7
+Size:                 0x32C0 (12.69K)
+SHA1 HASH:            5ccb72d639ed2e7a79392a7da7006eab329bf709 *VirtioPciDeviceDxe.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    20ms
+Driver Type:          0x7 (DRIVER)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          Virtio10
+Module INF Path:      OvmfPkg/Virtio10Dxe/Virtio10.inf
+File GUID:            0170F60C-1D40-4651-956D-F0BD9879D527
+Size:                 0x3700 (13.75K)
+SHA1 HASH:            1f16bb648f74b3e3228f50923d0d140964e4a732 *Virtio10.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    26ms
+Driver Type:          0x7 (DRIVER)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          VirtioBlkDxe
+Module INF Path:      OvmfPkg/VirtioBlkDxe/VirtioBlk.inf
+File GUID:            11D92DFB-3CA9-4F93-BA2E-4780ED3E03B5
+Size:                 0x38C0 (14.19K)
+SHA1 HASH:            c8a1e96eb751adfdb8e7b62976e2f09b8e2c7565 *VirtioBlkDxe.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    19ms
+Driver Type:          0x7 (DRIVER)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          VirtioScsiDxe
+Module INF Path:      OvmfPkg/VirtioScsiDxe/VirtioScsi.inf
+File GUID:            FAB5D4F4-83C0-4AAF-8480-442D11DF6CEA
+Size:                 0x3D80 (15.38K)
+SHA1 HASH:            4cbc2011e1f1c13e577bac70bb3fcc64067c9266 *VirtioScsiDxe.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    24ms
+Driver Type:          0x7 (DRIVER)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          VirtioRngDxe
+Module INF Path:      OvmfPkg/VirtioRngDxe/VirtioRng.inf
+File GUID:            58E26F0D-CBAC-4BBA-B70F-18221415665A
+Size:                 0x32C0 (12.69K)
+SHA1 HASH:            76640555a8839d83704c8cc2e7356fd60b11e83c *VirtioRngDxe.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    21ms
+Driver Type:          0x7 (DRIVER)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          XenIoPciDxe
+Module INF Path:      OvmfPkg/XenIoPciDxe/XenIoPciDxe.inf
+File GUID:            cf569f50-de44-4f54-b4d7-f4ae25cda599
+Size:                 0x28C0 (10.19K)
+SHA1 HASH:            0f3b624d71557f4555ce7eb7764b3c6125b45823 *XenIoPciDxe.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    20ms
+Driver Type:          0x7 (DRIVER)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          XenBusDxe
+Module INF Path:      OvmfPkg/XenBusDxe/XenBusDxe.inf
+File GUID:            565ec8ba-a484-11e3-802b-b8ac6f7d65e6
+Size:                 0x9680 (37.62K)
+SHA1 HASH:            7b61194ba0424e580bda4b89b5a9a51014513d78 *XenBusDxe.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    25ms
+Driver Type:          0x7 (DRIVER)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          XenPvBlkDxe
+Module INF Path:      OvmfPkg/XenPvBlkDxe/XenPvBlkDxe.inf
+File GUID:            8c2487ea-9af3-11e3-b966-b8ac6f7d65e6
+Size:                 0x4FC0 (19.94K)
+SHA1 HASH:            caa15e2a6c1be033bd24fc2b80b8d29a77df43e0 *XenPvBlkDxe.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    19ms
+Driver Type:          0x7 (DRIVER)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          WatchdogTimer
+Module INF Path:      MdeModulePkg/Universal/WatchdogTimerDxe/WatchdogTimer.inf
+File GUID:            F099D67F-71AE-4c36-B2A3-DCEB0EB2B7D8
+Size:                 0x2080 (8.12K)
+SHA1 HASH:            cbe993dee4c50a46ddbae2cc8c88dd9ff463075a *WatchdogTimer.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    15ms
+Driver Type:          0x7 (DRIVER)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          MonotonicCounterRuntimeDxe
+Module INF Path:      MdeModulePkg/Universal/MonotonicCounterRuntimeDxe/MonotonicCounterRuntimeDxe.inf
+File GUID:            AD608272-D07F-4964-801E-7BD3B7888652
+Size:                 0x5000 (20.00K)
+SHA1 HASH:            a9a3b13d34a984032e524425e7c4ccfaba440a09 *MonotonicCounterRuntimeDxe.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    17ms
+Driver Type:          0x7 (DRIVER)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          CapsuleRuntimeDxe
+Module INF Path:      MdeModulePkg/Universal/CapsuleRuntimeDxe/CapsuleRuntimeDxe.inf
+File GUID:            42857F0A-13F2-4B21-8A23-53D3F714B840
+Size:                 0x6000 (24.00K)
+SHA1 HASH:            37299a43a0de8061fbf44bd23f163efe43186898 *CapsuleRuntimeDxe.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    20ms
+Driver Type:          0x7 (DRIVER)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          ConPlatformDxe
+Module INF Path:      MdeModulePkg/Universal/Console/ConPlatformDxe/ConPlatformDxe.inf
+File GUID:            51ccf399-4fdf-4e55-a45b-e123f84d456a
+Size:                 0x42C0 (16.69K)
+SHA1 HASH:            5bf8eb1c43b25e3553ff8066ccbd28876912f171 *ConPlatformDxe.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    24ms
+Driver Type:          0x7 (DRIVER)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          ConSplitterDxe
+Module INF Path:      MdeModulePkg/Universal/Console/ConSplitterDxe/ConSplitterDxe.inf
+File GUID:            408edcec-cf6d-477c-a5a8-b4844e3de281
+Size:                 0x7F80 (31.88K)
+SHA1 HASH:            4ed8e0016c3f5416061d55ca0dd8733a822644bb *ConSplitterDxe.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    21ms
+Driver Type:          0x7 (DRIVER)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          GraphicsConsoleDxe
+Module INF Path:      MdeModulePkg/Universal/Console/GraphicsConsoleDxe/GraphicsConsoleDxe.inf
+File GUID:            CCCB0C28-4B24-11d5-9A5A-0090273FC14D
+Size:                 0x6180 (24.38K)
+SHA1 HASH:            55940991983b3e52f59b2135ff63df70e005f5da *GraphicsConsoleDxe.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    15ms
+Driver Type:          0x7 (DRIVER)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          TerminalDxe
+Module INF Path:      MdeModulePkg/Universal/Console/TerminalDxe/TerminalDxe.inf
+File GUID:            9E863906-A40F-4875-977F-5B93FF237FC6
+Size:                 0x8080 (32.12K)
+SHA1 HASH:            2b10576462058f7e65db4c34c1c3aeb8ca47e815 *TerminalDxe.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    24ms
+Driver Type:          0x7 (DRIVER)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          DevicePathDxe
+Module INF Path:      MdeModulePkg/Universal/DevicePathDxe/DevicePathDxe.inf
+File GUID:            9B680FCE-AD6B-4F3A-B60B-F59899003443
+Size:                 0xB380 (44.88K)
+SHA1 HASH:            40e9002b0e00df281a50fec68f25b841d16c8c26 *DevicePathDxe.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    20ms
+Driver Type:          0x7 (DRIVER)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          PrintDxe
+Module INF Path:      MdeModulePkg/Universal/PrintDxe/PrintDxe.inf
+File GUID:            79E4A61C-ED73-4312-94FE-E3E7563362A9
+Size:                 0x2DC0 (11.44K)
+SHA1 HASH:            f261f82cdbe5d5269fbe2821b21bac38eba090fe *PrintDxe.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    18ms
+Driver Type:          0x7 (DRIVER)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          DiskIoDxe
+Module INF Path:      MdeModulePkg/Universal/Disk/DiskIoDxe/DiskIoDxe.inf
+File GUID:            6B38F7B4-AD98-40e9-9093-ACA2B5A253C4
+Size:                 0x5040 (20.06K)
+SHA1 HASH:            199cb1db7a83423a7f60c93143bfe5fad9b5e8ab *DiskIoDxe.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    20ms
+Driver Type:          0x7 (DRIVER)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          PartitionDxe
+Module INF Path:      MdeModulePkg/Universal/Disk/PartitionDxe/PartitionDxe.inf
+File GUID:            1FA1F39E-FEFF-4aae-BD7B-38A070A3B609
+Size:                 0x6A00 (26.50K)
+SHA1 HASH:            0ce5faca9941c56f5a575ac24f3793f01565c81d *PartitionDxe.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    22ms
+Driver Type:          0x7 (DRIVER)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          RamDiskDxe
+Module INF Path:      MdeModulePkg/Universal/Disk/RamDiskDxe/RamDiskDxe.inf
+File GUID:            28A03FF4-12B3-4305-A417-BB1A4F94081E
+Size:                 0xB000 (44.00K)
+SHA1 HASH:            6039662d41339e2d34c40013a5f152eb1dab9260 *RamDiskDxe.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    25ms
+Driver Type:          0x7 (DRIVER)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          EnglishDxe
+Module INF Path:      MdeModulePkg/Universal/Disk/UnicodeCollation/EnglishDxe/EnglishDxe.inf
+File GUID:            CD3BAFB6-50FB-4fe8-8E4E-AB74D2C1A600
+Size:                 0x22C0 (8.69K)
+SHA1 HASH:            8f2f9c4c79606ba1b615a26ce6953fcbc8e1a726 *EnglishDxe.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    19ms
+Driver Type:          0x7 (DRIVER)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          Fat
+Module INF Path:      FatPkg/EnhancedFatDxe/Fat.inf
+File GUID:            961578FE-B6B7-44c3-AF35-6BC705CD2B1F
+Size:                 0xA6C0 (41.69K)
+SHA1 HASH:            5a3d4b640249db0aed845e2ea09f7c7d64637e08 *Fat.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    25ms
+Driver Type:          0x7 (DRIVER)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          UdfDxe
+Module INF Path:      MdeModulePkg/Universal/Disk/UdfDxe/UdfDxe.inf
+File GUID:            905f13b0-8f91-4b0a-bd76-e1e78f9422e4
+Size:                 0x6080 (24.12K)
+SHA1 HASH:            d46624eefb1c98339190e0848c019ffcfa264a06 *UdfDxe.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    22ms
+Driver Type:          0x7 (DRIVER)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          ScsiBus
+Module INF Path:      MdeModulePkg/Bus/Scsi/ScsiBusDxe/ScsiBusDxe.inf
+File GUID:            0167CCC4-D0F7-4f21-A3EF-9E64B7CDCE8B
+Size:                 0x4340 (16.81K)
+SHA1 HASH:            8e9b3edf56c33ee4939ac12d6ef1ad5abab7a00e *ScsiBus.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    21ms
+Driver Type:          0x7 (DRIVER)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          ScsiDisk
+Module INF Path:      MdeModulePkg/Bus/Scsi/ScsiDiskDxe/ScsiDiskDxe.inf
+File GUID:            0A66E322-3740-4cce-AD62-BD172CECCA35
+Size:                 0x9BC0 (38.94K)
+SHA1 HASH:            c38cc1790e23314b6226d253f1da54f23a9cf1e3 *ScsiDisk.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    15ms
+Driver Type:          0x7 (DRIVER)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          SataController
+Module INF Path:      OvmfPkg/SataControllerDxe/SataControllerDxe.inf
+File GUID:            021722D8-522B-4079-852A-FE44C2C13F49
+Size:                 0x3600 (13.50K)
+SHA1 HASH:            7cdf9e097cf5676f3dee94697aecd420df0119f6 *SataController.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    15ms
+Driver Type:          0x7 (DRIVER)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          AtaAtapiPassThruDxe
+Module INF Path:      MdeModulePkg/Bus/Ata/AtaAtapiPassThru/AtaAtapiPassThru.inf
+File GUID:            5E523CB4-D397-4986-87BD-A6DD8B22F455
+Size:                 0xA2C0 (40.69K)
+SHA1 HASH:            9aff072c0df46ae99aa710c8beddd88f797fa155 *AtaAtapiPassThruDxe.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    24ms
+Driver Type:          0x7 (DRIVER)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          AtaBusDxe
+Module INF Path:      MdeModulePkg/Bus/Ata/AtaBusDxe/AtaBusDxe.inf
+File GUID:            19DF145A-B1D4-453f-8507-38816676D7F6
+Size:                 0x6B80 (26.88K)
+SHA1 HASH:            364bcc86f836026a8f26c01bf8105b9d8055094f *AtaBusDxe.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    21ms
+Driver Type:          0x7 (DRIVER)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          NvmExpressDxe
+Module INF Path:      MdeModulePkg/Bus/Pci/NvmExpressDxe/NvmExpressDxe.inf
+File GUID:            5BE3BDF4-53CF-46a3-A6A9-73C34A6E5EE3
+Size:                 0xA880 (42.12K)
+SHA1 HASH:            f6999032a2a73ed68c69d9767f05c685190be2f3 *NvmExpressDxe.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    16ms
+Driver Type:          0x7 (DRIVER)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          HiiDatabase
+Module INF Path:      MdeModulePkg/Universal/HiiDatabaseDxe/HiiDatabaseDxe.inf
+File GUID:            348C4D62-BFBD-4882-9ECE-C80BB1C4783B
+Size:                 0x1E680 (121.62K)
+SHA1 HASH:            41c12b6fdf09a1a14eff73aecb57e543818b3353 *HiiDatabase.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    22ms
+Driver Type:          0x7 (DRIVER)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          SetupBrowser
+Module INF Path:      MdeModulePkg/Universal/SetupBrowserDxe/SetupBrowserDxe.inf
+File GUID:            EBf342FE-B1D3-4EF8-957C-8048606FF671
+Size:                 0x1A000 (104.00K)
+SHA1 HASH:            63c2432d2aba6d112460d9666b7d117ae1065b58 *SetupBrowser.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    17ms
+Driver Type:          0x7 (DRIVER)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          DisplayEngine
+Module INF Path:      MdeModulePkg/Universal/DisplayEngineDxe/DisplayEngineDxe.inf
+File GUID:            E660EA85-058E-4b55-A54B-F02F83A24707
+Size:                 0x139C0 (78.44K)
+SHA1 HASH:            0c33f568e82268be80de0add215044aa98d080a9 *DisplayEngine.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    24ms
+Driver Type:          0x7 (DRIVER)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          NullMemoryTestDxe
+Module INF Path:      MdeModulePkg/Universal/MemoryTest/NullMemoryTestDxe/NullMemoryTestDxe.inf
+File GUID:            96B5C032-DF4C-4b6e-8232-438DCF448D0E
+Size:                 0x21C0 (8.44K)
+SHA1 HASH:            85d01b1b0e37ac31828750b1c594f687ba709cd3 *NullMemoryTestDxe.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    25ms
+Driver Type:          0x7 (DRIVER)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          QemuVideoDxe
+Module INF Path:      OvmfPkg/QemuVideoDxe/QemuVideoDxe.inf
+File GUID:            e3752948-b9a1-4770-90c4-df41c38986be
+Size:                 0x6BC0 (26.94K)
+SHA1 HASH:            17aabcbe6e912d542119e38ed49529e052050475 *QemuVideoDxe.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    27ms
+Driver Type:          0x7 (DRIVER)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          VirtioGpuDxe
+Module INF Path:      OvmfPkg/VirtioGpuDxe/VirtioGpu.inf
+File GUID:            D6099B94-CD97-4CC5-8714-7F6312701A8A
+Size:                 0x6300 (24.75K)
+SHA1 HASH:            fc1bcd9109a9febc0fcd6719a42358b781bceb9c *VirtioGpuDxe.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    23ms
+Driver Type:          0x7 (DRIVER)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          IsaAcpi
+Module INF Path:      PcAtChipsetPkg/IsaAcpiDxe/IsaAcpi.inf
+File GUID:            38A0EC22-FBE7-4911-8BC1-176E0D6C1DBD
+Size:                 0x2C40 (11.06K)
+SHA1 HASH:            e64e3ea8108b55749703fa7e7325e79342bf73a8 *IsaAcpi.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    19ms
+Driver Type:          0x7 (DRIVER)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          IsaBusDxe
+Module INF Path:      IntelFrameworkModulePkg/Bus/Isa/IsaBusDxe/IsaBusDxe.inf
+File GUID:            240612B5-A063-11d4-9A3A-0090273FC14D
+Size:                 0x40C0 (16.19K)
+SHA1 HASH:            55605e76ff5e8738394b11a0c6a7141bccf59620 *IsaBusDxe.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    19ms
+Driver Type:          0x7 (DRIVER)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          IsaSerialDxe
+Module INF Path:      IntelFrameworkModulePkg/Bus/Isa/IsaSerialDxe/IsaSerialDxe.inf
+File GUID:            93B80003-9FB3-11d4-9A3A-0090273FC14D
+Size:                 0x5340 (20.81K)
+SHA1 HASH:            c17aa6b3818063562d10e6f217bd2a8dbc394378 *IsaSerialDxe.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    18ms
+Driver Type:          0x7 (DRIVER)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          Ps2KeyboardDxe
+Module INF Path:      IntelFrameworkModulePkg/Bus/Isa/Ps2KeyboardDxe/Ps2keyboardDxe.inf
+File GUID:            3DC82376-637B-40a6-A8FC-A565417F2C38
+Size:                 0x5E40 (23.56K)
+SHA1 HASH:            0710d666a985e51026e9fec37c33d153d7536b33 *Ps2KeyboardDxe.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    26ms
+Driver Type:          0x7 (DRIVER)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          IsaFloppyDxe
+Module INF Path:      IntelFrameworkModulePkg/Bus/Isa/IsaFloppyDxe/IsaFloppyDxe.inf
+File GUID:            0abd8284-6da3-4616-971a-83a5148067ba
+Size:                 0x53C0 (20.94K)
+SHA1 HASH:            da6a875b57c56cd69d4d7be6b537829025ee8f18 *IsaFloppyDxe.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    20ms
+Driver Type:          0x7 (DRIVER)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          SmbiosDxe
+Module INF Path:      MdeModulePkg/Universal/SmbiosDxe/SmbiosDxe.inf
+File GUID:            F9D88642-0737-49bc-81B5-6889CD57D9EA
+Size:                 0x5840 (22.06K)
+SHA1 HASH:            d85c5965362782781dab7a8ca3f8baf296914f17 *SmbiosDxe.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    25ms
+Driver Type:          0x7 (DRIVER)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          SmbiosPlatformDxe
+Module INF Path:      OvmfPkg/SmbiosPlatformDxe/SmbiosPlatformDxe.inf
+File GUID:            4110465d-5ff3-4f4b-b580-24ed0d06747a
+Size:                 0x3480 (13.12K)
+SHA1 HASH:            18c9c690b44aead2ebea593c9f23fc7290227105 *SmbiosPlatformDxe.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    24ms
+Driver Type:          0x7 (DRIVER)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          AcpiTableDxe
+Module INF Path:      MdeModulePkg/Universal/Acpi/AcpiTableDxe/AcpiTableDxe.inf
+File GUID:            9622E42C-8E38-4a08-9E8F-54F784652F6B
+Size:                 0x72C0 (28.69K)
+SHA1 HASH:            81bcd25554fe30ef42dcc9ae8ff3913627455d66 *AcpiTableDxe.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    23ms
+Driver Type:          0x7 (DRIVER)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          AcpiPlatform
+Module INF Path:      OvmfPkg/AcpiPlatformDxe/AcpiPlatformDxe.inf
+File GUID:            49970331-E3FA-4637-9ABC-3B7868676970
+Size:                 0x83C0 (32.94K)
+SHA1 HASH:            3c2cde42b693fb0fbd0fe930a366473182e747aa *AcpiPlatform.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    27ms
+Driver Type:          0x7 (DRIVER)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          PlatformAcpiTables
+Module INF Path:      OvmfPkg/AcpiTables/AcpiTables.inf
+File GUID:            7E374E25-8E01-4FEE-87F2-390C23C606CD
+Module Build Time:    13ms
+Driver Type:          0x2 (FREE_FORM)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          S3SaveStateDxe
+Module INF Path:      MdeModulePkg/Universal/Acpi/S3SaveStateDxe/S3SaveStateDxe.inf
+File GUID:            BDCE85BB-FBAA-4f4e-9264-501A2C249581
+Size:                 0x6BC0 (26.94K)
+SHA1 HASH:            f86f64e7b5841a2b19fc2fb8d9861bd0bb1aba80 *S3SaveStateDxe.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    20ms
+Driver Type:          0x7 (DRIVER)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          BootScriptExecutorDxe
+Module INF Path:      MdeModulePkg/Universal/Acpi/BootScriptExecutorDxe/BootScriptExecutorDxe.inf
+File GUID:            FA20568B-548B-4b2b-81EF-1BA08D4A3CEC
+Size:                 0xE280 (56.62K)
+SHA1 HASH:            dfaa936a8c39ba05170933c16a152c2a0ca90f7a *BootScriptExecutorDxe.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    32ms
+Driver Type:          0x7 (DRIVER)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          BootGraphicsResourceTableDxe
+Module INF Path:      MdeModulePkg/Universal/Acpi/BootGraphicsResourceTableDxe/BootGraphicsResourceTableDxe.inf
+File GUID:            B8E62775-BB0A-43f0-A843-5BE8B14F8CCD
+Size:                 0x28C0 (10.19K)
+SHA1 HASH:            15286656f2180fd04bd66b0e132c6dc05d3b0db7 *BootGraphicsResourceTableDxe.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    20ms
+Driver Type:          0x7 (DRIVER)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          SnpDxe
+Module INF Path:      MdeModulePkg/Universal/Network/SnpDxe/SnpDxe.inf
+File GUID:            A2f436EA-A127-4EF8-957C-8048606FF670
+Size:                 0x7B40 (30.81K)
+SHA1 HASH:            8fc69e7063cca68b7114d600826b51617773ab9e *SnpDxe.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    21ms
+Driver Type:          0x7 (DRIVER)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          DpcDxe
+Module INF Path:      MdeModulePkg/Universal/Network/DpcDxe/DpcDxe.inf
+File GUID:            A210F973-229D-4f4d-AA37-9895E6C9EABA
+Size:                 0x2280 (8.62K)
+SHA1 HASH:            876e6c0026c85cec76758075ae8f5fe568d666a5 *DpcDxe.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    19ms
+Driver Type:          0x7 (DRIVER)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          MnpDxe
+Module INF Path:      MdeModulePkg/Universal/Network/MnpDxe/MnpDxe.inf
+File GUID:            025BBFC7-E6A9-4b8b-82AD-6815A1AEAF4A
+Size:                 0xB340 (44.81K)
+SHA1 HASH:            8a7f4a4a8ec1d94f8ae56ccee137b98314dcd6fd *MnpDxe.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    23ms
+Driver Type:          0x7 (DRIVER)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          VlanConfigDxe
+Module INF Path:      MdeModulePkg/Universal/Network/VlanConfigDxe/VlanConfigDxe.inf
+File GUID:            E4F61863-FE2C-4b56-A8F4-08519BC439DF
+Size:                 0x7440 (29.06K)
+SHA1 HASH:            e730de811b2e30083b46b5a518e902650acace1b *VlanConfigDxe.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    24ms
+Driver Type:          0x7 (DRIVER)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          ArpDxe
+Module INF Path:      MdeModulePkg/Universal/Network/ArpDxe/ArpDxe.inf
+File GUID:            529D3F93-E8E9-4e73-B1E1-BDF6A9D50113
+Size:                 0x6540 (25.31K)
+SHA1 HASH:            6899b814071f42702df96d099ca2cc714f379e58 *ArpDxe.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    25ms
+Driver Type:          0x7 (DRIVER)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          Dhcp4Dxe
+Module INF Path:      MdeModulePkg/Universal/Network/Dhcp4Dxe/Dhcp4Dxe.inf
+File GUID:            94734718-0BBC-47fb-96A5-EE7A5AE6A2AD
+Size:                 0xB100 (44.25K)
+SHA1 HASH:            fa60889e4069005d59f000ef136dd39d40a60f46 *Dhcp4Dxe.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    17ms
+Driver Type:          0x7 (DRIVER)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          Ip4Dxe
+Module INF Path:      MdeModulePkg/Universal/Network/Ip4Dxe/Ip4Dxe.inf
+File GUID:            9FB1A1F3-3B71-4324-B39A-745CBB015FFF
+Size:                 0x14280 (80.62K)
+SHA1 HASH:            a075180eef765128f22b5ddfdba8e83220861164 *Ip4Dxe.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    26ms
+Driver Type:          0x7 (DRIVER)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          Mtftp4Dxe
+Module INF Path:      MdeModulePkg/Universal/Network/Mtftp4Dxe/Mtftp4Dxe.inf
+File GUID:            DC3641B8-2FA8-4ed3-BC1F-F9962A03454B
+Size:                 0x9B80 (38.88K)
+SHA1 HASH:            52797247a4334027d9d66449fa891101016935c9 *Mtftp4Dxe.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    24ms
+Driver Type:          0x7 (DRIVER)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          Udp4Dxe
+Module INF Path:      MdeModulePkg/Universal/Network/Udp4Dxe/Udp4Dxe.inf
+File GUID:            6d6963ab-906d-4a65-a7ca-bd40e5d6af2b
+Size:                 0x9600 (37.50K)
+SHA1 HASH:            4b6bc4db018bdb69b3fb024567126922f330ecd0 *Udp4Dxe.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    24ms
+Driver Type:          0x7 (DRIVER)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          Tcp4Dxe
+Module INF Path:      MdeModulePkg/Universal/Network/Tcp4Dxe/Tcp4Dxe.inf
+File GUID:            6d6963ab-906d-4a65-a7ca-bd40e5d6af4d
+Size:                 0x11100 (68.25K)
+SHA1 HASH:            38fd6258110e13d9e837a1206a598b4f8e5b9984 *Tcp4Dxe.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    25ms
+Driver Type:          0x7 (DRIVER)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          UefiPxe4BcDxe
+Module INF Path:      MdeModulePkg/Universal/Network/UefiPxeBcDxe/UefiPxeBcDxe.inf
+File GUID:            3B1DEAB5-C75D-442e-9238-8E2FFB62B0BB
+Size:                 0xAC80 (43.12K)
+SHA1 HASH:            f9e475d383c16ce9bbe85d731f42b25e1696e32d *UefiPxe4BcDxe.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    22ms
+Driver Type:          0x7 (DRIVER)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          IScsi4Dxe
+Module INF Path:      MdeModulePkg/Universal/Network/IScsiDxe/IScsiDxe.inf
+File GUID:            4579B72D-7EC4-4dd4-8486-083C86B182A7
+Size:                 0x12600 (73.50K)
+SHA1 HASH:            da1406953b53eb9916bee851850b4b20485d23b4 *IScsi4Dxe.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    25ms
+Driver Type:          0x7 (DRIVER)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          VirtioNetDxe
+Module INF Path:      OvmfPkg/VirtioNetDxe/VirtioNet.inf
+File GUID:            A92CDB4B-82F1-4E0B-A516-8A655D371524
+Size:                 0x5E00 (23.50K)
+SHA1 HASH:            6d65b9459c41e3dba6cb4585494117d7ca5a00de *VirtioNetDxe.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    22ms
+Driver Type:          0x7 (DRIVER)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          UhciDxe
+Module INF Path:      MdeModulePkg/Bus/Pci/UhciDxe/UhciDxe.inf
+File GUID:            2FB92EFA-2EE0-4bae-9EB6-7464125E1EF7
+Size:                 0x7680 (29.62K)
+SHA1 HASH:            305b9f649152cebfc1c6e6791e916dba4b1c4cb4 *UhciDxe.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    22ms
+Driver Type:          0x7 (DRIVER)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          EhciDxe
+Module INF Path:      MdeModulePkg/Bus/Pci/EhciDxe/EhciDxe.inf
+File GUID:            BDFE430E-8F2A-4db0-9991-6F856594777E
+Size:                 0x9080 (36.12K)
+SHA1 HASH:            6acfa9828f5ee5ee03ddbbab2ef8c2b770092072 *EhciDxe.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    19ms
+Driver Type:          0x7 (DRIVER)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          XhciDxe
+Module INF Path:      MdeModulePkg/Bus/Pci/XhciDxe/XhciDxe.inf
+File GUID:            B7F50E91-A759-412c-ADE4-DCD03E7F7C28
+Size:                 0xD440 (53.06K)
+SHA1 HASH:            13018a1688b857ac27b5fcb356b7e6f3911c0fac *XhciDxe.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    16ms
+Driver Type:          0x7 (DRIVER)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          UsbBusDxe
+Module INF Path:      MdeModulePkg/Bus/Usb/UsbBusDxe/UsbBusDxe.inf
+File GUID:            240612B7-A063-11d4-9A3A-0090273FC14D
+Size:                 0x98C0 (38.19K)
+SHA1 HASH:            eaec1619c36b99b8409ae7bda55091837a76aad6 *UsbBusDxe.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    22ms
+Driver Type:          0x7 (DRIVER)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          UsbKbDxe
+Module INF Path:      MdeModulePkg/Bus/Usb/UsbKbDxe/UsbKbDxe.inf
+File GUID:            2D2E62CF-9ECF-43b7-8219-94E7FC713DFE
+Size:                 0x6B80 (26.88K)
+SHA1 HASH:            0f3dbec3a5f13bec749de6c7d669c5d00e00a83b *UsbKbDxe.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    22ms
+Driver Type:          0x7 (DRIVER)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          UsbMassStorageDxe
+Module INF Path:      MdeModulePkg/Bus/Usb/UsbMassStorageDxe/UsbMassStorageDxe.inf
+File GUID:            9FB4B4A7-42C0-4bcd-8540-9BCC6711F83E
+Size:                 0x5FC0 (23.94K)
+SHA1 HASH:            83f9c800373a4373964ac6ed5030eeaa8c74ee00 *UsbMassStorageDxe.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    23ms
+Driver Type:          0x7 (DRIVER)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          tftpDynamicCommand
+Module INF Path:      ShellPkg/DynamicCommand/TftpDynamicCommand/TftpDynamicCommand.inf
+File GUID:            A487A478-51EF-48AA-8794-7BEE2A0562F1
+Size:                 0xAC80 (43.12K)
+SHA1 HASH:            694cd08f3a8c78285867e4e5eb39a58ac2547e79 *tftpDynamicCommand.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    27ms
+Driver Type:          0x7 (DRIVER)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          Shell
+Module INF Path:      ShellPkg/Application/Shell/Shell.inf
+File GUID:            7C04A583-9E3E-4f1c-AD65-E05268D0B4D1
+Size:                 0xE1040 (900.06K)
+SHA1 HASH:            053cc95bc6420aac3b3d59ab70f4bc405e4e98f7 *Shell.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    39ms
+Driver Type:          0x9 (APPLICATION)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          PlatformDxe
+Module INF Path:      OvmfPkg/PlatformDxe/Platform.inf
+File GUID:            D9DCC5DF-4007-435E-9098-8970935504B2
+Size:                 0x5180 (20.38K)
+SHA1 HASH:            d0f3489842c168bfe5fcb1b4d070647ec1cb7db2 *PlatformDxe.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    23ms
+Driver Type:          0x7 (DRIVER)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          AmdSevDxe
+Module INF Path:      OvmfPkg/AmdSevDxe/AmdSevDxe.inf
+File GUID:            2ec9da37-ee35-4de9-86c5-6d9a81dc38a7
+Size:                 0x2980 (10.38K)
+SHA1 HASH:            f7f8e5e4934bce38fa968a8e1978af8f0c491d07 *AmdSevDxe.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    24ms
+Driver Type:          0x7 (DRIVER)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          IoMmuDxe
+Module INF Path:      OvmfPkg/IoMmuDxe/IoMmuDxe.inf
+File GUID:            8657015b-ea43-440d-949a-af3be365c0fc
+Size:                 0x39C0 (14.44K)
+SHA1 HASH:            a479a655b5a59192cc6be6b06bf693704326189e *IoMmuDxe.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    26ms
+Driver Type:          0x7 (DRIVER)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          FvbServicesRuntimeDxe
+Module INF Path:      OvmfPkg/QemuFlashFvbServicesRuntimeDxe/FvbServicesRuntimeDxe.inf
+File GUID:            733cbac2-b23f-4b92-bc8e-fb01ce5907b7
+Size:                 0x7000 (28.00K)
+SHA1 HASH:            35988f59cacdaeefd72f6143874f3c518a78c8a7 *FvbServicesRuntimeDxe.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    16ms
+Driver Type:          0x7 (DRIVER)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          EmuVariableFvbRuntimeDxe
+Module INF Path:      OvmfPkg/EmuVariableFvbRuntimeDxe/Fvb.inf
+File GUID:            22dc2b60-fe40-42ac-b01f-3ab1fad9aad8
+Size:                 0x6000 (24.00K)
+SHA1 HASH:            bc7069c67bca7b99f65828ce619f5536aab9aa9a *EmuVariableFvbRuntimeDxe.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    21ms
+Driver Type:          0x7 (DRIVER)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          FaultTolerantWriteDxe
+Module INF Path:      MdeModulePkg/Universal/FaultTolerantWriteDxe/FaultTolerantWriteDxe.inf
+File GUID:            FE5CEA76-4F72-49e8-986F-2CD899DFFE5D
+Size:                 0x5A80 (22.62K)
+SHA1 HASH:            c473c22d57bd83bd3e67851faddd00a46e13783c *FaultTolerantWriteDxe.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    20ms
+Driver Type:          0x7 (DRIVER)
+========================================================================================================================
+<======================================================================================================================>
+
+>======================================================================================================================<
+Module Summary
+Module Name:          VariableRuntimeDxe
+Module INF Path:      MdeModulePkg/Universal/Variable/RuntimeDxe/VariableRuntimeDxe.inf
+File GUID:            CBD2E4D5-7068-4FF5-B462-9822B4AD8D60
+Size:                 0xE000 (56.00K)
+SHA1 HASH:            996707b0693af76214f169d2d3377ef18fa83b3e *VariableRuntimeDxe.efi
+Build Time Stamp:     1969-12-31 16:00:00
+Module Build Time:    31ms
+Driver Type:          0x7 (DRIVER)
+========================================================================================================================
+<======================================================================================================================>
+
