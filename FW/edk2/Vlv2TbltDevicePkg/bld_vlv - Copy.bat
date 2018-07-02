@@ -12,10 +12,6 @@
 @REM
 
 @echo off
-echo ERROR !!!!! 
-echo Please CD to the correct Build directory for this platform
-exit /b 2
-
 setlocal EnableDelayedExpansion EnableExtensions
 echo.
 echo %date%  %time%

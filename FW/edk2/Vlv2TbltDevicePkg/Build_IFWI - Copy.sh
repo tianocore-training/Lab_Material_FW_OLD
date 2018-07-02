@@ -18,13 +18,7 @@ function Usage ( ) {
   echo
   exit 0
 }
-## Exit out this is the wrong directory
 
-echo "Error !!!"
-echo "Please CD to the correct directory to build this platform"
-echo "Press Control-C to quit"
-read
-exit 0
 ## Assign initial values
 exitCode=0
 Build_Flags=
