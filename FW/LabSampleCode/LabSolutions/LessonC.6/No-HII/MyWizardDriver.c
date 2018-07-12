@@ -176,7 +176,7 @@ MyWizardDriverDriverEntryPoint (
 
 EFI_STATUS
 EFIAPI
-FauxSupported()
+CreateNVVariable()
 {
 	EFI_STATUS            	Status;
 	UINTN                  BufferSize;
@@ -198,7 +198,7 @@ FauxSupported()
 				sizeof (MYWIZARDDRIVER_CONFIGURATION),
 				mMyWizDrv_Conf   //  buffer is 000000  now for first time set
 				);
-			DEBUG((EFI_D_INFO, "[MyWizardDriver] Supported SUCCESS with Faux Supported by NVRam Var\r\n"));
+			DEBUG((EFI_D_INFO, "[MyWizardDriver] Supported SUCCESS,  Variable %s created in NVRam Var\r\n", mVariableName));
 			return EFI_SUCCESS;
 		}
 	}
@@ -270,8 +270,12 @@ MyWizardDriverDriverBindingSupported (
 	if (EFI_ERROR(Status)) {
 		//DEBUG((EFI_D_INFO, "[MyWizardDriver] Not Supported \r\n"));
 		//return Status; // Bail out if OpenProtocol returns an error
-		Status = FauxSupported();
-		return Status; // Status now depends on FauxSupported Function
+		Status = CreateNVVariable();
+		if (EFI_ERROR(Status)) {
+			DEBUG((EFI_D_ERROR, "[MyWizardDriver] Not Supported \r\n"));
+		}
+		return Status; // Status now depends on CreateNVVariable Function
+
 
 	}
 
