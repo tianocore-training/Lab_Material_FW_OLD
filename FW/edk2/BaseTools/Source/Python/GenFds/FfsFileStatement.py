@@ -15,19 +15,20 @@
 ##
 # Import Modules
 #
-import Ffs
-import Rule
+from __future__ import absolute_import
+from . import Ffs
+from . import Rule
 import Common.LongFilePathOs as os
-import StringIO
+from io import BytesIO
 import subprocess
 
-from GenFdsGlobalVariable import GenFdsGlobalVariable
+from .GenFdsGlobalVariable import GenFdsGlobalVariable
 from CommonDataClass.FdfClass import FileStatementClassObject
 from Common import EdkLogger
 from Common.BuildToolError import *
 from Common.Misc import GuidStructureByteArrayToGuidString
-from GuidSection import GuidSection
-from FvImageSection import FvImageSection
+from .GuidSection import GuidSection
+from .FvImageSection import FvImageSection
 from Common.Misc import SaveFileOnChange
 from struct import *
 
@@ -58,7 +59,7 @@ class FileStatement (FileStatementClassObject) :
     #   @retval string       Generated FFS file name
     #
     def GenFfs(self, Dict = {}, FvChildAddr=[], FvParentAddr=None, IsMakefile=False, FvName=None):
-        
+
         if self.NameGuid is not None and self.NameGuid.startswith('PCD('):
             PcdValue = GenFdsGlobalVariable.GetPcdValue(self.NameGuid)
             if len(PcdValue) == 0:
@@ -71,7 +72,7 @@ class FileStatement (FileStatementClassObject) :
                 EdkLogger.error("GenFds", GENFDS_ERROR, 'GUID value for %s in wrong format.' \
                             % (self.NameGuid))
             self.NameGuid = RegistryGuidStr
-        
+
         Str = self.NameGuid
         if FvName:
             Str += FvName
@@ -82,7 +83,7 @@ class FileStatement (FileStatementClassObject) :
         Dict.update(self.DefineVarDict)
         SectionAlignments = None
         if self.FvName is not None :
-            Buffer = StringIO.StringIO('')
+            Buffer = BytesIO('')
             if self.FvName.upper() not in GenFdsGlobalVariable.FdfParser.Profile.FvDict:
                 EdkLogger.error("GenFds", GENFDS_ERROR, "FV (%s) is NOT described in FDF file!" % (self.FvName))
             Fv = GenFdsGlobalVariable.FdfParser.Profile.FvDict.get(self.FvName.upper())

@@ -14,14 +14,15 @@
 ##
 # Import Modules
 #
+from __future__ import absolute_import
 import re
-import DataType
+from . import DataType
 import Common.LongFilePathOs as os
 import string
-import EdkLogger as EdkLogger
+from . import EdkLogger as EdkLogger
 
-import GlobalData
-from BuildToolError import *
+from . import GlobalData
+from .BuildToolError import *
 from CommonDataClass.Exceptions import *
 from Common.LongFilePathSupport import OpenLongFilePath as open
 from Common.MultipleWorkspace import MultipleWorkspace as mws
@@ -251,7 +252,7 @@ def SplitModuleType(Key):
 def ReplaceMacros(StringList, MacroDefinitions={}, SelfReplacement=False):
     NewList = []
     for String in StringList:
-        if type(String) == type(''):
+        if isinstance(String, type('')):
             NewList.append(ReplaceMacro(String, MacroDefinitions, SelfReplacement))
         else:
             NewList.append(String)
@@ -750,7 +751,7 @@ def SplitString(String):
 # @param StringList:  A list for strings to be converted
 #
 def ConvertToSqlString(StringList):
-    return map(lambda s: s.replace("'", "''") , StringList)
+    return map(lambda s: s.replace("'", "''"), StringList)
 
 ## Convert To Sql String
 #
@@ -793,7 +794,7 @@ def RemoveBlockComment(Lines):
 # Get String of a List
 #
 def GetStringOfList(List, Split=' '):
-    if type(List) != type([]):
+    if not isinstance(List, type([])):
         return List
     Str = ''
     for Item in List:
@@ -839,7 +840,7 @@ def StringToArray(String):
             return "{%s,0x00}" % ",".join(C.strip() for C in String[1:-1].split(','))
         else:
             return "{%s}" % ",".join(C.strip() for C in String[1:-1].split(','))
-        
+
     else:
         if len(String.split()) % 2:
             return '{%s,0}' % ','.join(String.split())

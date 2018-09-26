@@ -15,17 +15,17 @@
 ##
 # Import Modules
 #
-from GenFdsGlobalVariable import GenFdsGlobalVariable
+from __future__ import absolute_import
+from .GenFdsGlobalVariable import GenFdsGlobalVariable
+from .GenFdsGlobalVariable import FindExtendTool
 from CommonDataClass.FdfClass import CapsuleClassObject
 import Common.LongFilePathOs as os
 import subprocess
-import StringIO
+from io import BytesIO
 from Common.Misc import SaveFileOnChange
-from GenFds import GenFds
 from Common.Misc import PackRegistryFormatGuid
 import uuid
 from struct import pack
-from GenFds import FindExtendTool
 from Common import EdkLogger
 from Common.BuildToolError import *
 
@@ -66,7 +66,7 @@ class Capsule (CapsuleClassObject) :
         #     UINT32            CapsuleImageSize;
         # } EFI_CAPSULE_HEADER;
         #
-        Header = StringIO.StringIO()
+        Header = BytesIO()
         #
         # Use FMP capsule GUID: 6DCBD5ED-E82D-4C44-BDA1-7194199AD92A
         #
@@ -97,7 +97,7 @@ class Capsule (CapsuleClassObject) :
         #     // UINT64 ItemOffsetList[];
         # } EFI_FIRMWARE_MANAGEMENT_CAPSULE_HEADER;
         #
-        FwMgrHdr = StringIO.StringIO()
+        FwMgrHdr = BytesIO()
         if 'CAPSULE_HEADER_INIT_VERSION' in self.TokensDict:
             FwMgrHdr.write(pack('=I', int(self.TokensDict['CAPSULE_HEADER_INIT_VERSION'], 16)))
         else:
@@ -132,7 +132,7 @@ class Capsule (CapsuleClassObject) :
         #
 
         PreSize = FwMgrHdrSize
-        Content = StringIO.StringIO()
+        Content = BytesIO()
         for driver in self.CapsuleDataList:
             FileName = driver.GenCapsuleSubItem()
             FwMgrHdr.write(pack('=Q', PreSize))
@@ -201,11 +201,11 @@ class Capsule (CapsuleClassObject) :
     #   @retval string      Generated Capsule file path
     #
     def GenCapsule(self):
-        if self.UiCapsuleName.upper() + 'cap' in GenFds.ImageBinDict:
-            return GenFds.ImageBinDict[self.UiCapsuleName.upper() + 'cap']
+        if self.UiCapsuleName.upper() + 'cap' in GenFdsGlobalVariable.ImageBinDict:
+            return GenFdsGlobalVariable.ImageBinDict[self.UiCapsuleName.upper() + 'cap']
 
         GenFdsGlobalVariable.InfLogger( "\nGenerate %s Capsule" %self.UiCapsuleName)
-        if ('CAPSULE_GUID' in self.TokensDict and 
+        if ('CAPSULE_GUID' in self.TokensDict and
             uuid.UUID(self.TokensDict['CAPSULE_GUID']) == uuid.UUID('6DCBD5ED-E82D-4C44-BDA1-7194199AD92A')):
             return self.GenFmpCapsule()
 
@@ -236,7 +236,7 @@ class Capsule (CapsuleClassObject) :
 
         GenFdsGlobalVariable.VerboseLogger( "\nGenerate %s Capsule Successfully" %self.UiCapsuleName)
         GenFdsGlobalVariable.SharpCounter = 0
-        GenFds.ImageBinDict[self.UiCapsuleName.upper() + 'cap'] = CapOutputFile
+        GenFdsGlobalVariable.ImageBinDict[self.UiCapsuleName.upper() + 'cap'] = CapOutputFile
         return CapOutputFile
 
     ## Generate inf file for capsule
@@ -247,7 +247,7 @@ class Capsule (CapsuleClassObject) :
     def GenCapInf(self):
         self.CapInfFileName = os.path.join(GenFdsGlobalVariable.FvDir,
                                    self.UiCapsuleName +  "_Cap" + '.inf')
-        CapInfFile = StringIO.StringIO() #open (self.CapInfFileName , 'w+')
+        CapInfFile = BytesIO() #open (self.CapInfFileName , 'w+')
 
         CapInfFile.writelines("[options]" + T_CHAR_LF)
 

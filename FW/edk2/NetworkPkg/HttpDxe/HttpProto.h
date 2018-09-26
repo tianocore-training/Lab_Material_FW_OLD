@@ -1,7 +1,7 @@
 /** @file
   The header files of miscellaneous routines for HttpDxe driver.
 
-Copyright (c) 2015 - 2017, Intel Corporation. All rights reserved.<BR>
+Copyright (c) 2015 - 2018, Intel Corporation. All rights reserved.<BR>
 (C) Copyright 2016 Hewlett Packard Enterprise Development LP<BR>
 This program and the accompanying materials
 are licensed and made available under the terms and conditions of the BSD License
@@ -91,6 +91,15 @@ typedef struct {
   EFI_TLS_SESSION_STATE         SessionState;
 } TLS_CONFIG_DATA;
 
+//
+// Callback data for HTTP_PARSER_CALLBACK()
+//
+typedef struct {
+  UINTN                         ParseDataLength;
+  VOID                          *ParseData;
+  VOID                          *Wrap;
+} HTTP_CALLBACK_DATA;
+
 typedef struct _HTTP_PROTOCOL {
   UINT32                        Signature;
   EFI_HTTP_PROTOCOL             Http;
@@ -117,18 +126,18 @@ typedef struct _HTTP_PROTOCOL {
   CHAR8                         *RemoteHost;
   UINT16                        RemotePort;
   EFI_IPv4_ADDRESS              RemoteAddr;
-  
+
   EFI_HANDLE                    Tcp6ChildHandle;
   EFI_TCP6_PROTOCOL             *Tcp6;
   EFI_TCP6_CONFIG_DATA          Tcp6CfgData;
   EFI_TCP6_OPTION               Tcp6Option;
-  
+
   EFI_TCP6_CONNECTION_TOKEN     Tcp6ConnToken;
   BOOLEAN                       IsTcp6ConnDone;
   EFI_TCP6_CLOSE_TOKEN          Tcp6CloseToken;
   BOOLEAN                       IsTcp6CloseDone;
   EFI_IPv6_ADDRESS              RemoteIpv6Addr;
- 
+
   //
   // Rx4Token or Rx6Token used for receiving HTTP header.
   //
@@ -149,7 +158,8 @@ typedef struct _HTTP_PROTOCOL {
   // HTTP message-body parser.
   //
   VOID                          *MsgParser;
-  
+  HTTP_CALLBACK_DATA            CallbackData;
+
   EFI_HTTP_VERSION              HttpVersion;
   UINT32                        TimeOutMillisec;
   BOOLEAN                       LocalAddressIsIPv6;
@@ -211,7 +221,7 @@ typedef struct {
   )
 
 /**
-  The common notify function used in HTTP driver. 
+  The common notify function used in HTTP driver.
 
   @param[in]  Event   The event signaled.
   @param[in]  Context The context.
@@ -288,14 +298,14 @@ HttpCreateTcpRxEventForHeader (
 **/
 EFI_STATUS
 HttpCreateTcpRxEvent (
-  IN  HTTP_TOKEN_WRAP      *Wrap 
+  IN  HTTP_TOKEN_WRAP      *Wrap
   );
 
 /**
   Close Events for Tcp Receive Tokens for HTTP body and HTTP header.
 
   @param[in]  Wrap               Pointer to HTTP token's wrap data.
-  
+
 **/
 VOID
 HttpCloseTcpRxEvent (
@@ -308,7 +318,7 @@ HttpCloseTcpRxEvent (
   @param[in, out]  HttpInstance         Pointer to HTTP_PROTOCOL structure.
   @param[in]       IpVersion            Indicate us TCP4 protocol or TCP6 protocol.
 
-  @retval EFI_SUCCESS       HTTP_PROTOCOL structure is initialized successfully.                                          
+  @retval EFI_SUCCESS       HTTP_PROTOCOL structure is initialized successfully.
   @retval Others            Other error as indicated.
 
 **/
@@ -390,7 +400,7 @@ HttpConfigureTcp6 (
   );
 
 /**
-  Check existing TCP connection, if in error state, recover TCP4 connection. Then, 
+  Check existing TCP connection, if in error state, recover TCP4 connection. Then,
   connect one TLS session if required.
 
   @param[in]  HttpInstance       The HTTP instance private data.
@@ -406,7 +416,7 @@ HttpConnectTcp4 (
   );
 
 /**
-  Check existing TCP connection, if in error state, recover TCP6 connection. Then, 
+  Check existing TCP connection, if in error state, recover TCP6 connection. Then,
   connect one TLS session if required.
 
   @param[in]  HttpInstance       The HTTP instance private data.
@@ -490,7 +500,7 @@ HttpTcpNotReady (
   @param[in]  Configure          The Flag indicates whether need to initialize session.
   @param[in]  TlsConfigure       The Flag indicates whether it's the new Tls session.
 
-  @retval EFI_SUCCESS            The initialization of session is done. 
+  @retval EFI_SUCCESS            The initialization of session is done.
   @retval Others                 Other error as indicated.
 
 **/
@@ -550,7 +560,7 @@ HttpTcpReceive (
   @param[in, out]  BufferSize      The size of buffer to cacahe the header message.
   @param[in]       Timeout         The time to wait for receiving the header packet.
 
-  @retval EFI_SUCCESS              The HTTP header is received.                          
+  @retval EFI_SUCCESS              The HTTP header is received.
   @retval Others                   Other errors as indicated.
 
 **/
@@ -568,7 +578,7 @@ HttpTcpReceiveHeader (
   @param[in]  Wrap               The HTTP token's wrap data.
   @param[in]  HttpMsg            The HTTP message data.
 
-  @retval EFI_SUCCESS            The HTTP body is received.                          
+  @retval EFI_SUCCESS            The HTTP body is received.
   @retval Others                 Other error as indicated.
 
 **/
@@ -582,7 +592,7 @@ HttpTcpReceiveBody (
   Clean up Tcp Tokens while the Tcp transmission error occurs.
 
   @param[in]  Wrap               Pointer to HTTP token's wrap data.
-  
+
 **/
 VOID
 HttpTcpTokenCleanup (

@@ -41,6 +41,7 @@ UefiMain (
   	UINTN          EventIndex;
 	BOOLEAN		   ExitLoop;
     EFI_INPUT_KEY	   Key;
+	DEBUG((EFI_D_INFO, "\r\n>>>>>[UefiMain] Entry point: 0x%08x <<<<<<\r\n", UefiMain));
 
    DEBUG ((0xffffffff, "\n\nUEFI Base Training DEBUG DEMO\n") );
    DEBUG ((0xffffffff, "0xffffffff USING DEBUG ALL Mask Bits Set\r\n") );

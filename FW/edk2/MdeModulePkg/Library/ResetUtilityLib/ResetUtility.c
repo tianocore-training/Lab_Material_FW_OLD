@@ -19,10 +19,14 @@
 #include <Library/BaseMemoryLib.h>
 #include <Library/ResetSystemLib.h>
 
+#pragma pack(1)
 typedef struct {
   CHAR16 NullTerminator;
   GUID   ResetSubtype;
 } RESET_UTILITY_GUID_SPECIFIC_RESET_DATA;
+#pragma pack()
+
+VERIFY_SIZE_OF (RESET_UTILITY_GUID_SPECIFIC_RESET_DATA, 18);
 
 /**
   This is a shorthand helper function to reset with a subtype so that
@@ -49,14 +53,17 @@ ResetPlatformSpecificGuid (
   RESET_UTILITY_GUID_SPECIFIC_RESET_DATA  ResetData;
 
   ResetData.NullTerminator = CHAR_NULL;
-  CopyGuid (&ResetData.ResetSubtype, ResetSubtype);
+  CopyGuid (
+    (GUID *)((UINT8 *)&ResetData + OFFSET_OF (RESET_UTILITY_GUID_SPECIFIC_RESET_DATA, ResetSubtype)),
+    ResetSubtype
+    );
   ResetPlatformSpecific (sizeof (ResetData), &ResetData);
 }
 
 /**
   This function examines the DataSize and ResetData parameters passed to
   to ResetSystem() and detemrines if the ResetData contains a Null-terminated
-  Unicode string followed by a GUID specific subtype.  If the GUID specific 
+  Unicode string followed by a GUID specific subtype.  If the GUID specific
   subtype is present, then a pointer to the GUID value in ResetData is returned.
 
   @param[in]  DataSize    The size, in bytes, of ResetData.
@@ -107,7 +114,7 @@ GetResetPlatformSpecificGuid (
 }
 
 /**
-  This is a helper function that creates the reset data buffer that can be 
+  This is a helper function that creates the reset data buffer that can be
   passed into ResetSystem().
 
   The reset data buffer is returned in ResetData and contains ResetString
@@ -179,7 +186,7 @@ BuildResetData (
   if (ResetString == NULL) {
     ResetString = L"";     // Use an empty string.
   }
-  
+
   //
   // Calculate the total buffer required for ResetData.
   //
@@ -215,6 +222,6 @@ BuildResetData (
   if (ExtraDataSize > 0) {
     CopyMem (Data, ExtraData, ExtraDataSize);
   }
-  
+
   return RETURN_SUCCESS;
 }

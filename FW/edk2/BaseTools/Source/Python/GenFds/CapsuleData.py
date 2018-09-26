@@ -15,9 +15,10 @@
 ##
 # Import Modules
 #
-import Ffs
-from GenFdsGlobalVariable import GenFdsGlobalVariable
-import StringIO
+from __future__ import absolute_import
+from . import Ffs
+from .GenFdsGlobalVariable import GenFdsGlobalVariable
+from io import BytesIO
 from struct import pack
 import os
 from Common.Misc import SaveFileOnChange
@@ -32,13 +33,13 @@ class CapsuleData:
     #   @param  self        The object pointer
     def __init__(self):
         pass
-    
+
     ## generate capsule data
     #
     #   @param  self        The object pointer
     def GenCapsuleSubItem(self):
         pass
-        
+
 ## FFS class for capsule data
 #
 #
@@ -82,7 +83,7 @@ class CapsuleFv (CapsuleData):
         if self.FvName.find('.fv') == -1:
             if self.FvName.upper() in GenFdsGlobalVariable.FdfParser.Profile.FvDict:
                 FvObj = GenFdsGlobalVariable.FdfParser.Profile.FvDict[self.FvName.upper()]
-                FdBuffer = StringIO.StringIO('')
+                FdBuffer = BytesIO('')
                 FvObj.CapsuleName = self.CapsuleName
                 FvFile = FvObj.AddToBuffer(FdBuffer)
                 FvObj.CapsuleName = None
@@ -119,7 +120,7 @@ class CapsuleFd (CapsuleData):
         else:
             FdFile = GenFdsGlobalVariable.ReplaceWorkspaceMacro(self.FdName)
             return FdFile
-        
+
 ## AnyFile class for capsule data
 #
 #
@@ -139,7 +140,7 @@ class CapsuleAnyFile (CapsuleData):
     #
     def GenCapsuleSubItem(self):
         return self.FileName
-    
+
 ## Afile class for capsule data
 #
 #
@@ -207,12 +208,12 @@ class CapsulePayload(CapsuleData):
         #
         Guid = self.ImageTypeId.split('-')
         Buffer = pack('=ILHHBBBBBBBBBBBBIIQ',
-                       int(self.Version,16),
-                       int(Guid[0], 16), 
-                       int(Guid[1], 16), 
-                       int(Guid[2], 16), 
-                       int(Guid[3][-4:-2], 16), 
-                       int(Guid[3][-2:], 16),  
+                       int(self.Version, 16),
+                       int(Guid[0], 16),
+                       int(Guid[1], 16),
+                       int(Guid[2], 16),
+                       int(Guid[3][-4:-2], 16),
+                       int(Guid[3][-2:], 16),
                        int(Guid[4][-12:-10], 16),
                        int(Guid[4][-10:-8], 16),
                        int(Guid[4][-8:-6], 16),

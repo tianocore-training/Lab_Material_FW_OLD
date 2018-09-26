@@ -419,7 +419,6 @@ MyWizardDriverDriverBindingSupported (
         This->DriverBindingHandle,
         ControllerHandle
         );
-
   DEBUG ((EFI_D_INFO,"[MyWizardDriver] Supported SUCCESS\r\n") );	
      return EFI_SUCCESS; 
 

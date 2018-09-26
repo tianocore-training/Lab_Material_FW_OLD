@@ -10,68 +10,18 @@
   PhysicalPresenceCallback() and MemoryClearCallback() will receive untrusted input and do some check.
 
 Copyright (c) 2015 - 2018, Intel Corporation. All rights reserved.<BR>
-This program and the accompanying materials 
-are licensed and made available under the terms and conditions of the BSD License 
-which accompanies this distribution.  The full text of the license may be found at 
+This program and the accompanying materials
+are licensed and made available under the terms and conditions of the BSD License
+which accompanies this distribution.  The full text of the license may be found at
 http://opensource.org/licenses/bsd-license.php
 
-THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS, 
+THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
 WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 
 **/
 
 #include "Tcg2Smm.h"
 
-typedef enum {
-  PtpInterfaceTis,
-  PtpInterfaceFifo,
-  PtpInterfaceCrb,
-  PtpInterfaceMax,
-} PTP_INTERFACE_TYPE;
-
-/**
-  Return PTP interface type.
-
-  @param[in] Register                Pointer to PTP register.
-
-  @return PTP interface type.
-**/
-PTP_INTERFACE_TYPE
-GetPtpInterface (
-  IN VOID *Register
-  )
-{
-  PTP_CRB_INTERFACE_IDENTIFIER  InterfaceId;
-  PTP_FIFO_INTERFACE_CAPABILITY InterfaceCapability;
-
-  //
-  // Check interface id
-  //
-  InterfaceId.Uint32 = MmioRead32 ((UINTN)&((PTP_CRB_REGISTERS *)Register)->InterfaceId);
-  InterfaceCapability.Uint32 = MmioRead32 ((UINTN)&((PTP_FIFO_REGISTERS *)Register)->InterfaceCapability);
-
-  if (InterfaceId.Bits.InterfaceType == PTP_INTERFACE_IDENTIFIER_INTERFACE_TYPE_TIS) {
-    return PtpInterfaceTis;
-  }
-
-  if ((InterfaceId.Bits.InterfaceType == PTP_INTERFACE_IDENTIFIER_INTERFACE_TYPE_CRB) &&
-      (InterfaceId.Bits.InterfaceVersion == PTP_INTERFACE_IDENTIFIER_INTERFACE_VERSION_CRB) &&
-      (InterfaceId.Bits.CapCRB != 0)) {
-    return PtpInterfaceCrb;
-  }
-
-  if ((InterfaceId.Bits.InterfaceType == PTP_INTERFACE_IDENTIFIER_INTERFACE_TYPE_FIFO) &&
-      (InterfaceId.Bits.InterfaceVersion == PTP_INTERFACE_IDENTIFIER_INTERFACE_VERSION_FIFO) &&
-      (InterfaceId.Bits.CapFIFO != 0) &&
-      (InterfaceCapability.Bits.InterfaceVersion == INTERFACE_CAPABILITY_INTERFACE_VERSION_PTP)) {
-    return PtpInterfaceFifo;
-  }
-
-  //
-  // No Ptp interface available
-  //
-  return PtpInterfaceMax;
-}
 
 EFI_TPM2_ACPI_TABLE  mTpm2AcpiTemplate = {
   {
@@ -132,7 +82,7 @@ PhysicalPresenceCallback (
     mTcgNvs->PhysicalPresence.LastRequest = MostRecentRequest;
     mTcgNvs->PhysicalPresence.Response = Response;
     return EFI_SUCCESS;
-  } else if ((mTcgNvs->PhysicalPresence.Parameter == TCG_ACPI_FUNCTION_SUBMIT_REQUEST_TO_BIOS) 
+  } else if ((mTcgNvs->PhysicalPresence.Parameter == TCG_ACPI_FUNCTION_SUBMIT_REQUEST_TO_BIOS)
           || (mTcgNvs->PhysicalPresence.Parameter == TCG_ACPI_FUNCTION_SUBMIT_REQUEST_TO_BIOS_2)) {
 
     OperationRequest = mTcgNvs->PhysicalPresence.Request;
@@ -203,6 +153,10 @@ MemoryClearCallback (
       return EFI_SUCCESS;
     }
     MorControl &= ~MOR_CLEAR_MEMORY_BIT_MASK;
+  } else {
+    mTcgNvs->MemoryClear.ReturnCode = MOR_REQUEST_GENERAL_FAILURE;
+    DEBUG ((EFI_D_ERROR, "[TPM] MOR Parameter error! Parameter = %x\n", mTcgNvs->MemoryClear.Parameter));
+    return EFI_SUCCESS;
   }
 
   DataSize = sizeof (UINT8);
@@ -213,7 +167,7 @@ MemoryClearCallback (
                            DataSize,
                            &MorControl
                            );
-  if (EFI_ERROR (Status)) { 
+  if (EFI_ERROR (Status)) {
     mTcgNvs->MemoryClear.ReturnCode = MOR_REQUEST_GENERAL_FAILURE;
     DEBUG ((EFI_D_ERROR, "[TPM] Set MOR variable failure! Status = %r\n", Status));
   }
@@ -251,7 +205,7 @@ AssignOpRegion (
   for (OpRegion  = (AML_OP_REGION_32_8 *) (Table + 1);
        OpRegion <= (AML_OP_REGION_32_8 *) ((UINT8 *) Table + Table->Length);
        OpRegion  = (AML_OP_REGION_32_8 *) ((UINT8 *) OpRegion + 1)) {
-    if ((OpRegion->OpRegionOp  == AML_EXT_REGION_OP) && 
+    if ((OpRegion->OpRegionOp  == AML_EXT_REGION_OP) &&
         (OpRegion->NameString  == Name) &&
         (OpRegion->DWordPrefix == AML_DWORD_PREFIX) &&
         (OpRegion->BytePrefix  == AML_BYTE_PREFIX)) {
@@ -269,7 +223,7 @@ AssignOpRegion (
 }
 
 /**
-  Patch version string of Physical Presence interface supported by platform. The initial string tag in TPM 
+  Patch version string of Physical Presence interface supported by platform. The initial string tag in TPM
 ACPI table is "$PV".
 
   @param[in, out] Table          The TPM item in ACPI table.
@@ -586,7 +540,7 @@ UpdateHID (
   if (!EFI_ERROR(Status)) {
     DEBUG((EFI_D_INFO, "TPM_PT_MANUFACTURER 0x%08x\n", ManufacturerID));
     //
-    // ManufacturerID defined in TCG Vendor ID Registry 
+    // ManufacturerID defined in TCG Vendor ID Registry
     // may tailed with 0x00 or 0x20
     //
     if ((ManufacturerID >> 24) == 0x00 || ((ManufacturerID >> 24) == 0x20)) {
@@ -621,7 +575,7 @@ UpdateHID (
     } else {
       AsciiSPrint(Hid + 4, TPM_HID_ACPI_SIZE - 4, "%02d%02d", ((FirmwareVersion1 & 0xFFFF0000) >> 16), (FirmwareVersion1 & 0x0000FFFF));
     }
-    
+
   } else {
     DEBUG ((EFI_D_ERROR, "Get TPM_PT_FIRMWARE_VERSION_X failed %x!\n", Status));
     ASSERT(FALSE);
@@ -785,14 +739,14 @@ PublishTpm2 (
   UINTN                          TableKey;
   UINT64                         OemTableId;
   EFI_TPM2_ACPI_CONTROL_AREA     *ControlArea;
-  PTP_INTERFACE_TYPE             InterfaceType;
+  TPM2_PTP_INTERFACE_TYPE        InterfaceType;
 
   mTpm2AcpiTemplate.Header.Revision = PcdGet8(PcdTpm2AcpiTableRev);
   DEBUG((DEBUG_INFO, "Tpm2 ACPI table revision is %d\n", mTpm2AcpiTemplate.Header.Revision));
 
   //
   // PlatformClass is only valid for version 4 and above
-  //    BIT0~15:  PlatformClass 
+  //    BIT0~15:  PlatformClass
   //    BIT16~31: Reserved
   //
   if (mTpm2AcpiTemplate.Header.Revision >= EFI_TPM2_ACPI_TABLE_REVISION_4) {
@@ -812,9 +766,9 @@ PublishTpm2 (
     sizeof(mTpm2AcpiTemplate)
     );
 
-  InterfaceType = GetPtpInterface ((VOID *) (UINTN) PcdGet64 (PcdTpmBaseAddress));
+  InterfaceType = PcdGet8(PcdActiveTpmInterfaceType);
   switch (InterfaceType) {
-  case PtpInterfaceCrb:
+  case Tpm2PtpInterfaceCrb:
     mTpm2AcpiTemplate.StartMethod = EFI_TPM2_ACPI_TABLE_START_METHOD_COMMAND_RESPONSE_BUFFER_INTERFACE;
     mTpm2AcpiTemplate.AddressOfControlArea = PcdGet64 (PcdTpmBaseAddress) + 0x40;
     ControlArea = (EFI_TPM2_ACPI_CONTROL_AREA *)(UINTN)mTpm2AcpiTemplate.AddressOfControlArea;
@@ -823,8 +777,8 @@ PublishTpm2 (
     ControlArea->Command      = PcdGet64 (PcdTpmBaseAddress) + 0x80;
     ControlArea->Response     = PcdGet64 (PcdTpmBaseAddress) + 0x80;
     break;
-  case PtpInterfaceFifo:
-  case PtpInterfaceTis:
+  case Tpm2PtpInterfaceFifo:
+  case Tpm2PtpInterfaceTis:
     break;
   default:
     DEBUG((EFI_D_ERROR, "TPM2 InterfaceType get error! %d\n", InterfaceType));
@@ -858,12 +812,12 @@ PublishTpm2 (
 /**
   The driver's entry point.
 
-  It install callbacks for TPM physical presence and MemoryClear, and locate 
+  It install callbacks for TPM physical presence and MemoryClear, and locate
   SMM variable to be used in the callback function.
 
-  @param[in] ImageHandle  The firmware allocated handle for the EFI image.  
+  @param[in] ImageHandle  The firmware allocated handle for the EFI image.
   @param[in] SystemTable  A pointer to the EFI System Table.
-  
+
   @retval EFI_SUCCESS     The entry point is executed successfully.
   @retval Others          Some error occurs when executing this entry point.
 
@@ -908,7 +862,7 @@ InitializeTcgSmm (
     return Status;
   }
   mTcgNvs->MemoryClear.SoftwareSmi = (UINT8) SwContext.SwSmiInputValue;
-  
+
   //
   // Locate SmmVariableProtocol.
   //

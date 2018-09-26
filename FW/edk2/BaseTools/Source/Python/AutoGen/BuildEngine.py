@@ -14,6 +14,7 @@
 ##
 # Import Modules
 #
+from __future__ import print_function
 import Common.LongFilePathOs as os
 import re
 import copy
@@ -67,7 +68,7 @@ class TargetDescBlock(object):
         return hash(self.Target.Path)
 
     def __eq__(self, Other):
-        if type(Other) == type(self):
+        if isinstance(Other, type(self)):
             return Other.Target.Path == self.Target.Path
         else:
             return str(Other) == self.Target.Path
@@ -359,10 +360,10 @@ class BuildRule:
             # Clean up the line and replace path separator with native one
             Line = self.RuleContent[Index].strip().replace(self._PATH_SEP, os.path.sep)
             self.RuleContent[Index] = Line
-            
+
             # find the build_rule_version
-            if Line and Line[0] == "#" and Line.find(TAB_BUILD_RULE_VERSION) <> -1:
-                if Line.find("=") <> -1 and Line.find("=") < (len(Line) - 1) and (Line[(Line.find("=") + 1):]).split():
+            if Line and Line[0] == "#" and Line.find(TAB_BUILD_RULE_VERSION) != -1:
+                if Line.find("=") != -1 and Line.find("=") < (len(Line) - 1) and (Line[(Line.find("=") + 1):]).split():
                     self._FileVersion = (Line[(Line.find("=") + 1):]).split()[0]
             # skip empty or comment line
             if Line == "" or Line[0] == "#":
@@ -597,19 +598,19 @@ if __name__ == '__main__':
     EdkLogger.Initialize()
     if len(sys.argv) > 1:
         Br = BuildRule(sys.argv[1])
-        print str(Br[".c", SUP_MODULE_DXE_DRIVER, "IA32", "MSFT"][1])
-        print
-        print str(Br[".c", SUP_MODULE_DXE_DRIVER, "IA32", "INTEL"][1])
-        print
-        print str(Br[".c", SUP_MODULE_DXE_DRIVER, "IA32", "GCC"][1])
-        print
-        print str(Br[".ac", "ACPI_TABLE", "IA32", "MSFT"][1])
-        print
-        print str(Br[".h", "ACPI_TABLE", "IA32", "INTEL"][1])
-        print
-        print str(Br[".ac", "ACPI_TABLE", "IA32", "MSFT"][1])
-        print
-        print str(Br[".s", SUP_MODULE_SEC, "IPF", "COMMON"][1])
-        print
-        print str(Br[".s", SUP_MODULE_SEC][1])
+        print(str(Br[".c", SUP_MODULE_DXE_DRIVER, "IA32", "MSFT"][1]))
+        print()
+        print(str(Br[".c", SUP_MODULE_DXE_DRIVER, "IA32", "INTEL"][1]))
+        print()
+        print(str(Br[".c", SUP_MODULE_DXE_DRIVER, "IA32", "GCC"][1]))
+        print()
+        print(str(Br[".ac", "ACPI_TABLE", "IA32", "MSFT"][1]))
+        print()
+        print(str(Br[".h", "ACPI_TABLE", "IA32", "INTEL"][1]))
+        print()
+        print(str(Br[".ac", "ACPI_TABLE", "IA32", "MSFT"][1]))
+        print()
+        print(str(Br[".s", SUP_MODULE_SEC, "IPF", "COMMON"][1]))
+        print()
+        print(str(Br[".s", SUP_MODULE_SEC][1]))
 

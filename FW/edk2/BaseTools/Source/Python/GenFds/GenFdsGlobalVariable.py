@@ -15,6 +15,7 @@
 ##
 # Import Modules
 #
+from __future__ import print_function
 import Common.LongFilePathOs as os
 import sys
 import subprocess
@@ -26,7 +27,7 @@ from Common import EdkLogger
 from Common.Misc import SaveFileOnChange
 
 from Common.TargetTxtClassObject import TargetTxtClassObject
-from Common.ToolDefClassObject import ToolDefClassObject
+from Common.ToolDefClassObject import ToolDefClassObject, ToolDefDict
 from AutoGen.BuildEngine import BuildRule
 import Common.DataType as DataType
 from Common.Misc import PathClass
@@ -64,7 +65,7 @@ class GenFdsGlobalVariable:
     FdfFileTimeStamp = 0
     FixedLoadAddress = False
     PlatformName = ''
-    
+
     BuildRuleFamily = "MSFT"
     ToolChainFamily = "MSFT"
     __BuildRuleDatabase = None
@@ -74,7 +75,7 @@ class GenFdsGlobalVariable:
     CopyList   = []
     ModuleFile = ''
     EnableGenfdsMultiThread = False
-    
+
     #
     # The list whose element are flags to indicate if large FFS or SECTION files exist in FV.
     # At the beginning of each generation of FV, false flag is appended to the list,
@@ -89,7 +90,10 @@ class GenFdsGlobalVariable:
     LARGE_FILE_SIZE = 0x1000000
 
     SectionHeader = struct.Struct("3B 1B")
-    
+
+    # FvName, FdName, CapName in FDF, Image file name
+    ImageBinDict = {}
+
     ## LoadBuildRule
     #
     @staticmethod
@@ -116,7 +120,7 @@ class GenFdsGlobalVariable:
                    and GenFdsGlobalVariable.ToolChainTag in ToolDefinition[DataType.TAB_TOD_DEFINES_BUILDRULEFAMILY] \
                    and ToolDefinition[DataType.TAB_TOD_DEFINES_BUILDRULEFAMILY][GenFdsGlobalVariable.ToolChainTag]:
                     GenFdsGlobalVariable.BuildRuleFamily = ToolDefinition[DataType.TAB_TOD_DEFINES_BUILDRULEFAMILY][GenFdsGlobalVariable.ToolChainTag]
-                    
+
                 if DataType.TAB_TOD_DEFINES_FAMILY in ToolDefinition \
                    and GenFdsGlobalVariable.ToolChainTag in ToolDefinition[DataType.TAB_TOD_DEFINES_FAMILY] \
                    and ToolDefinition[DataType.TAB_TOD_DEFINES_FAMILY][GenFdsGlobalVariable.ToolChainTag]:
@@ -228,11 +232,11 @@ class GenFdsGlobalVariable:
             while Index < len(SourceList):
                 Source = SourceList[Index]
                 Index = Index + 1
-    
+
                 if File.IsBinary and File == Source and Inf.Binaries is not None and File in Inf.Binaries:
                     # Skip all files that are not binary libraries
                     if not Inf.LibraryClass:
-                        continue            
+                        continue
                     RuleObject = BuildRules[DataType.TAB_DEFAULT_BINARY_FILE]
                 elif FileType in BuildRules:
                     RuleObject = BuildRules[FileType]
@@ -243,15 +247,15 @@ class GenFdsGlobalVariable:
                     if LastTarget:
                         TargetList.add(str(LastTarget))
                     break
-    
+
                 FileType = RuleObject.SourceFileType
-    
+
                 # stop at STATIC_LIBRARY for library
                 if Inf.LibraryClass and FileType == DataType.TAB_STATIC_LIBRARY:
                     if LastTarget:
                         TargetList.add(str(LastTarget))
                     break
-    
+
                 Target = RuleObject.Apply(Source)
                 if not Target:
                     if LastTarget:
@@ -260,11 +264,11 @@ class GenFdsGlobalVariable:
                 elif not Target.Outputs:
                     # Only do build for target with outputs
                     TargetList.add(str(Target))
-    
+
                 # to avoid cyclic rule
                 if FileType in RuleChain:
                     break
-    
+
                 RuleChain.append(FileType)
                 SourceList.extend(Target.Outputs)
                 LastTarget = Target
@@ -340,7 +344,7 @@ class GenFdsGlobalVariable:
         for Arch in ArchList:
             GenFdsGlobalVariable.OutputDirDict[Arch] = os.path.normpath(
                 os.path.join(GlobalData.gWorkspace,
-                             WorkSpace.Db.BuildObject[GenFdsGlobalVariable.ActivePlatform, Arch,GlobalData.gGlobalDefines['TARGET'],
+                             WorkSpace.Db.BuildObject[GenFdsGlobalVariable.ActivePlatform, Arch, GlobalData.gGlobalDefines['TARGET'],
                              GlobalData.gGlobalDefines['TOOLCHAIN']].OutputDirectory,
                              GlobalData.gGlobalDefines['TARGET'] +'_' + GlobalData.gGlobalDefines['TOOLCHAIN']))
             GenFdsGlobalVariable.OutputDirFromDscDict[Arch] = os.path.normpath(
@@ -546,7 +550,7 @@ class GenFdsGlobalVariable:
 
         GenFdsGlobalVariable.DebugLogger(EdkLogger.DEBUG_5, "%s needs update because of newer %s" % (Output, Input))
         if MakefilePath:
-            if (tuple(Cmd),tuple(GenFdsGlobalVariable.SecCmdList),tuple(GenFdsGlobalVariable.CopyList)) not in GenFdsGlobalVariable.FfsCmdDict:
+            if (tuple(Cmd), tuple(GenFdsGlobalVariable.SecCmdList), tuple(GenFdsGlobalVariable.CopyList)) not in GenFdsGlobalVariable.FfsCmdDict:
                 GenFdsGlobalVariable.FfsCmdDict[tuple(Cmd), tuple(GenFdsGlobalVariable.SecCmdList), tuple(GenFdsGlobalVariable.CopyList)] = MakefilePath
             GenFdsGlobalVariable.SecCmdList = []
             GenFdsGlobalVariable.CopyList = []
@@ -644,19 +648,19 @@ class GenFdsGlobalVariable:
     @staticmethod
     def GenerateOptionRom(Output, EfiInput, BinaryInput, Compress=False, ClassCode=None,
                         Revision=None, DeviceId=None, VendorId=None, IsMakefile=False):
-        InputList = []   
+        InputList = []
         Cmd = ["EfiRom"]
         if len(EfiInput) > 0:
-            
+
             if Compress:
                 Cmd.append("-ec")
             else:
                 Cmd.append("-e")
-                
+
             for EfiFile in EfiInput:
                 Cmd.append(EfiFile)
                 InputList.append (EfiFile)
-        
+
         if len(BinaryInput) > 0:
             Cmd.append("-b")
             for BinFile in BinaryInput:
@@ -667,7 +671,7 @@ class GenFdsGlobalVariable:
         if not GenFdsGlobalVariable.NeedsUpdate(Output, InputList) and not IsMakefile:
             return
         GenFdsGlobalVariable.DebugLogger(EdkLogger.DEBUG_5, "%s needs update because of newer %s" % (Output, InputList))
-                        
+
         if ClassCode is not None:
             Cmd += ("-l", ClassCode)
         if Revision is not None:
@@ -721,7 +725,7 @@ class GenFdsGlobalVariable:
 
         try:
             PopenObject = subprocess.Popen(' '.join(cmd), stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
-        except Exception, X:
+        except Exception as X:
             EdkLogger.error("GenFds", COMMAND_FAILURE, ExtraData="%s: %s" % (str(X), cmd[0]))
         (out, error) = PopenObject.communicate()
 
@@ -736,7 +740,7 @@ class GenFdsGlobalVariable:
             GenFdsGlobalVariable.InfLogger (out)
             GenFdsGlobalVariable.InfLogger (error)
             if PopenObject.returncode != 0:
-                print "###", cmd
+                print("###", cmd)
                 EdkLogger.error("GenFds", COMMAND_FAILURE, errorMess)
 
     def VerboseLogger (msg):
@@ -810,7 +814,7 @@ class GenFdsGlobalVariable:
                         EdkLogger.error("GenFds", GENFDS_ERROR, "%s is not FixedAtBuild type." % PcdPattern)
                     if PcdObj.DatumType != DataType.TAB_VOID:
                         EdkLogger.error("GenFds", GENFDS_ERROR, "%s is not VOID* datum type." % PcdPattern)
-                        
+
                     PcdValue = PcdObj.DefaultValue
                     return PcdValue
 
@@ -826,7 +830,7 @@ class GenFdsGlobalVariable:
                             EdkLogger.error("GenFds", GENFDS_ERROR, "%s is not FixedAtBuild type." % PcdPattern)
                         if PcdObj.DatumType != DataType.TAB_VOID:
                             EdkLogger.error("GenFds", GENFDS_ERROR, "%s is not VOID* datum type." % PcdPattern)
-                            
+
                         PcdValue = PcdObj.DefaultValue
                         return PcdValue
 
@@ -842,3 +846,95 @@ class GenFdsGlobalVariable:
     DebugLogger = staticmethod(DebugLogger)
     MacroExtend = staticmethod (MacroExtend)
     GetPcdValue = staticmethod(GetPcdValue)
+
+## FindExtendTool()
+#
+#  Find location of tools to process data
+#
+#  @param  KeyStringList    Filter for inputs of section generation
+#  @param  CurrentArchList  Arch list
+#  @param  NameGuid         The Guid name
+#
+def FindExtendTool(KeyStringList, CurrentArchList, NameGuid):
+    ToolDb = ToolDefDict(GenFdsGlobalVariable.ConfDir).ToolsDefTxtDatabase
+    # if user not specify filter, try to deduce it from global data.
+    if KeyStringList is None or KeyStringList == []:
+        Target = GenFdsGlobalVariable.TargetName
+        ToolChain = GenFdsGlobalVariable.ToolChainTag
+        if ToolChain not in ToolDb['TOOL_CHAIN_TAG']:
+            EdkLogger.error("GenFds", GENFDS_ERROR, "Can not find external tool because tool tag %s is not defined in tools_def.txt!" % ToolChain)
+        KeyStringList = [Target + '_' + ToolChain + '_' + CurrentArchList[0]]
+        for Arch in CurrentArchList:
+            if Target + '_' + ToolChain + '_' + Arch not in KeyStringList:
+                KeyStringList.append(Target + '_' + ToolChain + '_' + Arch)
+
+    if GenFdsGlobalVariable.GuidToolDefinition:
+        if NameGuid in GenFdsGlobalVariable.GuidToolDefinition:
+            return GenFdsGlobalVariable.GuidToolDefinition[NameGuid]
+
+    ToolDefinition = ToolDefDict(GenFdsGlobalVariable.ConfDir).ToolsDefTxtDictionary
+    ToolPathTmp = None
+    ToolOption = None
+    ToolPathKey = None
+    ToolOptionKey = None
+    KeyList = None
+    for ToolDef in ToolDefinition.items():
+        if NameGuid.lower() == ToolDef[1].lower() :
+            KeyList = ToolDef[0].split('_')
+            Key = KeyList[0] + \
+                  '_' + \
+                  KeyList[1] + \
+                  '_' + \
+                  KeyList[2]
+            if Key in KeyStringList and KeyList[4] == DataType.TAB_GUID:
+                ToolPathKey   = Key + '_' + KeyList[3] + '_PATH'
+                ToolOptionKey = Key + '_' + KeyList[3] + '_FLAGS'
+                ToolPath = ToolDefinition.get(ToolPathKey)
+                ToolOption = ToolDefinition.get(ToolOptionKey)
+                if ToolPathTmp is None:
+                    ToolPathTmp = ToolPath
+                else:
+                    if ToolPathTmp != ToolPath:
+                        EdkLogger.error("GenFds", GENFDS_ERROR, "Don't know which tool to use, %s or %s ?" % (ToolPathTmp, ToolPath))
+
+    BuildOption = {}
+    for Arch in CurrentArchList:
+        Platform = GenFdsGlobalVariable.WorkSpace.BuildObject[GenFdsGlobalVariable.ActivePlatform, Arch, GenFdsGlobalVariable.TargetName, GenFdsGlobalVariable.ToolChainTag]
+        # key is (ToolChainFamily, ToolChain, CodeBase)
+        for item in Platform.BuildOptions:
+            if '_PATH' in item[1] or '_FLAGS' in item[1] or '_GUID' in item[1]:
+                if not item[0] or (item[0] and GenFdsGlobalVariable.ToolChainFamily== item[0]):
+                    if item[1] not in BuildOption:
+                        BuildOption[item[1]] = Platform.BuildOptions[item]
+        if BuildOption:
+            ToolList = [DataType.TAB_TOD_DEFINES_TARGET, DataType.TAB_TOD_DEFINES_TOOL_CHAIN_TAG, DataType.TAB_TOD_DEFINES_TARGET_ARCH]
+            for Index in range(2, -1, -1):
+                for Key in list(BuildOption.keys()):
+                    List = Key.split('_')
+                    if List[Index] == '*':
+                        for String in ToolDb[ToolList[Index]]:
+                            if String in [Arch, GenFdsGlobalVariable.TargetName, GenFdsGlobalVariable.ToolChainTag]:
+                                List[Index] = String
+                                NewKey = '%s_%s_%s_%s_%s' % tuple(List)
+                                if NewKey not in BuildOption:
+                                    BuildOption[NewKey] = BuildOption[Key]
+                                    continue
+                                del BuildOption[Key]
+                    elif List[Index] not in ToolDb[ToolList[Index]]:
+                        del BuildOption[Key]
+    if BuildOption:
+        if not KeyList:
+            for Op in BuildOption:
+                if NameGuid == BuildOption[Op]:
+                    KeyList = Op.split('_')
+                    Key = KeyList[0] + '_' + KeyList[1] +'_' + KeyList[2]
+                    if Key in KeyStringList and KeyList[4] == DataType.TAB_GUID:
+                        ToolPathKey   = Key + '_' + KeyList[3] + '_PATH'
+                        ToolOptionKey = Key + '_' + KeyList[3] + '_FLAGS'
+        if ToolPathKey in BuildOption:
+            ToolPathTmp = BuildOption[ToolPathKey]
+        if ToolOptionKey in BuildOption:
+            ToolOption = BuildOption[ToolOptionKey]
+
+    GenFdsGlobalVariable.GuidToolDefinition[NameGuid] = (ToolPathTmp, ToolOption)
+    return ToolPathTmp, ToolOption

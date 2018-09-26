@@ -16,10 +16,11 @@
 ##
 # Import Modules
 #
+from __future__ import print_function
 import Common.LongFilePathOs as os, codecs, re
 import distutils.util
 import Common.EdkLogger as EdkLogger
-import StringIO
+from io import BytesIO
 from Common.BuildToolError import *
 from Common.StringUtils import GetLineNo
 from Common.Misc import PathClass
@@ -254,7 +255,7 @@ class UniFileClassObject(object):
         if len(Lang) != 3:
             try:
                 FileIn = UniFileClassObject.OpenUniFile(LongFilePath(File.Path))
-            except UnicodeError, X:
+            except UnicodeError as X:
                 EdkLogger.error("build", FILE_READ_FAILURE, "File read failure: %s" % str(X), ExtraData=File);
             except:
                 EdkLogger.error("build", FILE_OPEN_FAILURE, ExtraData=File);
@@ -283,7 +284,7 @@ class UniFileClassObject(object):
         if not IsLangInDef:
             #
             # The found STRING tokens will be added into new language string list
-            # so that the unique STRING identifier is reserved for all languages in the package list. 
+            # so that the unique STRING identifier is reserved for all languages in the package list.
             #
             FirstLangName = self.LanguageDef[0][0]
             if LangName != FirstLangName:
@@ -319,7 +320,7 @@ class UniFileClassObject(object):
 
         UniFileClassObject.VerifyUcs2Data(FileIn, FileName, Encoding)
 
-        UniFile = StringIO.StringIO(FileIn)
+        UniFile = BytesIO(FileIn)
         Info = codecs.lookup(Encoding)
         (Reader, Writer) = (Info.streamreader, Info.streamwriter)
         return codecs.StreamReaderWriter(UniFile, Reader, Writer)
@@ -334,7 +335,7 @@ class UniFileClassObject(object):
             FileDecoded = codecs.decode(FileIn, Encoding)
             Ucs2Info.encode(FileDecoded)
         except:
-            UniFile = StringIO.StringIO(FileIn)
+            UniFile = BytesIO(FileIn)
             Info = codecs.lookup(Encoding)
             (Reader, Writer) = (Info.streamreader, Info.streamwriter)
             File = codecs.StreamReaderWriter(UniFile, Reader, Writer)
@@ -393,7 +394,7 @@ class UniFileClassObject(object):
 
         try:
             FileIn = UniFileClassObject.OpenUniFile(LongFilePath(File.Path))
-        except UnicodeError, X:
+        except UnicodeError as X:
             EdkLogger.error("build", FILE_READ_FAILURE, "File read failure: %s" % str(X), ExtraData=File.Path);
         except:
             EdkLogger.error("build", FILE_OPEN_FAILURE, ExtraData=File.Path);
@@ -410,10 +411,10 @@ class UniFileClassObject(object):
             #
             # Ignore empty line
             #
-            if len(Line) == 0: 
-                continue 
-            
-                             
+            if len(Line) == 0:
+                continue
+
+
             Line = Line.replace(u'/langdef', u'#langdef')
             Line = Line.replace(u'/string', u'#string')
             Line = Line.replace(u'/language', u'#language')
@@ -428,8 +429,8 @@ class UniFileClassObject(object):
             Line = Line.replace(u'\\r', CR)
             Line = Line.replace(u'\\t', u' ')
             Line = Line.replace(u'\t', u' ')
-            Line = Line.replace(u'\\"', u'"') 
-            Line = Line.replace(u"\\'", u"'") 
+            Line = Line.replace(u'\\"', u'"')
+            Line = Line.replace(u"\\'", u"'")
             Line = Line.replace(BACK_SLASH_PLACEHOLDER, u'\\')
 
             StartPos = Line.find(u'\\x')
@@ -569,7 +570,7 @@ class UniFileClassObject(object):
         else:
             EdkLogger.error('Unicode File Parser', FORMAT_NOT_SUPPORTED, "The language '%s' for %s is not defined in Unicode file %s." \
                             % (Language, Name, self.File))
-            
+
         if Language not in self.OrderedStringList:
             self.OrderedStringList[Language] = []
             self.OrderedStringDict[Language] = {}
@@ -591,7 +592,7 @@ class UniFileClassObject(object):
                 for LangName in self.LanguageDef:
                     #
                     # New STRING token will be added into all language string lists.
-                    # so that the unique STRING identifier is reserved for all languages in the package list. 
+                    # so that the unique STRING identifier is reserved for all languages in the package list.
                     #
                     if LangName[0] != Language:
                         if UseOtherLangDef != '':
@@ -684,12 +685,12 @@ class UniFileClassObject(object):
     # Show the instance itself
     #
     def ShowMe(self):
-        print self.LanguageDef
+        print(self.LanguageDef)
         #print self.OrderedStringList
         for Item in self.OrderedStringList:
-            print Item
+            print(Item)
             for Member in self.OrderedStringList[Item]:
-                print str(Member)
+                print(str(Member))
 
 # This acts like the main() function for the script, unless it is 'import'ed into another
 # script.

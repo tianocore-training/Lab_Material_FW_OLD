@@ -41,6 +41,11 @@
   DEFINE TLS_ENABLE              = FALSE
   DEFINE TPM2_ENABLE             = FALSE
 
+  # Defines for Debug lab 
+  DEFINE SOURCE_DEBUG_ENABLE     = TRUE
+  DEFINE BUILD_NEW_SHELL   	 = TRUE
+  DEFINE LAB_HEAPGUARD		 = FALSE
+
   #
   # Flash size selection. Setting FD_SIZE_IN_KB on the command line directly to
   # one of the supported values, in place of any of the convenience macros, is
@@ -268,7 +273,7 @@
   DebugLib|OvmfPkg/Library/PlatformDebugLibIoPort/PlatformDebugLibIoPort.inf
 !endif
   PeCoffLib|MdePkg/Library/BasePeCoffLib/BasePeCoffLib.inf
-  PeiResourcePublicationLib|MdePkg/Library/PeiResourcePublicationLib/PeiResourcePublicationLib.inf
+  ResourcePublicationLib|MdePkg/Library/PeiResourcePublicationLib/PeiResourcePublicationLib.inf
   ExtractGuidedSectionLib|MdePkg/Library/PeiExtractGuidedSectionLib/PeiExtractGuidedSectionLib.inf
 !ifdef $(SOURCE_DEBUG_ENABLE)
   DebugAgentLib|SourceLevelDebugPkg/Library/DebugAgent/SecPeiDebugAgentLib.inf
@@ -938,3 +943,5 @@
       NULL|SecurityPkg/Library/HashInstanceLibSha256/HashInstanceLibSha256.inf
   }
 !endif
+
+### Add New Modules here

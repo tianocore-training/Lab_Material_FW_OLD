@@ -14,20 +14,21 @@
 ##
 # Import Modules
 #
+from __future__ import absolute_import
 import Common.LongFilePathOs as os, time, glob
 import Common.EdkLogger as EdkLogger
-import EotGlobalData
+from . import EotGlobalData
 from optparse import OptionParser
 from Common.StringUtils import NormPath
 from Common import BuildToolError
 from Common.Misc import GuidStructureStringToGuidString, sdict
-from InfParserLite import *
-import c
-import Database
+from .InfParserLite import *
+from . import c
+from . import Database
 from array import array
-from Report import Report
+from .Report import Report
 from Common.BuildVersion import gBUILD_VERSION
-from Parser import ConvertGuid
+from .Parser import ConvertGuid
 from Common.LongFilePathSupport import OpenLongFilePath as open
 import struct
 import uuid
@@ -153,7 +154,7 @@ class CompressedImage(Image):
 
     def _GetSections(m):
         try:
-            import EfiCompressor
+            from . import EfiCompressor
             TmpData = EfiCompressor.FrameworkDecompress(
                                         m[m._HEADER_SIZE_:],
                                         len(m) - m._HEADER_SIZE_
@@ -161,7 +162,7 @@ class CompressedImage(Image):
             DecData = array('B')
             DecData.fromstring(TmpData)
         except:
-            import EfiCompressor
+            from . import EfiCompressor
             TmpData = EfiCompressor.UefiDecompress(
                                         m[m._HEADER_SIZE_:],
                                         len(m) - m._HEADER_SIZE_
@@ -748,7 +749,7 @@ class GuidDefinedImage(Image):
                 SectionList.append(Sec)
         elif Guid == m.TIANO_COMPRESS_GUID:
             try:
-                import EfiCompressor
+                from . import EfiCompressor
                 # skip the header
                 Offset = m.DataOffset - 4
                 TmpData = EfiCompressor.FrameworkDecompress(m[Offset:], len(m)-Offset)
@@ -769,7 +770,7 @@ class GuidDefinedImage(Image):
                 pass
         elif Guid == m.LZMA_COMPRESS_GUID:
             try:
-                import LzmaCompressor
+                from . import LzmaCompressor
                 # skip the header
                 Offset = m.DataOffset - 4
                 TmpData = LzmaCompressor.LzmaDecompress(m[Offset:], len(m)-Offset)
@@ -1491,7 +1492,7 @@ class MultipleFv(FirmwareVolume):
             Fv.frombuffer(Buf, 0, len(Buf))
 
             self.BasicInfo.append([Fv.Name, Fv.FileSystemGuid, Fv.Size])
-            self.FfsDict.append(Fv.FfsDict)    
+            self.FfsDict.append(Fv.FfsDict)
 
 ## Class Eot
 #
@@ -1510,7 +1511,7 @@ class Eot(object):
         # Version and Copyright
         self.VersionNumber = ("0.02" + " " + gBUILD_VERSION)
         self.Version = "%prog Version " + self.VersionNumber
-        self.Copyright = "Copyright (c) 2008 - 2010, Intel Corporation  All rights reserved."
+        self.Copyright = "Copyright (c) 2008 - 2018, Intel Corporation  All rights reserved."
         self.Report = Report
 
         self.IsInit = IsInit
@@ -1522,7 +1523,7 @@ class Eot(object):
         self.FvFileList = FvFileList
         self.MapFileList = MapFileList
         self.Dispatch = Dispatch
-        
+
         # Check workspace environment
         if "EFI_SOURCE" not in os.environ:
             if "EDK_SOURCE" not in os.environ:
@@ -1562,13 +1563,13 @@ class Eot(object):
                 if not os.path.isfile(MapFile):
                     EdkLogger.error("Eot", EdkLogger.EOT_ERROR, "Can not find file %s " % MapFile)
                 EotGlobalData.gMAP_FILE.append(MapFile)
-                
+
         # Generate source file list
         self.GenerateSourceFileList(self.SourceFileList, self.IncludeDirList)
 
         # Generate guid list of dec file list
         self.ParseDecFile(self.DecFileList)
-        
+
         # Generate guid list from GUID list file
         self.ParseGuidList(self.GuidList)
 
@@ -1628,7 +1629,7 @@ class Eot(object):
                         if len(list) == 2:
                             EotGlobalData.gGuidDict[list[0].strip()] = GuidStructureStringToGuidString(list[1].strip())
 
-    
+
     ## ParseGuidList() method
     #
     #  Parse Guid list and get all GUID names with GUID values as {GuidName : GuidValue}
@@ -1643,7 +1644,7 @@ class Eot(object):
             for Line in open(Path):
                 (GuidName, GuidValue) = Line.split()
                 EotGlobalData.gGuidDict[GuidName] = GuidValue
-            
+
     ## ConvertLogFile() method
     #
     #  Parse a real running log file to get real dispatch order
@@ -1999,7 +2000,7 @@ class Eot(object):
 
         if Options.FvFileList:
             self.FvFileList = Options.FvFileList
- 
+
         if Options.MapFileList:
             self.MapFileList = Options.FvMapFileList
 
@@ -2011,7 +2012,7 @@ class Eot(object):
 
         if Options.DecFileList:
             self.DecFileList = Options.DecFileList
-        
+
         if Options.GuidList:
             self.GuidList = Options.GuidList
 

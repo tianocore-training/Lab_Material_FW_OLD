@@ -23,6 +23,7 @@
   MdePkg/MdePkg.dec
 
 [Sources]
+  MyWizardDriverNVDataStruc.h
   MyWizardDriver.h
   MyWizardDriver.c
   ComponentName.c

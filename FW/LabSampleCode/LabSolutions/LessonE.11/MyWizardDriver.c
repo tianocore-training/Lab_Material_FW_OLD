@@ -474,11 +474,14 @@ MyWizardDriverDriverBindingSupported (
                   );
 
   if (EFI_ERROR (Status)) {
-	  Status = FauxSupported();
-      return Status; // Status now depends on FauxSupported Function
-
 	  //DEBUG ((EFI_D_INFO, "[MyWizardDriver] Not Supported \r\n")  );
 	 //return Status; // Bail out if OpenProtocol returns an error
+		Status = CreateNVVariable();
+		if (EFI_ERROR(Status)) {
+			DEBUG((EFI_D_ERROR, "[MyWizardDriver] Not Supported \r\n"));
+		}
+		return Status; // Status now depends on CreateNVVariable Function
+
   }
 
     // We're here because OpenProtocol was a success, so clean up

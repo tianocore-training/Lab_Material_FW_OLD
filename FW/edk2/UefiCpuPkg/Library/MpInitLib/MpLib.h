@@ -1,7 +1,7 @@
 /** @file
   Common header file for MP Initialize Library.
 
-  Copyright (c) 2016 - 2017, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 2016 - 2018, Intel Corporation. All rights reserved.<BR>
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
   which accompanies this distribution.  The full text of the license may be found at
@@ -81,11 +81,14 @@ typedef enum {
 //
 // AP state
 //
+// The state transitions for an AP when it process a procedure are:
+//  Idle ----> Ready ----> Busy ----> Idle
+//       [BSP]       [AP]       [AP]
+//
 typedef enum {
   CpuStateIdle,
   CpuStateReady,
   CpuStateBusy,
-  CpuStateFinished,
   CpuStateDisabled
 } CPU_STATE;
 
@@ -212,9 +215,8 @@ struct _CPU_MP_DATA {
   UINTN                          BackupBuffer;
   UINTN                          BackupBufferSize;
 
-  volatile UINT32                StartCount;
   volatile UINT32                FinishedCount;
-  volatile UINT32                RunningCount;
+  UINT32                         RunningCount;
   BOOLEAN                        SingleThread;
   EFI_AP_PROCEDURE               Procedure;
   VOID                           *ProcArguments;
@@ -245,6 +247,20 @@ struct _CPU_MP_DATA {
   BOOLEAN                        TimerInterruptState;
   UINT64                         MicrocodePatchAddress;
   UINT64                         MicrocodePatchRegionSize;
+
+  UINT32                         ProcessorSignature;
+  UINT32                         ProcessorFlags;
+  UINT64                         MicrocodeDataAddress;
+  UINT32                         MicrocodeRevision;
+
+  //
+  // Whether need to use Init-Sipi-Sipi to wake up the APs.
+  // Two cases need to set this value to TRUE. One is in HLT
+  // loop mode, the other is resume from S3 which loop mode
+  // will be hardcode change to HLT mode by PiSmmCpuDxeSmm 
+  // driver.
+  //
+  BOOLEAN                        WakeUpByInitSipiSipi;
 };
 
 extern EFI_GUID mCpuInitMpLibHobGuid;
@@ -361,6 +377,7 @@ GetModeTransitionBuffer (
   @param[in] ProcessorNumber    The handle number of specified processor
   @param[in] Procedure          The function to be invoked by AP
   @param[in] ProcedureArgument  The argument to be passed into AP function
+  @param[in] WakeUpDisabledAps  Whether need to wake up disabled APs in broadcast mode.
 **/
 VOID
 WakeUpAP (
@@ -368,7 +385,8 @@ WakeUpAP (
   IN BOOLEAN                   Broadcast,
   IN UINTN                     ProcessorNumber,
   IN EFI_AP_PROCEDURE          Procedure,              OPTIONAL
-  IN VOID                      *ProcedureArgument      OPTIONAL
+  IN VOID                      *ProcedureArgument,     OPTIONAL
+  IN BOOLEAN                   WakeUpDisabledAps       OPTIONAL
   );
 
 /**
@@ -463,7 +481,7 @@ StartupThisAPWorker (
                                enabled AP. Otherwise, it will be disabled.
 
   @retval EFI_SUCCESS          BSP successfully switched.
-  @retval others               Failed to switch BSP. 
+  @retval others               Failed to switch BSP.
 
 **/
 EFI_STATUS
@@ -546,11 +564,13 @@ CheckAndUpdateApsStatus (
 /**
   Detect whether specified processor can find matching microcode patch and load it.
 
-  @param[in]  CpuMpData  The pointer to CPU MP Data structure.
+  @param[in]  CpuMpData    The pointer to CPU MP Data structure.
+  @param[in]  IsBspCallIn  Indicate whether the caller is BSP or not.
 **/
 VOID
 MicrocodeDetect (
-  IN CPU_MP_DATA             *CpuMpData
+  IN CPU_MP_DATA             *CpuMpData,
+  IN BOOLEAN                 IsBspCallIn
   );
 
 /**

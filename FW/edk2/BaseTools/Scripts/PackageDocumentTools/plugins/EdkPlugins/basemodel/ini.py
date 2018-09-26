@@ -11,7 +11,8 @@
 # WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 #
 
-from message import *
+from __future__ import absolute_import
+from .message import *
 import re
 import os
 
@@ -122,7 +123,7 @@ class BaseINIFile(object):
                 continue
 
             m = section_re.match(templine)
-            if mis not None: # found a section
+            if m is not None: # found a section
                 inGlobal = False
                 # Finish the latest section first
                 if len(sObjs) != 0:
@@ -140,7 +141,7 @@ class BaseINIFile(object):
                     sObj = self.GetSectionInstance(self, name, (len(sname_arr) > 1))
                     sObj._start = index
                     sObjs.append(sObj)
-                    if not self._sections.has_key(name.lower()):
+                    if name.lower() not in self._sections:
                         self._sections[name.lower()] = [sObj]
                     else:
                         self._sections[name.lower()].append(sObj)

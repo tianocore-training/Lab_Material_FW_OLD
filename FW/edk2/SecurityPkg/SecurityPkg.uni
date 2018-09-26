@@ -11,7 +11,7 @@
 // the terms and conditions of the BSD License which accompanies this distribution.
 // The full text of the license may be found at
 // http://opensource.org/licenses/bsd-license.php
-// 
+//
 // THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
 // WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 //
@@ -247,3 +247,19 @@
 
 #string STR_gEfiSecurityPkgTokenSpaceGuid_PcdTpm2PossibleIrqNumBuf_HELP  #language en-US "This PCD defines possible TPM2 interrupt number in a platform reported by _PRS control method.\n"
                                                                                          "If PcdTpm2CurrentIrqNum set to 0, _PRS will not report any possible TPM2 interrupt numbers."
+
+#string STR_gEfiSecurityPkgTokenSpaceGuid_PcdActiveTpmInterfaceType_PROMPT  #language en-US "Current active TPM interface type"
+
+#string STR_gEfiSecurityPkgTokenSpaceGuid_PcdActiveTpmInterfaceType_HELP  #language en-US "This PCD indicates current active TPM interface type.\n"
+                                                                                          "0x00 - FIFO interface as defined in TIS 1.3 is active.<BR>\n"
+                                                                                          "0x01 - FIFO interface as defined in PTP for TPM 2.0 is active.<BR>\n"
+                                                                                          "0x02 - CRB interface is active.<BR>\n"
+                                                                                          "0xFF - Contains no current active TPM interface type<BR>"
+
+#string STR_gEfiSecurityPkgTokenSpaceGuid_PcdCRBIdleByPass_PROMPT  #language en-US "IdleByass status supported by current active TPM interface."
+
+#string STR_gEfiSecurityPkgTokenSpaceGuid_PcdCRBIdleByPass_HELP  #language en-US "This PCD records IdleByass status supported by current active TPM interface.\n"
+                                                                                          "Accodingt to TCG PTP spec 1.3, TPM with CRB interface can skip idle state and diretcly move to CmdReady state. <BR>"
+                                                                                          "0x01 - Do not support IdleByPass.<BR>\n"
+                                                                                          "0x02 - Support IdleByPass.<BR>\n"
+                                                                                          "0xFF - IdleByPass State is not synced with TPM hardware.<BR>"

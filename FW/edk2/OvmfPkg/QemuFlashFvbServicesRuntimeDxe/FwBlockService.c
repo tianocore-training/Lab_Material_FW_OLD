@@ -831,42 +831,6 @@ ValidateFvHeader (
 
 STATIC
 EFI_STATUS
-MarkMemoryRangeForRuntimeAccess (
-  EFI_PHYSICAL_ADDRESS                BaseAddress,
-  UINTN                               Length
-  )
-{
-  EFI_STATUS                          Status;
-
-  //
-  // Mark flash region as runtime memory
-  //
-  Status = gDS->RemoveMemorySpace (
-                  BaseAddress,
-                  Length
-                  );
-
-  Status = gDS->AddMemorySpace (
-                  EfiGcdMemoryTypeSystemMemory,
-                  BaseAddress,
-                  Length,
-                  EFI_MEMORY_UC | EFI_MEMORY_RUNTIME
-                  );
-  ASSERT_EFI_ERROR (Status);
-
-  Status = gBS->AllocatePages (
-                  AllocateAddress,
-                  EfiRuntimeServicesData,
-                  EFI_SIZE_TO_PAGES (Length),
-                  &BaseAddress
-                  );
-  ASSERT_EFI_ERROR (Status);
-
-  return Status;
-}
-
-STATIC
-EFI_STATUS
 InitializeVariableFvHeader (
   VOID
   )
@@ -1091,7 +1055,7 @@ FvbInitialize (
   //
   InstallProtocolInterfaces (FvbDevice);
 
-  MarkMemoryRangeForRuntimeAccess (BaseAddress, Length);
+  MarkIoMemoryRangeForRuntimeAccess (BaseAddress, Length);
 
   //
   // Set several PCD values to point to flash

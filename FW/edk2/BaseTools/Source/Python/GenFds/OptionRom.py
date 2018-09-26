@@ -1,7 +1,7 @@
 ## @file
 # process OptionROM generation
 #
-#  Copyright (c) 2007 - 2017, Intel Corporation. All rights reserved.<BR>
+#  Copyright (c) 2007 - 2018, Intel Corporation. All rights reserved.<BR>
 #
 #  This program and the accompanying materials
 #  are licensed and made available under the terms and conditions of the BSD License
@@ -15,13 +15,12 @@
 ##
 # Import Modules
 #
+from __future__ import absolute_import
 import Common.LongFilePathOs as os
 import subprocess
-import StringIO
 
-import OptRomInfStatement
-from GenFdsGlobalVariable import GenFdsGlobalVariable
-from GenFds import GenFds
+from . import OptRomInfStatement
+from .GenFdsGlobalVariable import GenFdsGlobalVariable
 from CommonDataClass.FdfClass import OptionRomClassObject
 from Common.Misc import SaveFileOnChange
 from Common import EdkLogger
@@ -29,7 +28,7 @@ from Common.BuildToolError import *
 
 T_CHAR_LF = '\n'
 
-## 
+##
 #
 #
 class OPTIONROM (OptionRomClassObject):
@@ -58,7 +57,7 @@ class OPTIONROM (OptionRomClassObject):
 
         # Process Modules in FfsList
         for FfsFile in self.FfsList :
-            
+
             if isinstance(FfsFile, OptRomInfStatement.OptRomInfStatement):
                 FilePathNameList = FfsFile.GenFfs(IsMakefile=Flag)
                 if len(FilePathNameList) == 0:
@@ -71,14 +70,14 @@ class OPTIONROM (OptionRomClassObject):
                     if not os.path.exists(TmpOutputDir) :
                         os.makedirs(TmpOutputDir)
                     TmpOutputFile = os.path.join(TmpOutputDir, FileName+'.tmp')
-                    
-                    GenFdsGlobalVariable.GenerateOptionRom(TmpOutputFile, 
-                                                           FilePathNameList, 
-                                                           [], 
-                                                           FfsFile.OverrideAttribs.NeedCompress, 
-                                                           FfsFile.OverrideAttribs.PciClassCode, 
-                                                           FfsFile.OverrideAttribs.PciRevision, 
-                                                           FfsFile.OverrideAttribs.PciDeviceId, 
+
+                    GenFdsGlobalVariable.GenerateOptionRom(TmpOutputFile,
+                                                           FilePathNameList,
+                                                           [],
+                                                           FfsFile.OverrideAttribs.NeedCompress,
+                                                           FfsFile.OverrideAttribs.PciClassCode,
+                                                           FfsFile.OverrideAttribs.PciRevision,
+                                                           FfsFile.OverrideAttribs.PciDeviceId,
                                                            FfsFile.OverrideAttribs.PciVendorId,
                                                            IsMakefile = Flag)
                     BinFileList.append(TmpOutputFile)
@@ -90,14 +89,14 @@ class OPTIONROM (OptionRomClassObject):
                     if not os.path.exists(TmpOutputDir) :
                         os.makedirs(TmpOutputDir)
                     TmpOutputFile = os.path.join(TmpOutputDir, FileName+'.tmp')
-                    
-                    GenFdsGlobalVariable.GenerateOptionRom(TmpOutputFile, 
-                                                           [FilePathName], 
-                                                           [], 
-                                                           FfsFile.OverrideAttribs.NeedCompress, 
-                                                           FfsFile.OverrideAttribs.PciClassCode, 
-                                                           FfsFile.OverrideAttribs.PciRevision, 
-                                                           FfsFile.OverrideAttribs.PciDeviceId, 
+
+                    GenFdsGlobalVariable.GenerateOptionRom(TmpOutputFile,
+                                                           [FilePathName],
+                                                           [],
+                                                           FfsFile.OverrideAttribs.NeedCompress,
+                                                           FfsFile.OverrideAttribs.PciClassCode,
+                                                           FfsFile.OverrideAttribs.PciRevision,
+                                                           FfsFile.OverrideAttribs.PciDeviceId,
                                                            FfsFile.OverrideAttribs.PciVendorId,
                                                            IsMakefile=Flag)
                     BinFileList.append(TmpOutputFile)
@@ -106,13 +105,13 @@ class OPTIONROM (OptionRomClassObject):
                         EfiFileList.append(FilePathName)
                     else:
                         BinFileList.append(FilePathName)
-                        
+
         #
         # Call EfiRom tool
         #
         OutputFile = os.path.join(GenFdsGlobalVariable.FvDir, self.DriverName)
         OutputFile = OutputFile + '.rom'
-        
+
         GenFdsGlobalVariable.GenerateOptionRom(
                                 OutputFile,
                                 EfiFileList,
@@ -122,21 +121,19 @@ class OPTIONROM (OptionRomClassObject):
         if not Flag:
             GenFdsGlobalVariable.InfLogger( "\nGenerate %s Option ROM Successfully" %self.DriverName)
         GenFdsGlobalVariable.SharpCounter = 0
-        
+
         return OutputFile
 
 class OverrideAttribs:
-        
+
     ## The constructor
     #
     #   @param  self        The object pointer
     #
     def __init__(self):
-        
+
         self.PciVendorId = None
         self.PciClassCode = None
         self.PciDeviceId = None
         self.PciRevision = None
         self.NeedCompress = None
-        
-        

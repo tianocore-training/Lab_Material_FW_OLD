@@ -14,6 +14,7 @@
 ##
 # Import Modules
 #
+from __future__ import print_function
 import Common.LongFilePathOs as os
 
 import Common.EdkLogger as EdkLogger
@@ -98,8 +99,8 @@ class Table(object):
         SqlCommand = """drop table IF EXISTS %s""" % self.Table
         try:
             self.Cur.execute(SqlCommand)
-        except Exception, e:
-            print "An error occurred when Drop a table:", e.args[0]
+        except Exception as e:
+            print("An error occurred when Drop a table:", e.args[0])
 
     ## Get count
     #

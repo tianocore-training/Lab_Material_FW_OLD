@@ -17,11 +17,13 @@ import Common.LongFilePathOs as os
 import re
 import traceback
 from Common.LongFilePathSupport import OpenLongFilePath as open
-from StringIO import StringIO
+from io import BytesIO
 from struct import pack
 from Common.BuildToolError import *
 from Common.Misc import SaveFileOnChange
 from Common.Misc import GuidStructureStringToGuidString
+from Common.Misc import GuidStructureByteArrayToGuidString
+from Common.Misc import GuidStringToGuidStructureString
 from Common import EdkLogger as EdkLogger
 from Common.BuildVersion import gBUILD_VERSION
 from Common.DataType import *
@@ -140,7 +142,7 @@ class DependencyExpression:
     def __init__(self, Expression, ModuleType, Optimize=False):
         self.ModuleType = ModuleType
         self.Phase = gType2Phase[ModuleType]
-        if type(Expression) == type([]):
+        if isinstance(Expression, type([])):
             self.ExpressionString = " ".join(Expression)
             self.TokenList = Expression
         else:
@@ -333,6 +335,10 @@ class DependencyExpression:
     def GetGuidValue(self, Guid):
         GuidValueString = Guid.replace("{", "").replace("}", "").replace(" ", "")
         GuidValueList = GuidValueString.split(",")
+        if len(GuidValueList) != 11 and len(GuidValueList) == 16:
+            GuidValueString = GuidStringToGuidStructureString(GuidStructureByteArrayToGuidString(Guid))
+            GuidValueString = GuidValueString.replace("{", "").replace("}", "").replace(" ", "")
+            GuidValueList = GuidValueString.split(",")
         if len(GuidValueList) != 11:
             EdkLogger.error("GenDepex", PARSER_ERROR, "Invalid GUID value string or opcode: %s" % Guid)
         return pack("1I2H8B", *(int(value, 16) for value in GuidValueList))
@@ -345,7 +351,7 @@ class DependencyExpression:
     #   @retval False   If file exists and is not changed.
     #
     def Generate(self, File=None):
-        Buffer = StringIO()
+        Buffer = BytesIO()
         if len(self.PostfixNotation) == 0:
             return False
 
@@ -449,7 +455,7 @@ def Main():
                     os.utime(Option.OutputFile, None)
         else:
             Dpx.Generate()
-    except BaseException, X:
+    except BaseException as X:
         EdkLogger.quiet("")
         if Option is not None and Option.debug is not None:
             EdkLogger.quiet(traceback.format_exc())

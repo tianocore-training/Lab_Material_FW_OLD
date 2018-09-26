@@ -15,18 +15,18 @@
 ##
 # Import Modules
 #
-import Region
-import Fv
+from __future__ import absolute_import
+from . import Region
+from . import Fv
 import Common.LongFilePathOs as os
-import StringIO
+from io import BytesIO
 import sys
 from struct import *
-from GenFdsGlobalVariable import GenFdsGlobalVariable
+from .GenFdsGlobalVariable import GenFdsGlobalVariable
 from CommonDataClass.FdfClass import FDClassObject
 from Common import EdkLogger
 from Common.BuildToolError import *
 from Common.Misc import SaveFileOnChange
-from GenFds import GenFds
 from Common.DataType import BINARY_FILE_TYPE_FV
 
 ## generate FD
@@ -47,8 +47,8 @@ class FD(FDClassObject):
     #   @retval string      Generated FD file name
     #
     def GenFd (self, Flag = False):
-        if self.FdUiName.upper() + 'fd' in GenFds.ImageBinDict:
-            return GenFds.ImageBinDict[self.FdUiName.upper() + 'fd']
+        if self.FdUiName.upper() + 'fd' in GenFdsGlobalVariable.ImageBinDict:
+            return GenFdsGlobalVariable.ImageBinDict[self.FdUiName.upper() + 'fd']
 
         #
         # Print Information
@@ -75,7 +75,7 @@ class FD(FDClassObject):
                 HasCapsuleRegion = True
                 break
         if HasCapsuleRegion:
-            TempFdBuffer = StringIO.StringIO('')
+            TempFdBuffer = BytesIO('')
             PreviousRegionStart = -1
             PreviousRegionSize = 1
 
@@ -93,7 +93,7 @@ class FD(FDClassObject):
                     PadRegion.Offset = PreviousRegionStart + PreviousRegionSize
                     PadRegion.Size = RegionObj.Offset - PadRegion.Offset
                     if not Flag:
-                        PadRegion.AddToBuffer(TempFdBuffer, self.BaseAddress, self.BlockSizeList, self.ErasePolarity, GenFds.ImageBinDict, self.vtfRawDict, self.DefineVarDict)
+                        PadRegion.AddToBuffer(TempFdBuffer, self.BaseAddress, self.BlockSizeList, self.ErasePolarity, GenFdsGlobalVariable.ImageBinDict, self.vtfRawDict, self.DefineVarDict)
                 PreviousRegionStart = RegionObj.Offset
                 PreviousRegionSize = RegionObj.Size
                 #
@@ -102,9 +102,9 @@ class FD(FDClassObject):
                 if PreviousRegionSize > self.Size:
                     pass
                 GenFdsGlobalVariable.VerboseLogger('Call each region\'s AddToBuffer function')
-                RegionObj.AddToBuffer (TempFdBuffer, self.BaseAddress, self.BlockSizeList, self.ErasePolarity, GenFds.ImageBinDict, self.vtfRawDict, self.DefineVarDict)
-        
-        FdBuffer = StringIO.StringIO('')
+                RegionObj.AddToBuffer (TempFdBuffer, self.BaseAddress, self.BlockSizeList, self.ErasePolarity, GenFdsGlobalVariable.ImageBinDict, self.vtfRawDict, self.DefineVarDict)
+
+        FdBuffer = BytesIO('')
         PreviousRegionStart = -1
         PreviousRegionSize = 1
         for RegionObj in self.RegionList :
@@ -123,7 +123,7 @@ class FD(FDClassObject):
                 PadRegion.Offset = PreviousRegionStart + PreviousRegionSize
                 PadRegion.Size = RegionObj.Offset - PadRegion.Offset
                 if not Flag:
-                    PadRegion.AddToBuffer(FdBuffer, self.BaseAddress, self.BlockSizeList, self.ErasePolarity, GenFds.ImageBinDict, self.vtfRawDict, self.DefineVarDict)
+                    PadRegion.AddToBuffer(FdBuffer, self.BaseAddress, self.BlockSizeList, self.ErasePolarity, GenFdsGlobalVariable.ImageBinDict, self.vtfRawDict, self.DefineVarDict)
             PreviousRegionStart = RegionObj.Offset
             PreviousRegionSize = RegionObj.Size
             #
@@ -137,7 +137,7 @@ class FD(FDClassObject):
             # Call each region's AddToBuffer function
             #
             GenFdsGlobalVariable.VerboseLogger('Call each region\'s AddToBuffer function')
-            RegionObj.AddToBuffer (FdBuffer, self.BaseAddress, self.BlockSizeList, self.ErasePolarity, GenFds.ImageBinDict, self.vtfRawDict, self.DefineVarDict,Flag=Flag)
+            RegionObj.AddToBuffer (FdBuffer, self.BaseAddress, self.BlockSizeList, self.ErasePolarity, GenFdsGlobalVariable.ImageBinDict, self.vtfRawDict, self.DefineVarDict, Flag=Flag)
         #
         # Write the buffer contents to Fd file
         #
@@ -145,7 +145,7 @@ class FD(FDClassObject):
         if not Flag:
             SaveFileOnChange(FdFileName, FdBuffer.getvalue())
         FdBuffer.close()
-        GenFds.ImageBinDict[self.FdUiName.upper() + 'fd'] = FdFileName
+        GenFdsGlobalVariable.ImageBinDict[self.FdUiName.upper() + 'fd'] = FdFileName
         return FdFileName
 
     ## generate VTF
@@ -163,7 +163,7 @@ class FD(FDClassObject):
                 if len(RegionObj.RegionDataList) == 1:
                     RegionData = RegionObj.RegionDataList[0]
                     FvList.append(RegionData.upper())
-                    FvAddDict[RegionData.upper()] = (int(self.BaseAddress,16) + \
+                    FvAddDict[RegionData.upper()] = (int(self.BaseAddress, 16) + \
                                                 RegionObj.Offset, RegionObj.Size)
                 else:
                     Offset = RegionObj.Offset
@@ -178,7 +178,7 @@ class FD(FDClassObject):
                             Size = 0
                             for blockStatement in FvObj.BlockSizeList:
                                 Size = Size + blockStatement[0] * blockStatement[1]
-                            FvAddDict[RegionData.upper()] = (int(self.BaseAddress,16) + \
+                            FvAddDict[RegionData.upper()] = (int(self.BaseAddress, 16) + \
                                                              Offset, Size)
                             Offset = Offset + Size
         #

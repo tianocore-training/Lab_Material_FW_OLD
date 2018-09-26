@@ -148,6 +148,11 @@ TranslateBmpToGopBlt (
     return RETURN_UNSUPPORTED;
   }
 
+  if ((BmpHeader->PixelHeight == 0) || (BmpHeader->PixelWidth == 0)) {
+    DEBUG ((DEBUG_ERROR, "TranslateBmpToGopBlt: BmpHeader->PixelHeight or BmpHeader->PixelWidth is 0.\n"));
+    return RETURN_UNSUPPORTED;
+  }
+
   //
   // Only support BITMAPINFOHEADER format.
   // BITMAPFILEHEADER + BITMAPINFOHEADER = BMP_IMAGE_HEADER
@@ -288,7 +293,7 @@ TranslateBmpToGopBlt (
     DEBUG ((
       DEBUG_ERROR,
       "TranslateBmpToGopBlt: invalid BltBuffer needed size... PixelWidth:0x%x PixelHeight:0x%x\n",
-      BltBufferSize
+      BmpHeader->PixelWidth, BmpHeader->PixelHeight
       ));
 
     return RETURN_UNSUPPORTED;
@@ -304,7 +309,7 @@ TranslateBmpToGopBlt (
   if (EFI_ERROR (Status)) {
     DEBUG ((
       DEBUG_ERROR,
-      "TranslateBmpToGopBlt: invalid BltBuffer needed size... BltBufferSize:0x%lx struct size:0x%x\n",
+      "TranslateBmpToGopBlt: invalid BltBuffer needed size... PixelWidth x PixelHeight:0x%x struct size:0x%x\n",
       Temp, sizeof (EFI_GRAPHICS_OUTPUT_BLT_PIXEL)
       ));
 
@@ -482,6 +487,10 @@ TranslateGopBltToBmp (
 
   if (GopBlt == NULL || BmpImage == NULL || BmpImageSize == NULL) {
     return RETURN_INVALID_PARAMETER;
+  }
+
+  if ((PixelHeight == 0) || (PixelWidth == 0)) {
+    return RETURN_UNSUPPORTED;
   }
 
   //

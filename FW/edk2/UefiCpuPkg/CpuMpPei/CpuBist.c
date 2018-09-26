@@ -1,7 +1,7 @@
 /** @file
   Update and publish processors' BIST information.
 
-  Copyright (c) 2015, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 2015 - 2018, Intel Corporation. All rights reserved.<BR>
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
   which accompanies this distribution.  The full text of the license may be found at
@@ -179,7 +179,7 @@ CollectBistDataFromPpi (
   UINTN                                 BistInformationSize;
   EFI_SEC_PLATFORM_INFORMATION_RECORD2  *PlatformInformationRecord2;
   EFI_SEC_PLATFORM_INFORMATION_CPU      *CpuInstanceInHob;
-  
+
 
   MpInitLibGetNumberOfProcessors(&NumberOfProcessors, &NumberOfEnabledProcessors);
 
@@ -264,7 +264,7 @@ CollectBistDataFromPpi (
     CpuInstanceInHob[ProcessorNumber].CpuLocation = (UINT32) ProcessorInfo.ProcessorId;
     CpuInstanceInHob[ProcessorNumber].InfoRecord.IA32HealthFlags = BistData;
   }
- 
+
   //
   // Build SecPlatformInformation2 PPI GUIDed HOB that also could be consumed
   // by CPU MP driver to get CPU BIST data
@@ -275,18 +275,20 @@ CollectBistDataFromPpi (
     (UINTN) BistInformationSize
     );
 
-  if (SecPlatformInformation2 != NULL && NumberOfData < NumberOfProcessors) {
-    //
-    // Reinstall SecPlatformInformation2 PPI to include new BIST information
-    //
-    Status = PeiServicesReInstallPpi (
-               SecInformationDescriptor,
-               &mPeiSecPlatformInformation2Ppi
-               );
-    ASSERT_EFI_ERROR (Status);
+  if (SecPlatformInformation2 != NULL) {
+    if (NumberOfData < NumberOfProcessors) {
+      //
+      // Reinstall SecPlatformInformation2 PPI to include new BIST information
+      //
+      Status = PeiServicesReInstallPpi (
+                 SecInformationDescriptor,
+                 &mPeiSecPlatformInformation2Ppi
+                 );
+      ASSERT_EFI_ERROR (Status);
+    }
   } else {
     //
-    // Install SecPlatformInformation2 PPI to include new BIST information
+    // Install SecPlatformInformation2 PPI
     //
     Status = PeiServicesInstallPpi (&mPeiSecPlatformInformation2Ppi);
     ASSERT_EFI_ERROR(Status);

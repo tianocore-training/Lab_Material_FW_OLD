@@ -35,11 +35,13 @@ GetCurrentMicrocodeSignature (
 /**
   Detect whether specified processor can find matching microcode patch and load it.
 
-  @param[in]  CpuMpData  The pointer to CPU MP Data structure.
+  @param[in]  CpuMpData    The pointer to CPU MP Data structure.
+  @param[in]  IsBspCallIn  Indicate whether the caller is BSP or not.
 **/
 VOID
 MicrocodeDetect (
-  IN CPU_MP_DATA             *CpuMpData
+  IN CPU_MP_DATA             *CpuMpData,
+  IN BOOLEAN                 IsBspCallIn
   )
 {
   UINT32                                  ExtendedTableLength;
@@ -58,6 +60,13 @@ MicrocodeDetect (
   BOOLEAN                                 CorrectMicrocode;
   VOID                                    *MicrocodeData;
   MSR_IA32_PLATFORM_ID_REGISTER           PlatformIdMsr;
+  UINT32                                  ProcessorFlags;
+  UINT32                                  ThreadId;
+
+  //
+  // set ProcessorFlags to suppress incorrect compiler/analyzer warnings
+  //
+  ProcessorFlags = 0;
 
   if (CpuMpData->MicrocodePatchRegionSize == 0) {
     //
@@ -67,9 +76,17 @@ MicrocodeDetect (
   }
 
   CurrentRevision = GetCurrentMicrocodeSignature ();
-  if (CurrentRevision != 0) {
+  if (CurrentRevision != 0 && !IsBspCallIn) {
     //
     // Skip loading microcode if it has been loaded successfully
+    //
+    return;
+  }
+
+  GetProcessorLocationByApicId (GetInitialApicId (), NULL, NULL, &ThreadId);
+  if (ThreadId != 0) {
+    //
+    // Skip loading microcode if it is not the first thread in one core.
     //
     return;
   }
@@ -86,6 +103,19 @@ MicrocodeDetect (
   //
   PlatformIdMsr.Uint64 = AsmReadMsr64 (MSR_IA32_PLATFORM_ID);
   PlatformId = (UINT8) PlatformIdMsr.Bits.PlatformId;
+
+  //
+  // Check whether AP has same processor with BSP.
+  // If yes, direct use microcode info saved by BSP.
+  //
+  if (!IsBspCallIn) {
+    if ((CpuMpData->ProcessorSignature == Eax.Uint32) &&
+        (CpuMpData->ProcessorFlags & (1 << PlatformId)) != 0) {
+        MicrocodeData = (VOID *)(UINTN) CpuMpData->MicrocodeDataAddress;
+        LatestRevision = CpuMpData->MicrocodeRevision;
+        goto Done;
+    }
+  }
 
   LatestRevision = 0;
   MicrocodeData  = NULL;
@@ -117,6 +147,7 @@ MicrocodeDetect (
         }
         if (CheckSum32 == 0) {
           CorrectMicrocode = TRUE;
+          ProcessorFlags = MicrocodeEntryPoint->ProcessorFlags;
         }
       } else if ((MicrocodeEntryPoint->DataSize != 0) &&
                  (MicrocodeEntryPoint->UpdateRevision > LatestRevision)) {
@@ -151,6 +182,7 @@ MicrocodeDetect (
                     // Find one
                     //
                     CorrectMicrocode = TRUE;
+                    ProcessorFlags = ExtendedTable->ProcessorFlag;
                     break;
                   }
                 }
@@ -188,6 +220,7 @@ MicrocodeDetect (
     MicrocodeEntryPoint = (CPU_MICROCODE_HEADER *) (((UINTN) MicrocodeEntryPoint) + TotalSize);
   } while (((UINTN) MicrocodeEntryPoint < MicrocodeEnd));
 
+Done:
   if (LatestRevision > CurrentRevision) {
     //
     // BIOS only authenticate updates that contain a numerically larger revision
@@ -210,5 +243,17 @@ MicrocodeDetect (
                 loaded microcode signature [0x%08x]\n", CurrentRevision, LatestRevision));
       ReleaseSpinLock(&CpuMpData->MpLock);
     }
+  }
+
+  if (IsBspCallIn && (LatestRevision != 0)) {
+    //
+    // Save BSP processor info and microcode info for later AP use.
+    //
+    CpuMpData->ProcessorSignature   = Eax.Uint32;
+    CpuMpData->ProcessorFlags       = ProcessorFlags;
+    CpuMpData->MicrocodeDataAddress = (UINTN) MicrocodeData;
+    CpuMpData->MicrocodeRevision    = LatestRevision;
+    DEBUG ((DEBUG_INFO, "BSP Microcode:: signature [0x%08x], ProcessorFlags [0x%08x], \
+       MicroData [0x%08x], Revision [0x%08x]\n", Eax.Uint32, ProcessorFlags, (UINTN) MicrocodeData, LatestRevision));
   }
 }

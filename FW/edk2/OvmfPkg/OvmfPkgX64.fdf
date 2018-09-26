@@ -294,6 +294,7 @@ INF  ShellPkg/DynamicCommand/TftpDynamicCommand/TftpDynamicCommand.inf
 INF  ShellPkg/Application/Shell/Shell.inf
 !else
 !ifndef $(USE_OLD_SHELL)
+INF  ShellPkg/DynamicCommand/TftpDynamicCommand/TftpDynamicCommand.inf
 INF   RuleOverride = BINARY ShellBinPkg/UefiShell/UefiShell.inf
 !else
 INF  RuleOverride = BINARY EdkShellBinPkg/FullShell/FullShell.inf

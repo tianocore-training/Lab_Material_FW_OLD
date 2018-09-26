@@ -288,11 +288,17 @@ INF  MdeModulePkg/Universal/Acpi/BootGraphicsResourceTableDxe/BootGraphicsResour
 INF  FatPkg/EnhancedFatDxe/Fat.inf
 INF  MdeModulePkg/Universal/Disk/UdfDxe/UdfDxe.inf
 
-!ifndef $(USE_OLD_SHELL)
+
+!if $(BUILD_NEW_SHELL) == TRUE
 INF  ShellPkg/DynamicCommand/TftpDynamicCommand/TftpDynamicCommand.inf
 INF  ShellPkg/Application/Shell/Shell.inf
 !else
+!ifndef $(USE_OLD_SHELL)
+INF  ShellPkg/DynamicCommand/TftpDynamicCommand/TftpDynamicCommand.inf
+INF   RuleOverride = BINARY ShellBinPkg/UefiShell/UefiShell.inf
+!else
 INF  RuleOverride = BINARY EdkShellBinPkg/FullShell/FullShell.inf
+!endif
 !endif
 
 INF MdeModulePkg/Logo/LogoDxe.inf

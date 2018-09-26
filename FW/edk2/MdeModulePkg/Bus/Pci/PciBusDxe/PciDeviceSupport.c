@@ -2,6 +2,7 @@
   Supporting functions implementaion for PCI devices management.
 
 Copyright (c) 2006 - 2018, Intel Corporation. All rights reserved.<BR>
+(C) Copyright 2018 Hewlett Packard Enterprise Development LP<BR>
 This program and the accompanying materials
 are licensed and made available under the terms and conditions of the BSD License
 which accompanies this distribution.  The full text of the license may be found at
@@ -103,6 +104,10 @@ FreePciDevice (
 
   if (PciIoDevice->DevicePath != NULL) {
     FreePool (PciIoDevice->DevicePath);
+  }
+
+  if (PciIoDevice->BusNumberRanges != NULL) {
+    FreePool (PciIoDevice->BusNumberRanges);
   }
 
   FreePool (PciIoDevice);
@@ -236,7 +241,7 @@ RegisterPciDevice (
   PciIo = &(PciIoDevice->PciIo);
   Data8 = PCI_INT_LINE_UNKNOWN;
   PciIo->Pci.Write (PciIo, EfiPciIoWidthUint8, 0x3C, 1, &Data8);
- 
+
   //
   // Process OpRom
   //
@@ -296,7 +301,7 @@ RegisterPciDevice (
           PciIoDevice->PciIo.RomImage,
           PciIoDevice->PciIo.RomSize
           );
-      }   
+      }
     }
   }
 

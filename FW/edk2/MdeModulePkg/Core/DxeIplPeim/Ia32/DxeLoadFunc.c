@@ -1,7 +1,7 @@
 /** @file
   Ia32-specific functionality for DxeLoad.
 
-Copyright (c) 2006 - 2015, Intel Corporation. All rights reserved.<BR>
+Copyright (c) 2006 - 2018, Intel Corporation. All rights reserved.<BR>
 Copyright (c) 2017, AMD Incorporated. All rights reserved.<BR>
 
 This program and the accompanying materials
@@ -73,7 +73,7 @@ Create4GPageTablesIa32Pae (
   IN EFI_PHYSICAL_ADDRESS   StackBase,
   IN UINTN                  StackSize
   )
-{  
+{
   UINT8                                         PhysicalAddressBits;
   EFI_PHYSICAL_ADDRESS                          PhysicalAddress;
   UINTN                                         IndexOfPdpEntries;
@@ -112,7 +112,7 @@ Create4GPageTablesIa32Pae (
     //
     // Each Directory Pointer entries points to a page of Page Directory entires.
     // So allocate space for them and fill them in in the IndexOfPageDirectoryEntries loop.
-    //       
+    //
     PageDirectoryEntry = (VOID *) PageAddress;
     PageAddress += SIZE_4KB;
 
@@ -320,7 +320,9 @@ HandOffToDxeCore (
     //
     // End of PEI phase signal
     //
+    PERF_EVENT_SIGNAL_BEGIN (gEndOfPeiSignalPpi.Guid);
     Status = PeiServicesInstallPpi (&gEndOfPeiSignalPpi);
+    PERF_EVENT_SIGNAL_END (gEndOfPeiSignalPpi.Guid);
     ASSERT_EFI_ERROR (Status);
 
     AsmWriteCr3 (PageTables);
@@ -437,7 +439,9 @@ HandOffToDxeCore (
     //
     // End of PEI phase signal
     //
+    PERF_EVENT_SIGNAL_BEGIN (gEndOfPeiSignalPpi.Guid);
     Status = PeiServicesInstallPpi (&gEndOfPeiSignalPpi);
+    PERF_EVENT_SIGNAL_END (gEndOfPeiSignalPpi.Guid);
     ASSERT_EFI_ERROR (Status);
 
     if (BuildPageTablesIa32Pae) {

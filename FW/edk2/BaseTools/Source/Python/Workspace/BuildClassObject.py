@@ -70,6 +70,7 @@ class PcdClassObject(object):
         if IsDsc:
             self.DscDefaultValue = Value
         self.PcdValueFromComm = ""
+        self.PcdValueFromFdf = ""
         self.DefinitionPosition = ("","")
 
     ## Get the maximum number of bytes
@@ -77,16 +78,26 @@ class PcdClassObject(object):
         if self.DatumType in TAB_PCD_NUMERIC_TYPES:
             return MAX_SIZE_TYPE[self.DatumType]
 
-        MaxSize = int(self.MaxDatumSize,10) if self.MaxDatumSize else 0
+        MaxSize = int(self.MaxDatumSize, 10) if self.MaxDatumSize else 0
+        if self.PcdValueFromFdf:
+            if self.PcdValueFromFdf.startswith("{") and self.PcdValueFromFdf.endswith("}"):
+                MaxSize =  max([len(self.PcdValueFromFdf.split(",")),MaxSize])
+            elif self.PcdValueFromFdf.startswith("\"") or self.PcdValueFromFdf.startswith("\'"):
+                MaxSize =  max([len(self.PcdValueFromFdf)-2+1,MaxSize])
+            elif self.PcdValueFromFdf.startswith("L\""):
+                MaxSize =  max([2*(len(self.PcdValueFromFdf)-3+1),MaxSize])
+            else:
+                MaxSize = max([len(self.PcdValueFromFdf),MaxSize])
+
         if self.PcdValueFromComm:
             if self.PcdValueFromComm.startswith("{") and self.PcdValueFromComm.endswith("}"):
-                return max([len(self.PcdValueFromComm.split(",")),MaxSize])
+                return max([len(self.PcdValueFromComm.split(",")), MaxSize])
             elif self.PcdValueFromComm.startswith("\"") or self.PcdValueFromComm.startswith("\'"):
-                return max([len(self.PcdValueFromComm)-2+1,MaxSize])
+                return max([len(self.PcdValueFromComm)-2+1, MaxSize])
             elif self.PcdValueFromComm.startswith("L\""):
-                return max([2*(len(self.PcdValueFromComm)-3+1),MaxSize])
+                return max([2*(len(self.PcdValueFromComm)-3+1), MaxSize])
             else:
-                return max([len(self.PcdValueFromComm),MaxSize])
+                return max([len(self.PcdValueFromComm), MaxSize])
         return MaxSize
 
     ## Get the number of bytes
@@ -169,6 +180,7 @@ class StructurePcd(PcdClassObject):
         self.DefaultValueFromDec = ""
         self.ValueChain = set()
         self.PcdFieldValueFromComm = collections.OrderedDict()
+        self.PcdFieldValueFromFdf = collections.OrderedDict()
     def __repr__(self):
         return self.TypeName
 
@@ -178,7 +190,7 @@ class StructurePcd(PcdClassObject):
         self.DefaultValues[FieldName] = [Value.strip(), FileName, LineNo]
         return self.DefaultValues[FieldName]
 
-    def SetDecDefaultValue(self,DefaultValue):
+    def SetDecDefaultValue(self, DefaultValue):
         self.DefaultValueFromDec = DefaultValue
     def AddOverrideValue (self, FieldName, Value, SkuName, DefaultStoreName, FileName="", LineNo=0):
         if SkuName not in self.SkuOverrideValues:
@@ -216,8 +228,9 @@ class StructurePcd(PcdClassObject):
         self.expressions = PcdObject.expressions if PcdObject.expressions else self.expressions
         self.DscRawValue = PcdObject.DscRawValue if PcdObject.DscRawValue else self.DscRawValue
         self.PcdValueFromComm = PcdObject.PcdValueFromComm if PcdObject.PcdValueFromComm else self.PcdValueFromComm
+        self.PcdValueFromFdf = PcdObject.PcdValueFromFdf if PcdObject.PcdValueFromFdf else self.PcdValueFromFdf
         self.DefinitionPosition = PcdObject.DefinitionPosition if PcdObject.DefinitionPosition else self.DefinitionPosition
-        if type(PcdObject) is StructurePcd:
+        if isinstance(PcdObject, StructurePcd):
             self.StructuredPcdIncludeFile = PcdObject.StructuredPcdIncludeFile if PcdObject.StructuredPcdIncludeFile else self.StructuredPcdIncludeFile
             self.PackageDecs = PcdObject.PackageDecs if PcdObject.PackageDecs else self.PackageDecs
             self.DefaultValues = PcdObject.DefaultValues if PcdObject.DefaultValues else self.DefaultValues
@@ -231,6 +244,7 @@ class StructurePcd(PcdClassObject):
             self.PkgPath = PcdObject.PkgPath if PcdObject.PkgPath else self.PkgPath
             self.ValueChain = PcdObject.ValueChain if PcdObject.ValueChain else self.ValueChain
             self.PcdFieldValueFromComm = PcdObject.PcdFieldValueFromComm if PcdObject.PcdFieldValueFromComm else self.PcdFieldValueFromComm
+            self.PcdFieldValueFromFdf = PcdObject.PcdFieldValueFromFdf if PcdObject.PcdFieldValueFromFdf else self.PcdFieldValueFromFdf
 
 ## LibraryClassObject
 #

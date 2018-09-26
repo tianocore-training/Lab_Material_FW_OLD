@@ -15,18 +15,20 @@
 ##
 # Import Modules
 #
+from __future__ import print_function
+from __future__ import absolute_import
 from optparse import OptionParser
 import sys
 import Common.LongFilePathOs as os
 import linecache
-import FdfParser
+from . import FdfParser
 import Common.BuildToolError as BuildToolError
-from GenFdsGlobalVariable import GenFdsGlobalVariable
+from .GenFdsGlobalVariable import GenFdsGlobalVariable
 from Workspace.WorkspaceDatabase import WorkspaceDatabase
 from Workspace.BuildClassObject import PcdClassObject
-import RuleComplexFile
-from EfiSection import EfiSection
-import StringIO
+from . import RuleComplexFile
+from .EfiSection import EfiSection
+from io import BytesIO
 import Common.TargetTxtClassObject as TargetTxtClassObject
 import Common.ToolDefClassObject as ToolDefClassObject
 from Common.DataType import *
@@ -39,14 +41,15 @@ from Common.Misc import ClearDuplicatedInf
 from Common.Misc import GuidStructureStringToGuidString
 from Common.BuildVersion import gBUILD_VERSION
 from Common.MultipleWorkspace import MultipleWorkspace as mws
-import FfsFileStatement
+from . import FfsFileStatement
 import glob
 from struct import unpack
+from Common.GlobalData import gGuidPattern
 
 ## Version and Copyright
 versionNumber = "1.0" + ' ' + gBUILD_VERSION
 __version__ = "%prog Version " + versionNumber
-__copyright__ = "Copyright (c) 2007 - 2017, Intel Corporation  All rights reserved."
+__copyright__ = "Copyright (c) 2007 - 2018, Intel Corporation  All rights reserved."
 
 ## Tool entrance method
 #
@@ -71,10 +74,10 @@ def main():
         if Options.verbose is not None:
             EdkLogger.SetLevel(EdkLogger.VERBOSE)
             GenFdsGlobalVariable.VerboseMode = True
-            
+
         if Options.FixedAddress is not None:
             GenFdsGlobalVariable.FixedLoadAddress = True
-            
+
         if Options.quiet is not None:
             EdkLogger.SetLevel(EdkLogger.QUIET)
         if Options.debug is not None:
@@ -99,7 +102,7 @@ def main():
             if Options.GenfdsMultiThread:
                 GenFdsGlobalVariable.EnableGenfdsMultiThread = True
         os.chdir(GenFdsGlobalVariable.WorkSpaceDir)
-        
+
         # set multiple workspace
         PackagesPath = os.getenv("PACKAGES_PATH")
         mws.setWs(GenFdsGlobalVariable.WorkSpaceDir, PackagesPath)
@@ -227,7 +230,7 @@ def main():
         GlobalData.gDatabasePath = os.path.normpath(os.path.join(ConfDirectoryPath, GlobalData.gDatabasePath))
         BuildWorkSpace = WorkspaceDatabase(GlobalData.gDatabasePath)
         BuildWorkSpace.InitDatabase()
-        
+
         #
         # Get files real name in workspace dir
         #
@@ -243,7 +246,7 @@ def main():
         TargetArchList = set(BuildWorkSpace.BuildObject[GenFdsGlobalVariable.ActivePlatform, TAB_COMMON, Options.BuildTarget, Options.ToolChain].SupArchList) & set(ArchList)
         if len(TargetArchList) == 0:
             EdkLogger.error("GenFds", GENFDS_ERROR, "Target ARCH %s not in platform supported ARCH %s" % (str(ArchList), str(BuildWorkSpace.BuildObject[GenFdsGlobalVariable.ActivePlatform, TAB_COMMON].SupArchList)))
-        
+
         for Arch in ArchList:
             GenFdsGlobalVariable.OutputDirFromDscDict[Arch] = NormPath(BuildWorkSpace.BuildObject[GenFdsGlobalVariable.ActivePlatform, Arch, Options.BuildTarget, Options.ToolChain].OutputDirectory)
             GenFdsGlobalVariable.PlatformName = BuildWorkSpace.BuildObject[GenFdsGlobalVariable.ActivePlatform, Arch, Options.BuildTarget, Options.ToolChain].PlatformName
@@ -335,10 +338,10 @@ def main():
         """Display FV space info."""
         GenFds.DisplayFvSpaceInfo(FdfParserObj)
 
-    except FdfParser.Warning, X:
+    except FdfParser.Warning as X:
         EdkLogger.error(X.ToolName, FORMAT_INVALID, File=X.FileName, Line=X.LineNumber, ExtraData=X.Message, RaiseError=False)
         ReturnCode = FORMAT_INVALID
-    except FatalError, X:
+    except FatalError as X:
         if Options.debug is not None:
             import traceback
             EdkLogger.quiet(traceback.format_exc())
@@ -365,98 +368,6 @@ def SingleCheckCallback(option, opt_str, value, parser):
         gParamCheck.append(option)
     else:
         parser.error("Option %s only allows one instance in command line!" % option)
-
-## FindExtendTool()
-#
-#  Find location of tools to process data
-#
-#  @param  KeyStringList    Filter for inputs of section generation
-#  @param  CurrentArchList  Arch list
-#  @param  NameGuid         The Guid name
-#
-def FindExtendTool(KeyStringList, CurrentArchList, NameGuid):
-    ToolDb = ToolDefClassObject.ToolDefDict(GenFdsGlobalVariable.ConfDir).ToolsDefTxtDatabase
-    # if user not specify filter, try to deduce it from global data.
-    if KeyStringList is None or KeyStringList == []:
-        Target = GenFdsGlobalVariable.TargetName
-        ToolChain = GenFdsGlobalVariable.ToolChainTag
-        if ToolChain not in ToolDb['TOOL_CHAIN_TAG']:
-            EdkLogger.error("GenFds", GENFDS_ERROR, "Can not find external tool because tool tag %s is not defined in tools_def.txt!" % ToolChain)
-        KeyStringList = [Target + '_' + ToolChain + '_' + CurrentArchList[0]]
-        for Arch in CurrentArchList:
-            if Target + '_' + ToolChain + '_' + Arch not in KeyStringList:
-                KeyStringList.append(Target + '_' + ToolChain + '_' + Arch)
-
-    if GenFdsGlobalVariable.GuidToolDefinition:
-        if NameGuid in GenFdsGlobalVariable.GuidToolDefinition:
-            return GenFdsGlobalVariable.GuidToolDefinition[NameGuid]
-
-    ToolDefinition = ToolDefClassObject.ToolDefDict(GenFdsGlobalVariable.ConfDir).ToolsDefTxtDictionary
-    ToolPathTmp = None
-    ToolOption = None
-    ToolPathKey = None
-    ToolOptionKey = None
-    KeyList = None
-    for ToolDef in ToolDefinition.items():
-        if NameGuid.lower() == ToolDef[1].lower() :
-            KeyList = ToolDef[0].split('_')
-            Key = KeyList[0] + \
-                  '_' + \
-                  KeyList[1] + \
-                  '_' + \
-                  KeyList[2]
-            if Key in KeyStringList and KeyList[4] == TAB_GUID:
-                ToolPathKey   = Key + '_' + KeyList[3] + '_PATH'
-                ToolOptionKey = Key + '_' + KeyList[3] + '_FLAGS'
-                ToolPath = ToolDefinition.get(ToolPathKey)
-                ToolOption = ToolDefinition.get(ToolOptionKey)
-                if ToolPathTmp is None:
-                    ToolPathTmp = ToolPath
-                else:
-                    if ToolPathTmp != ToolPath:
-                        EdkLogger.error("GenFds", GENFDS_ERROR, "Don't know which tool to use, %s or %s ?" % (ToolPathTmp, ToolPath))
-
-    BuildOption = {}
-    for Arch in CurrentArchList:
-        Platform = GenFdsGlobalVariable.WorkSpace.BuildObject[GenFdsGlobalVariable.ActivePlatform, Arch, GenFdsGlobalVariable.TargetName, GenFdsGlobalVariable.ToolChainTag]
-        # key is (ToolChainFamily, ToolChain, CodeBase)
-        for item in Platform.BuildOptions:
-            if '_PATH' in item[1] or '_FLAGS' in item[1] or '_GUID' in item[1]:
-                if not item[0] or (item[0] and GenFdsGlobalVariable.ToolChainFamily== item[0]):
-                    if item[1] not in BuildOption:
-                        BuildOption[item[1]] = Platform.BuildOptions[item]
-        if BuildOption:
-            ToolList = [TAB_TOD_DEFINES_TARGET, TAB_TOD_DEFINES_TOOL_CHAIN_TAG, TAB_TOD_DEFINES_TARGET_ARCH]
-            for Index in range(2, -1, -1):
-                for Key in list(BuildOption.keys()):
-                    List = Key.split('_')
-                    if List[Index] == '*':
-                        for String in ToolDb[ToolList[Index]]:
-                            if String in [Arch, GenFdsGlobalVariable.TargetName, GenFdsGlobalVariable.ToolChainTag]:
-                                List[Index] = String
-                                NewKey = '%s_%s_%s_%s_%s' % tuple(List)
-                                if NewKey not in BuildOption:
-                                    BuildOption[NewKey] = BuildOption[Key]
-                                    continue
-                                del BuildOption[Key]
-                    elif List[Index] not in ToolDb[ToolList[Index]]:
-                        del BuildOption[Key]
-    if BuildOption:
-        if not KeyList:
-            for Op in BuildOption:
-                if NameGuid == BuildOption[Op]:
-                    KeyList = Op.split('_')
-                    Key = KeyList[0] + '_' + KeyList[1] +'_' + KeyList[2]
-                    if Key in KeyStringList and KeyList[4] == TAB_GUID:
-                        ToolPathKey   = Key + '_' + KeyList[3] + '_PATH'
-                        ToolOptionKey = Key + '_' + KeyList[3] + '_FLAGS'
-        if ToolPathKey in BuildOption:
-            ToolPathTmp = BuildOption[ToolPathKey]
-        if ToolOptionKey in BuildOption:
-            ToolOption = BuildOption[ToolOptionKey]
-
-    GenFdsGlobalVariable.GuidToolDefinition[NameGuid] = (ToolPathTmp, ToolOption)
-    return ToolPathTmp, ToolOption
 
 ## Parse command line options
 #
@@ -505,8 +416,6 @@ def myOptionParser():
 #
 class GenFds :
     FdfParsef = None
-    # FvName, FdName, CapName in FDF, Image file name
-    ImageBinDict = {}
     OnlyGenerateThisFd = None
     OnlyGenerateThisFv = None
     OnlyGenerateThisCap = None
@@ -541,16 +450,16 @@ class GenFds :
         if GenFds.OnlyGenerateThisFv is not None and GenFds.OnlyGenerateThisFv.upper() in GenFdsGlobalVariable.FdfParser.Profile.FvDict:
             FvObj = GenFdsGlobalVariable.FdfParser.Profile.FvDict[GenFds.OnlyGenerateThisFv.upper()]
             if FvObj is not None:
-                Buffer = StringIO.StringIO()
+                Buffer = BytesIO()
                 FvObj.AddToBuffer(Buffer)
                 Buffer.close()
                 return
         elif GenFds.OnlyGenerateThisFv is None:
             for FvObj in GenFdsGlobalVariable.FdfParser.Profile.FvDict.values():
-                Buffer = StringIO.StringIO('')
+                Buffer = BytesIO('')
                 FvObj.AddToBuffer(Buffer)
                 Buffer.close()
-        
+
         if GenFds.OnlyGenerateThisFv is None and GenFds.OnlyGenerateThisFd is None and GenFds.OnlyGenerateThisCap is None:
             if GenFdsGlobalVariable.FdfParser.Profile.CapsuleDict != {}:
                 GenFdsGlobalVariable.VerboseLogger("\n Generate other Capsule images!")
@@ -616,7 +525,7 @@ class GenFds :
     #   @retval None
     #
     def DisplayFvSpaceInfo(FdfParser):
-        
+
         FvSpaceInfoList = []
         MaxFvNameLength = 0
         for FvName in FdfParser.Profile.FvDict:
@@ -643,10 +552,10 @@ class GenFds :
                         if NameValue[0].strip() == 'EFI_FV_SPACE_SIZE':
                             FreeFound = True
                             Free = NameValue[1].strip()
-                
+
                 if TotalFound and UsedFound and FreeFound:
                     FvSpaceInfoList.append((FvName, Total, Used, Free))
-                
+
         GenFdsGlobalVariable.InfLogger('\nFV Space Information')
         for FvSpaceInfo in FvSpaceInfoList:
             Name = FvSpaceInfo[0]
@@ -674,29 +583,30 @@ class GenFds :
             if PcdObj.TokenCName == 'PcdBsBaseAddress':
                 PcdValue = PcdObj.DefaultValue
                 break
-        
+
         if PcdValue == '':
             return
-        
+
         Int64PcdValue = long(PcdValue, 0)
-        if Int64PcdValue == 0 or Int64PcdValue < -1:    
+        if Int64PcdValue == 0 or Int64PcdValue < -1:
             return
-                
+
         TopAddress = 0
         if Int64PcdValue > 0:
             TopAddress = Int64PcdValue
-            
+
         ModuleDict = BuildDb.BuildObject[DscFile, TAB_COMMON, GenFdsGlobalVariable.TargetName, GenFdsGlobalVariable.ToolChainTag].Modules
         for Key in ModuleDict:
             ModuleObj = BuildDb.BuildObject[Key, TAB_COMMON, GenFdsGlobalVariable.TargetName, GenFdsGlobalVariable.ToolChainTag]
-            print ModuleObj.BaseName + ' ' + ModuleObj.ModuleType
+            print(ModuleObj.BaseName + ' ' + ModuleObj.ModuleType)
 
     def GenerateGuidXRefFile(BuildDb, ArchList, FdfParserObj):
         GuidXRefFileName = os.path.join(GenFdsGlobalVariable.FvDir, "Guid.xref")
-        GuidXRefFile = StringIO.StringIO('')
+        GuidXRefFile = BytesIO('')
         GuidDict = {}
         ModuleList = []
         FileGuidList = []
+        GuidPattern = gGuidPattern
         for Arch in ArchList:
             PlatformDataBase = BuildDb.BuildObject[GenFdsGlobalVariable.ActivePlatform, Arch, GenFdsGlobalVariable.TargetName, GenFdsGlobalVariable.ToolChainTag]
             for ModuleFile in PlatformDataBase.Modules:
@@ -705,7 +615,11 @@ class GenFds :
                     continue
                 else:
                     ModuleList.append(Module)
-                GuidXRefFile.write("%s %s\n" % (Module.Guid, Module.BaseName))
+                GuidMatch = GuidPattern.match(ModuleFile.BaseName)
+                if GuidMatch is not None:
+                    GuidXRefFile.write("%s %s\n" % (ModuleFile.BaseName, Module.BaseName))
+                else:
+                    GuidXRefFile.write("%s %s\n" % (Module.Guid, Module.BaseName))
                 for key, item in Module.Protocols.items():
                     GuidDict[key] = item
                 for key, item in Module.Guids.items():
@@ -784,7 +698,7 @@ class GenFds :
                         if not Name:
                             continue
 
-                        Name = ' '.join(Name) if type(Name) == type([]) else Name
+                        Name = ' '.join(Name) if isinstance(Name, type([])) else Name
                         GuidXRefFile.write("%s %s\n" %(FileStatementGuid, Name))
 
        # Append GUIDs, Protocols, and PPIs to the Xref file

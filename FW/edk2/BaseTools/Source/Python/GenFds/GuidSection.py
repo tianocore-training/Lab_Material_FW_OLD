@@ -16,19 +16,20 @@
 ##
 # Import Modules
 #
-import Section
+from __future__ import absolute_import
+from . import Section
 import subprocess
-from Ffs import Ffs
+from .Ffs import Ffs
 import Common.LongFilePathOs as os
-from GenFdsGlobalVariable import GenFdsGlobalVariable
+from .GenFdsGlobalVariable import GenFdsGlobalVariable
+from .GenFdsGlobalVariable import FindExtendTool
 from CommonDataClass.FdfClass import GuidSectionClassObject
 from Common import ToolDefClassObject
 import sys
 from Common import EdkLogger
 from Common.BuildToolError import *
-from FvImageSection import FvImageSection
+from .FvImageSection import FvImageSection
 from Common.LongFilePathSupport import OpenLongFilePath as open
-from GenFds import FindExtendTool
 from Common.DataType import *
 
 ## generate GUIDed section
@@ -76,7 +77,7 @@ class GuidSection(GuidSectionClassObject) :
             FvAddrIsSet = True
         else:
             FvAddrIsSet = False
-        
+
         if self.ProcessRequired in ("TRUE", "1"):
             if self.FvAddr != []:
                 #no use FvAddr when the image is processed.

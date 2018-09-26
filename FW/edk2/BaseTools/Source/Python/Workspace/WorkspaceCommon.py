@@ -11,9 +11,10 @@
 # WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 #
 
+from __future__ import absolute_import
 from collections import OrderedDict, defaultdict
 from Common.DataType import SUP_MODULE_USER_DEFINED
-from BuildClassObject import LibraryClassObject
+from .BuildClassObject import LibraryClassObject
 import Common.GlobalData as GlobalData
 from Workspace.BuildClassObject import StructurePcd
 from Common.BuildToolError import RESOURCE_NOT_AVAILABLE
@@ -53,7 +54,7 @@ def GetPackageList(Platform, BuildDatabase, Arch, Target, Toolchain):
 #  @retval: A dictionary contains instances of PcdClassObject with key (PcdCName, TokenSpaceGuid)
 #  @retval: A dictionary contains real GUIDs of TokenSpaceGuid
 #
-def GetDeclaredPcd(Platform, BuildDatabase, Arch, Target, Toolchain,additionalPkgs):
+def GetDeclaredPcd(Platform, BuildDatabase, Arch, Target, Toolchain, additionalPkgs):
     PkgList = GetPackageList(Platform, BuildDatabase, Arch, Target, Toolchain)
     PkgList = set(PkgList)
     PkgList |= additionalPkgs

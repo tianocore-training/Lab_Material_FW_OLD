@@ -14,14 +14,14 @@
 ##
 # Import Modules
 #
+from __future__ import absolute_import
 import Common.LongFilePathOs as os
 import sys
 import string
-import thread
 import threading
 import time
 import re
-import cPickle
+import pickle
 import array
 import shutil
 from struct import pack
@@ -30,10 +30,10 @@ from UserList import UserList
 
 from Common import EdkLogger as EdkLogger
 from Common import GlobalData as GlobalData
-from DataType import *
-from BuildToolError import *
+from .DataType import *
+from .BuildToolError import *
 from CommonDataClass.DataClass import *
-from Parsing import GetSplitValueList
+from .Parsing import GetSplitValueList
 from Common.LongFilePathSupport import OpenLongFilePath as open
 from Common.MultipleWorkspace import MultipleWorkspace as mws
 import uuid
@@ -55,12 +55,19 @@ gFileTimeStampCache = {}    # {file path : file time stamp}
 ## Dictionary used to store dependencies of files
 gDependencyDatabase = {}    # arch : {file path : [dependent files list]}
 
+#
+# If a module is built more than once with different PCDs or library classes
+# a temporary INF file with same content is created, the temporary file is removed
+# when build exits.
+#
+_TempInfs = []
+
 def GetVariableOffset(mapfilepath, efifilepath, varnames):
-    """ Parse map file to get variable offset in current EFI file 
+    """ Parse map file to get variable offset in current EFI file
     @param mapfilepath    Map file absolution path
     @param efifilepath:   EFI binary file full path
     @param varnames       iteratable container whose elements are variable names to be searched
-    
+
     @return List whos elements are tuple with variable name and raw offset
     """
     lines = []
@@ -70,7 +77,7 @@ def GetVariableOffset(mapfilepath, efifilepath, varnames):
         f.close()
     except:
         return None
-    
+
     if len(lines) == 0: return None
     firstline = lines[0].strip()
     if (firstline.startswith("Archive member included ") and
@@ -132,7 +139,7 @@ def _parseForGCC(lines, efifilepath, varnames):
                     if Str:
                         m = pcdPatternGcc.match(Str.strip())
                         if m is not None:
-                            varoffset.append((varname, int(m.groups(0)[0], 16) , int(sections[-1][1], 16), sections[-1][0]))
+                            varoffset.append((varname, int(m.groups(0)[0], 16), int(sections[-1][1], 16), sections[-1][0]))
 
     if not varoffset:
         return []
@@ -170,7 +177,7 @@ def _parseGeneral(lines, efifilepath, varnames):
             continue
         if line.startswith("entry point at"):
             status = 3
-            continue        
+            continue
         if status == 1 and len(line) != 0:
             m =  secReGeneral.match(line)
             assert m is not None, "Fail to parse the section in map file , line is %s" % line
@@ -250,7 +257,7 @@ def ProcessDuplicatedInf(Path, BaseName, Workspace):
     #
     # A temporary INF is copied to database path which must have write permission
     # The temporary will be removed at the end of build
-    # In case of name conflict, the file name is 
+    # In case of name conflict, the file name is
     # FILE_GUIDBaseName (0D1B936F-68F3-4589-AFCC-FB8B7AEBC836module.inf)
     #
     TempFullPath = os.path.join(DbDir,
@@ -261,7 +268,7 @@ def ProcessDuplicatedInf(Path, BaseName, Workspace):
     #
     # To build same module more than once, the module path with FILE_GUID overridden has
     # the file name FILE_GUIDmodule.inf, but the relative path (self.MetaFile.File) is the real path
-    # in DSC which is used as relative path by C files and other files in INF. 
+    # in DSC which is used as relative path by C files and other files in INF.
     # A trick was used: all module paths are PathClass instances, after the initialization
     # of PathClass, the PathClass.Path is overridden by the temporary INF path.
     #
@@ -280,18 +287,18 @@ def ProcessDuplicatedInf(Path, BaseName, Workspace):
     # If file exists, compare contents
     #
     if os.path.exists(TempFullPath):
-        with open(str(Path), 'rb') as f1: Src = f1.read()
-        with open(TempFullPath, 'rb') as f2: Dst = f2.read()
-        if Src == Dst:
-            return RtPath
-    GlobalData.gTempInfs.append(TempFullPath)
+        with open(str(Path), 'rb') as f1, open(TempFullPath, 'rb') as f2:
+            if f1.read() == f2.read():
+                return RtPath
+    _TempInfs.append(TempFullPath)
     shutil.copy2(str(Path), TempFullPath)
     return RtPath
 
-## Remove temporary created INFs whose paths were saved in gTempInfs
+## Remove temporary created INFs whose paths were saved in _TempInfs
 #
 def ClearDuplicatedInf():
-    for File in GlobalData.gTempInfs:
+    while _TempInfs:
+        File = _TempInfs.pop()
         if os.path.exists(File):
             os.remove(File)
 
@@ -467,7 +474,7 @@ def SaveFileOnChange(File, Content, IsBinaryFile=True):
     try:
         if GlobalData.gIsWindows:
             try:
-                from PyUtility import SaveFileToDisk
+                from .PyUtility import SaveFileToDisk
                 if not SaveFileToDisk(File, Content):
                     EdkLogger.error(None, FILE_CREATE_FAILURE, ExtraData=File)
             except:
@@ -478,7 +485,7 @@ def SaveFileOnChange(File, Content, IsBinaryFile=True):
             Fd = open(File, "wb")
             Fd.write(Content)
             Fd.close()
-    except IOError, X:
+    except IOError as X:
         EdkLogger.error(None, FILE_CREATE_FAILURE, ExtraData='IOError %s' % X)
 
     return True
@@ -492,7 +499,7 @@ def DataDump(Data, File):
     Fd = None
     try:
         Fd = open(File, 'wb')
-        cPickle.dump(Data, Fd, cPickle.HIGHEST_PROTOCOL)
+        pickle.dump(Data, Fd, pickle.HIGHEST_PROTOCOL)
     except:
         EdkLogger.error("", FILE_OPEN_FAILURE, ExtraData=File, RaiseError=False)
     finally:
@@ -511,8 +518,8 @@ def DataRestore(File):
     Fd = None
     try:
         Fd = open(File, 'rb')
-        Data = cPickle.load(Fd)
-    except Exception, e:
+        Data = pickle.load(Fd)
+    except Exception as e:
         EdkLogger.verbose("Failed to load [%s]\n\t%s" % (File, str(e)))
         Data = None
     finally:
@@ -1278,7 +1285,7 @@ def ParseDevPathValue (Value):
     try:
         p = subprocess.Popen(Cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
         out, err = p.communicate()
-    except Exception, X:
+    except Exception as X:
         raise BadExpression("DevicePath: %s" % (str(X)) )
     finally:
         subprocess._cleanup()
@@ -1291,9 +1298,9 @@ def ParseDevPathValue (Value):
     return '{' + out + '}', Size
 
 def ParseFieldValue (Value):
-    if type(Value) == type(0):
+    if isinstance(Value, type(0)):
         return Value, (Value.bit_length() + 7) / 8
-    if type(Value) <> type(''):
+    if not isinstance(Value, type('')):
         raise BadExpression('Type %s is %s' %(Value, type(Value)))
     Value = Value.strip()
     if Value.startswith(TAB_UINT8) and Value.endswith(')'):
@@ -1327,7 +1334,7 @@ def ParseFieldValue (Value):
             Value = Value[1:-1]
         try:
             Value = "'" + uuid.UUID(Value).get_bytes_le() + "'"
-        except ValueError, Message:
+        except ValueError as Message:
             raise BadExpression(Message)
         Value, Size = ParseFieldValue(Value)
         return Value, 16
@@ -1469,7 +1476,7 @@ def AnalyzeDscPcd(Setting, PcdType, DataType=''):
 #         Value, Size = ParseFieldValue(Value)
         if Size:
             try:
-                int(Size,16) if Size.upper().startswith("0X") else int(Size)
+                int(Size, 16) if Size.upper().startswith("0X") else int(Size)
             except:
                 IsValid = False
                 Size = -1
@@ -1490,7 +1497,7 @@ def AnalyzeDscPcd(Setting, PcdType, DataType=''):
 
         if Size:
             try:
-                int(Size,16) if Size.upper().startswith("0X") else int(Size)
+                int(Size, 16) if Size.upper().startswith("0X") else int(Size)
             except:
                 IsValid = False
                 Size = -1
@@ -1512,7 +1519,7 @@ def AnalyzeDscPcd(Setting, PcdType, DataType=''):
             IsValid = (len(FieldList) <= 3)
         if Size:
             try:
-                int(Size,16) if Size.upper().startswith("0X") else int(Size)
+                int(Size, 16) if Size.upper().startswith("0X") else int(Size)
             except:
                 IsValid = False
                 Size = -1
@@ -1538,29 +1545,29 @@ def AnalyzeDscPcd(Setting, PcdType, DataType=''):
 #  Used to avoid split issue while the value string contain "|" character
 #
 #  @param[in] Setting:  A String contain value/datum type/token number information;
-#  
-#  @retval   ValueList: A List contain value, datum type and toke number. 
+#
+#  @retval   ValueList: A List contain value, datum type and toke number.
 #
 def AnalyzePcdData(Setting):
     ValueList = ['', '', '']
 
     ValueRe = re.compile(r'^\s*L?\".*\|.*\"')
     PtrValue = ValueRe.findall(Setting)
-    
+
     ValueUpdateFlag = False
-    
+
     if len(PtrValue) >= 1:
         Setting = re.sub(ValueRe, '', Setting)
         ValueUpdateFlag = True
 
     TokenList = Setting.split(TAB_VALUE_SPLIT)
     ValueList[0:len(TokenList)] = TokenList
-    
+
     if ValueUpdateFlag:
         ValueList[0] = PtrValue[0]
-        
-    return ValueList   
- 
+
+    return ValueList
+
 ## check format of PCD value against its the datum type
 #
 # For PCD value setting
@@ -1584,8 +1591,7 @@ def CheckPcdDatum(Type, Value):
             Printset.add(TAB_PRINTCHAR_BS)
             Printset.add(TAB_PRINTCHAR_NUL)
             if not set(Value).issubset(Printset):
-                PrintList = list(Printset)
-                PrintList.sort()
+                PrintList = sorted(Printset)
                 return False, "Invalid PCD string value of type [%s]; must be printable chars %s." % (Type, PrintList)
     elif Type == 'BOOLEAN':
         if Value not in ['TRUE', 'True', 'true', '0x1', '0x01', '1', 'FALSE', 'False', 'false', '0x0', '0x00', '0']:
@@ -1670,7 +1676,7 @@ def ConvertStringToByteArray(Value):
 
     Value = eval(Value)         # translate escape character
     NewValue = '{'
-    for Index in range(0,len(Value)):
+    for Index in range(0, len(Value)):
         if Unicode:
             NewValue = NewValue + str(ord(Value[Index]) % 0x10000) + ','
         else:
@@ -1747,7 +1753,7 @@ class PathClass(object):
     # @retval True  The two PathClass are the same
     #
     def __eq__(self, Other):
-        if type(Other) == type(self):
+        if isinstance(Other, type(self)):
             return self.Path == Other.Path
         else:
             return self.Path == str(Other)
@@ -1760,11 +1766,11 @@ class PathClass(object):
     # @retval -1    The first PathClass is less than the second PathClass
     # @retval 1     The first PathClass is Bigger than the second PathClass
     def __cmp__(self, Other):
-        if type(Other) == type(self):
+        if isinstance(Other, type(self)):
             OtherKey = Other.Path
         else:
             OtherKey = str(Other)
-            
+
         SelfKey = self.Path
         if SelfKey == OtherKey:
             return 0
@@ -1902,7 +1908,7 @@ class PeImageClass():
     def _ByteListToStr(self, ByteList):
         String = ''
         for index in range(len(ByteList)):
-            if ByteList[index] == 0: 
+            if ByteList[index] == 0:
                 break
             String += chr(ByteList[index])
         return String
@@ -1914,48 +1920,48 @@ class PeImageClass():
         return Value
 
 class DefaultStore():
-    def __init__(self,DefaultStores ):
+    def __init__(self, DefaultStores ):
 
         self.DefaultStores = DefaultStores
-    def DefaultStoreID(self,DefaultStoreName):
-        for key,value in self.DefaultStores.items():
+    def DefaultStoreID(self, DefaultStoreName):
+        for key, value in self.DefaultStores.items():
             if value == DefaultStoreName:
                 return key
         return None
     def GetDefaultDefault(self):
         if not self.DefaultStores or "0" in self.DefaultStores:
-            return "0",TAB_DEFAULT_STORES_DEFAULT
+            return "0", TAB_DEFAULT_STORES_DEFAULT
         else:
             minvalue = min(int(value_str) for value_str in self.DefaultStores)
             return (str(minvalue), self.DefaultStores[str(minvalue)])
-    def GetMin(self,DefaultSIdList):
+    def GetMin(self, DefaultSIdList):
         if not DefaultSIdList:
             return TAB_DEFAULT_STORES_DEFAULT
         storeidset = {storeid for storeid, storename in self.DefaultStores.values() if storename in DefaultSIdList}
         if not storeidset:
             return ""
         minid = min(storeidset )
-        for sid,name in self.DefaultStores.values():
+        for sid, name in self.DefaultStores.values():
             if sid == minid:
                 return name
 class SkuClass():
-    
+
     DEFAULT = 0
     SINGLE = 1
     MULTIPLE =2
-    
+
     def __init__(self,SkuIdentifier='', SkuIds=None):
         if SkuIds is None:
             SkuIds = {}
 
         for SkuName in SkuIds:
             SkuId = SkuIds[SkuName][0]
-            skuid_num = int(SkuId,16) if SkuId.upper().startswith("0X") else int(SkuId)
+            skuid_num = int(SkuId, 16) if SkuId.upper().startswith("0X") else int(SkuId)
             if skuid_num > 0xFFFFFFFFFFFFFFFF:
                 EdkLogger.error("build", PARAMETER_INVALID,
                             ExtraData = "SKU-ID [%s] value %s exceeds the max value of UINT64"
                                       % (SkuName, SkuId))
-        
+
         self.AvailableSkuIds = sdict()
         self.SkuIdSet = []
         self.SkuIdNumberSet = []
@@ -1969,10 +1975,10 @@ class SkuClass():
             self.SkuIdSet = SkuIds.keys()
             self.SkuIdNumberSet = [num[0].strip() + 'U' for num in SkuIds.values()]
         else:
-            r = SkuIdentifier.split('|') 
+            r = SkuIdentifier.split('|')
             self.SkuIdSet=[(r[k].strip()).upper() for k in range(len(r))]
             k = None
-            try: 
+            try:
                 self.SkuIdNumberSet = [SkuIds[k][0].strip() + 'U' for k in self.SkuIdSet]
             except Exception:
                 EdkLogger.error("build", PARAMETER_INVALID,
@@ -2003,14 +2009,14 @@ class SkuClass():
             self.__SkuInherit = {}
             for item in self.SkuData.values():
                 self.__SkuInherit[item[1]]=item[2] if item[2] else "DEFAULT"
-        return self.__SkuInherit.get(skuname,"DEFAULT")
+        return self.__SkuInherit.get(skuname, "DEFAULT")
 
-    def GetSkuChain(self,sku):
+    def GetSkuChain(self, sku):
         if sku == "DEFAULT":
             return ["DEFAULT"]
         skulist = [sku]
         nextsku = sku
-        while 1:
+        while True:
             nextsku = self.GetNextSkuId(nextsku)
             skulist.append(nextsku)
             if nextsku == "DEFAULT":
@@ -2021,7 +2027,7 @@ class SkuClass():
         skuorderset = []
         for skuname in self.SkuIdSet:
             skuorderset.append(self.GetSkuChain(skuname))
-        
+
         skuorder = []
         for index in range(max(len(item) for item in skuorderset)):
             for subset in skuorderset:
@@ -2033,8 +2039,8 @@ class SkuClass():
 
         return skuorder
 
-    def __SkuUsageType(self): 
-        
+    def __SkuUsageType(self):
+
         if self.__SkuIdentifier.upper() == "ALL":
             return SkuClass.MULTIPLE
 
@@ -2067,7 +2073,7 @@ class SkuClass():
         return ArrayStr
     def __GetAvailableSkuIds(self):
         return self.AvailableSkuIds
-    
+
     def __GetSystemSkuID(self):
         if self.__SkuUsageType() == SkuClass.SINGLE:
             if len(self.SkuIdSet) == 1:

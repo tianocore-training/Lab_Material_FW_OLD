@@ -15,12 +15,13 @@
 ##
 # Import Modules
 #
+from __future__ import absolute_import
 import Common.LongFilePathOs as os, re
 import Common.EdkLogger as EdkLogger
 from Common.DataType import *
 from CommonDataClass.DataClass import *
 from Common.StringUtils import CleanString, GetSplitValueList, ReplaceMacro
-import EotGlobalData
+from . import EotGlobalData
 from Common.StringUtils import GetSplitList
 from Common.LongFilePathSupport import OpenLongFilePath as open
 
@@ -730,7 +731,7 @@ def GetParameter(Parameter, Index = 1):
 #  @return: The name of parameter
 #
 def GetParameterName(Parameter):
-    if type(Parameter) == type('') and Parameter.startswith('&'):
+    if isinstance(Parameter, type('')) and Parameter.startswith('&'):
         return Parameter[1:].replace('{', '').replace('}', '').replace('\r', '').replace('\n', '').strip()
     else:
         return Parameter.strip()

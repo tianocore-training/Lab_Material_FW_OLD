@@ -15,11 +15,12 @@
 ##
 # Import Modules
 #
-import Section
-import StringIO
-from Ffs import Ffs
+from __future__ import absolute_import
+from . import Section
+from io import BytesIO
+from .Ffs import Ffs
 import subprocess
-from GenFdsGlobalVariable import GenFdsGlobalVariable
+from .GenFdsGlobalVariable import GenFdsGlobalVariable
 import Common.LongFilePathOs as os
 from CommonDataClass.FdfClass import FvImageSectionClassObject
 from Common import EdkLogger
@@ -65,7 +66,7 @@ class FvImageSection(FvImageSectionClassObject):
             for FvFileName in FileList:
                 FvAlignmentValue = 0
                 if os.path.isfile(FvFileName):
-                    FvFileObj = open (FvFileName,'rb')
+                    FvFileObj = open (FvFileName, 'rb')
                     FvFileObj.seek(0)
                     # PI FvHeader is 0x48 byte
                     FvHeaderBuffer = FvFileObj.read(0x48)
@@ -98,7 +99,7 @@ class FvImageSection(FvImageSectionClassObject):
         # Generate Fv
         #
         if self.FvName is not None:
-            Buffer = StringIO.StringIO('')
+            Buffer = BytesIO('')
             Fv = GenFdsGlobalVariable.FdfParser.Profile.FvDict.get(self.FvName)
             if Fv is not None:
                 self.Fv = Fv
@@ -113,7 +114,7 @@ class FvImageSection(FvImageSectionClassObject):
                 if self.FvFileName is not None:
                     FvFileName = GenFdsGlobalVariable.ReplaceWorkspaceMacro(self.FvFileName)
                     if os.path.isfile(FvFileName):
-                        FvFileObj = open (FvFileName,'rb')
+                        FvFileObj = open (FvFileName, 'rb')
                         FvFileObj.seek(0)
                         # PI FvHeader is 0x48 byte
                         FvHeaderBuffer = FvFileObj.read(0x48)

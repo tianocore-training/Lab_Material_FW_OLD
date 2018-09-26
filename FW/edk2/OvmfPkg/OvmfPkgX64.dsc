@@ -41,7 +41,7 @@
   DEFINE TLS_ENABLE              = FALSE
   DEFINE TPM2_ENABLE             = FALSE
 #  DEFINE DEBUG_ON_SERIAL_PORT    = FALSE
-  DEFINE BUILD_NEW_SHELL 	 = FALSE
+  DEFINE BUILD_NEW_SHELL 	 = TRUE
 
   #
   # Flash size selection. Setting FD_SIZE_IN_KB on the command line directly to
@@ -275,7 +275,7 @@
   DebugLib|OvmfPkg/Library/PlatformDebugLibIoPort/PlatformDebugLibIoPort.inf
 !endif
   PeCoffLib|MdePkg/Library/BasePeCoffLib/BasePeCoffLib.inf
-  PeiResourcePublicationLib|MdePkg/Library/PeiResourcePublicationLib/PeiResourcePublicationLib.inf
+  ResourcePublicationLib|MdePkg/Library/PeiResourcePublicationLib/PeiResourcePublicationLib.inf
   ExtractGuidedSectionLib|MdePkg/Library/PeiExtractGuidedSectionLib/PeiExtractGuidedSectionLib.inf
 !ifdef $(SOURCE_DEBUG_ENABLE)
   DebugAgentLib|SourceLevelDebugPkg/Library/DebugAgent/SecPeiDebugAgentLib.inf

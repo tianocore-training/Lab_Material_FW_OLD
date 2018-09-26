@@ -28,7 +28,7 @@ import hashlib
 import subprocess
 import threading
 from datetime import datetime
-from StringIO import StringIO
+from io import BytesIO
 from Common import EdkLogger
 from Common.Misc import SaveFileOnChange
 from Common.Misc import GuidStructureByteArrayToGuidString
@@ -220,7 +220,7 @@ def FindIncludeFiles(Source, IncludePathList, IncludeFiles):
 
 ## Split each lines in file
 #
-#  This method is used to split the lines in file to make the length of each line 
+#  This method is used to split the lines in file to make the length of each line
 #  less than MaxLength.
 #
 #  @param      Content           The content of file
@@ -245,12 +245,12 @@ def FileLinesSplit(Content=None, MaxLength=None):
             NewContentList.append(Line)
     for NewLine in NewContentList:
         NewContent += NewLine + TAB_LINE_BREAK
-    
+
     NewContent = NewContent.replace(TAB_LINE_BREAK, gEndOfLine).replace('\r\r\n', gEndOfLine)
     return NewContent
-    
-    
-    
+
+
+
 ##
 # Parse binary dependency expression section
 #
@@ -280,10 +280,15 @@ class DepexParser(object):
                 for Guid in Package.Guids:
                     GuidValue = GuidStructureStringToGuidString(Package.Guids[Guid])
                     self._GuidDb[GuidValue.upper()] = Guid
-    
+            for Ma in Pa.ModuleAutoGenList:
+                for Pcd in Ma.FixedVoidTypePcds:
+                    PcdValue = Ma.FixedVoidTypePcds[Pcd]
+                    if len(PcdValue.split(',')) == 16:
+                        GuidValue = GuidStructureByteArrayToGuidString(PcdValue)
+                        self._GuidDb[GuidValue.upper()] = Pcd
     ##
     # Parse the binary dependency expression files.
-    # 
+    #
     # This function parses the binary dependency expression file and translate it
     # to the instruction list.
     #
@@ -305,7 +310,7 @@ class DepexParser(object):
             OpCode = DepexFile.read(1)
 
         return DepexStatement
-    
+
 ##
 # Reports library information
 #
@@ -411,7 +416,7 @@ class DepexReport(object):
 
         if ModuleType in [SUP_MODULE_SEC, SUP_MODULE_PEI_CORE, SUP_MODULE_DXE_CORE, SUP_MODULE_SMM_CORE, SUP_MODULE_MM_CORE_STANDALONE, SUP_MODULE_UEFI_APPLICATION]:
             return
-      
+
         for Source in M.SourceFileList:
             if os.path.splitext(Source.Path)[1].lower() == ".dxs":
                 Match = gDxsDependencyPattern.search(open(Source.Path).read())
@@ -457,7 +462,7 @@ class DepexReport(object):
                 FileWrite(File, gSubSectionSep)
             except:
                 EdkLogger.warn(None, "Dependency expression file is corrupted", self._DepexFileName)
-        
+
         FileWrite(File, "Dependency Expression (DEPEX) from %s" % self.Source)
 
         if self.Source == "INF":
@@ -649,7 +654,7 @@ class ModuleReport(object):
                 cmd = ["GenFw", "--rebase", str(0), "-o", Tempfile, DefaultEFIfile]
                 try:
                     PopenObject = subprocess.Popen(' '.join(cmd), stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
-                except Exception, X:
+                except Exception as X:
                     EdkLogger.error("GenFw", COMMAND_FAILURE, ExtraData="%s: %s" % (str(X), cmd[0]))
                 EndOfProcedure = threading.Event()
                 EndOfProcedure.clear()
@@ -958,11 +963,15 @@ class PcdReport(object):
                 DecDefaultValue = self.DecPcdDefault.get((Pcd.TokenCName, Pcd.TokenSpaceGuidCName, DecType))
                 DscDefaultValue = self.DscPcdDefault.get((Pcd.TokenCName, Pcd.TokenSpaceGuidCName))
                 DscDefaultValBak = DscDefaultValue
-                DscDefaultValue = self.FdfPcdSet.get((Pcd.TokenCName, Key), DscDefaultValue)
+                Field = ''
+                for (CName, Guid, Field) in self.FdfPcdSet:
+                    if CName == PcdTokenCName and Guid == Key:
+                        DscDefaultValue = self.FdfPcdSet[(CName, Guid, Field)]
+                        break
                 if DscDefaultValue != DscDefaultValBak:
                     try:
                         DscDefaultValue = ValueExpressionEx(DscDefaultValue, Pcd.DatumType, self._GuidDict)(True)
-                    except BadExpression, DscDefaultValue:
+                    except BadExpression as DscDefaultValue:
                         EdkLogger.error('BuildReport', FORMAT_INVALID, "PCD Value: %s, Type: %s" %(DscDefaultValue, Pcd.DatumType))
 
                 InfDefaultValue = None
@@ -970,13 +979,14 @@ class PcdReport(object):
                 PcdValue = DecDefaultValue
                 if DscDefaultValue:
                     PcdValue = DscDefaultValue
+                Pcd.DefaultValue = PcdValue
                 if ModulePcdSet is not None:
                     if (Pcd.TokenCName, Pcd.TokenSpaceGuidCName, Type) not in ModulePcdSet:
                         continue
-                    InfDefault, PcdValue = ModulePcdSet[Pcd.TokenCName, Pcd.TokenSpaceGuidCName, Type]
+                    InfDefaultValue, PcdValue = ModulePcdSet[Pcd.TokenCName, Pcd.TokenSpaceGuidCName, Type]
                     Pcd.DefaultValue = PcdValue
-                    if InfDefault == "":
-                        InfDefault = None
+                    if InfDefaultValue == "":
+                        InfDefaultValue = None
 
                 BuildOptionMatch = False
                 if GlobalData.BuildOptionPcd:
@@ -1073,19 +1083,26 @@ class PcdReport(object):
                                 if DscOverride:
                                     break
                         if DscOverride:
+                            DscDefaultValue = True
                             DscMatch = True
                             DecMatch = False
+                    else:
+                        DscDefaultValue = True
+                        DscMatch = True
+                        DecMatch = False
 
                 #
                 # Report PCD item according to their override relationship
                 #
-                if DecMatch and InfMatch:
+                if DecMatch:
                     self.PrintPcdValue(File, Pcd, PcdTokenCName, TypeName, IsStructure, DscMatch, DscDefaultValBak, InfMatch, InfDefaultValue, DecMatch, DecDefaultValue, '  ')
+                elif InfDefaultValue and InfMatch:
+                    self.PrintPcdValue(File, Pcd, PcdTokenCName, TypeName, IsStructure, DscMatch, DscDefaultValBak, InfMatch, InfDefaultValue, DecMatch, DecDefaultValue, '*M')
                 elif BuildOptionMatch:
                     self.PrintPcdValue(File, Pcd, PcdTokenCName, TypeName, IsStructure, DscMatch, DscDefaultValBak, InfMatch, InfDefaultValue, DecMatch, DecDefaultValue, '*B')
                 else:
-                    if DscMatch:
-                        if (Pcd.TokenCName, Key) in self.FdfPcdSet:
+                    if DscDefaultValue and DscMatch:
+                        if (Pcd.TokenCName, Key, Field) in self.FdfPcdSet:
                             self.PrintPcdValue(File, Pcd, PcdTokenCName, TypeName, IsStructure, DscMatch, DscDefaultValBak, InfMatch, InfDefaultValue, DecMatch, DecDefaultValue, '*F')
                         else:
                             self.PrintPcdValue(File, Pcd, PcdTokenCName, TypeName, IsStructure, DscMatch, DscDefaultValBak, InfMatch, InfDefaultValue, DecMatch, DecDefaultValue, '*P')
@@ -1114,7 +1131,13 @@ class PcdReport(object):
                                 for Array in ArrayList:
                                     FileWrite(File, Array)
                             else:
-                                FileWrite(File, ' *M     %-*s = %s' % (self.MaxLen + 15, ModulePath, ModuleDefault.strip()))
+                                Value =  ModuleDefault.strip()
+                                if Pcd.DatumType in TAB_PCD_CLEAN_NUMERIC_TYPES:
+                                    if Value.startswith(('0x', '0X')):
+                                        Value = '{} ({:d})'.format(Value, int(Value, 0))
+                                    else:
+                                        Value = "0x{:X} ({})".format(int(Value, 0), Value)
+                                FileWrite(File, ' *M     %-*s = %s' % (self.MaxLen + 15, ModulePath, Value))
 
         if ModulePcdSet is None:
             FileWrite(File, gSectionEnd)
@@ -1190,7 +1213,7 @@ class PcdReport(object):
                     FileWrite(File, Array)
             else:
                 if Pcd.DatumType in TAB_PCD_CLEAN_NUMERIC_TYPES:
-                    if Value.startswith(('0x','0X')):
+                    if Value.startswith(('0x', '0X')):
                         Value = '{} ({:d})'.format(Value, int(Value, 0))
                     else:
                         Value = "0x{:X} ({})".format(int(Value, 0), Value)
@@ -1300,9 +1323,9 @@ class PcdReport(object):
                     else:
                         if IsByteArray:
                             if self.SkuSingle:
-                                FileWrite(File, ' %-*s   : %6s %10s = %s' % (self.MaxLen, ' ' , TypeName, '(' + Pcd.DatumType + ')', "{"))
+                                FileWrite(File, ' %-*s   : %6s %10s = %s' % (self.MaxLen, ' ', TypeName, '(' + Pcd.DatumType + ')', "{"))
                             else:
-                                FileWrite(File, ' %-*s   : %6s %10s %10s = %s' % (self.MaxLen, ' ' , TypeName, '(' + Pcd.DatumType + ')', '(' + SkuIdName + ')', "{"))
+                                FileWrite(File, ' %-*s   : %6s %10s %10s = %s' % (self.MaxLen, ' ', TypeName, '(' + Pcd.DatumType + ')', '(' + SkuIdName + ')', "{"))
                             for Array in ArrayList:
                                 FileWrite(File, Array)
                         else:
@@ -1312,9 +1335,9 @@ class PcdReport(object):
                                 else:
                                     Value = "0x{:X} ({})".format(int(Value, 0), Value)
                             if self.SkuSingle:
-                                FileWrite(File, ' %-*s   : %6s %10s = %s' % (self.MaxLen, ' ' , TypeName, '(' + Pcd.DatumType + ')', Value))
+                                FileWrite(File, ' %-*s   : %6s %10s = %s' % (self.MaxLen, ' ', TypeName, '(' + Pcd.DatumType + ')', Value))
                             else:
-                                FileWrite(File, ' %-*s   : %6s %10s %10s = %s' % (self.MaxLen, ' ' , TypeName, '(' + Pcd.DatumType + ')', '(' + SkuIdName + ')', Value))
+                                FileWrite(File, ' %-*s   : %6s %10s %10s = %s' % (self.MaxLen, ' ', TypeName, '(' + Pcd.DatumType + ')', '(' + SkuIdName + ')', Value))
                     if TypeName in ('DYNVPD', 'DEXVPD'):
                         FileWrite(File, '%*s' % (self.MaxLen + 4, SkuInfo.VpdOffset))
                     if IsStructure:
@@ -1331,15 +1354,24 @@ class PcdReport(object):
             for Key, Values in OverrideStruct.items():
                 if Values[1] and Values[1].endswith('.dsc'):
                     OverrideFieldStruct[Key] = Values
+        if Pcd.PcdFieldValueFromFdf:
+            for Key, Values in Pcd.PcdFieldValueFromFdf.items():
+                if Key in OverrideFieldStruct and Values[0] == OverrideFieldStruct[Key][0]:
+                    continue
+                OverrideFieldStruct[Key] = Values
         if Pcd.PcdFieldValueFromComm:
             for Key, Values in Pcd.PcdFieldValueFromComm.items():
+                if Key in OverrideFieldStruct and Values[0] == OverrideFieldStruct[Key][0]:
+                    continue
                 OverrideFieldStruct[Key] = Values
         return OverrideFieldStruct
 
     def PrintStructureInfo(self, File, Struct):
-        for Key, Value in Struct.items():
+        for Key, Value in sorted(Struct.items(), key=lambda x: x[0]):
             if Value[1] and 'build command options' in Value[1]:
                 FileWrite(File, '    *B  %-*s = %s' % (self.MaxLen + 4, '.' + Key, Value[0]))
+            elif Value[1] and Value[1].endswith('.fdf'):
+                FileWrite(File, '    *F  %-*s = %s' % (self.MaxLen + 4, '.' + Key, Value[0]))
             else:
                 FileWrite(File, '        %-*s = %s' % (self.MaxLen + 4, '.' + Key, Value[0]))
 
@@ -1548,7 +1580,7 @@ class PredictionReport(object):
             EotEndTime = time.time()
             EotDuration = time.strftime("%H:%M:%S", time.gmtime(int(round(EotEndTime - EotStartTime))))
             EdkLogger.quiet("EOT run time: %s\n" % EotDuration)
-            
+
             #
             # Parse the output of EOT tool
             #
@@ -1746,7 +1778,7 @@ class FdRegionReport(object):
         PlatformPcds = {}
         #
         # Collect PCDs declared in DEC files.
-        #        
+        #
         for Pa in Wa.AutoGenObjectList:
             for Package in Pa.PackageList:
                 for (TokenCName, TokenSpaceGuidCName, DecType) in Package.Pcds:
@@ -1865,8 +1897,7 @@ class FdRegionReport(object):
                 for Match in gOffsetGuidPattern.finditer(FvReport):
                     Guid = Match.group(2).upper()
                     OffsetInfo[Match.group(1)] = self._GuidsDb.get(Guid, Guid)
-                OffsetList = OffsetInfo.keys()
-                OffsetList.sort()
+                OffsetList = sorted(OffsetInfo.keys())
                 for Offset in OffsetList:
                     FileWrite (File, "%s %s" % (Offset, OffsetInfo[Offset]))
             except IOError:
@@ -2027,7 +2058,7 @@ class PlatformReport(object):
         self.DepexParser = None
         if "DEPEX" in ReportType:
             self.DepexParser = DepexParser(Wa)
-            
+
         self.ModuleReportList = []
         if MaList is not None:
             self._IsModuleBuild = True
@@ -2102,7 +2133,7 @@ class PlatformReport(object):
         if not self._IsModuleBuild:
             if "PCD" in ReportType:
                 self.PcdReport.GenerateReport(File, None)
-    
+
             if "FLASH" in ReportType:
                 for FdReportListItem in self.FdReportList:
                     FdReportListItem.GenerateReport(File)
@@ -2136,7 +2167,7 @@ class BuildReport(object):
         if ReportFile:
             self.ReportList = []
             self.ReportType = []
-            if ReportType: 
+            if ReportType:
                 for ReportTypeItem in ReportType:
                     if ReportTypeItem not in self.ReportType:
                         self.ReportType.append(ReportTypeItem)
@@ -2170,7 +2201,7 @@ class BuildReport(object):
     def GenerateReport(self, BuildDuration, AutoGenTime, MakeTime, GenFdsTime):
         if self.ReportFile:
             try:
-                File = StringIO('')
+                File = BytesIO('')
                 for (Wa, MaList) in self.ReportList:
                     PlatformReport(Wa, MaList, self.ReportType).GenerateReport(File, BuildDuration, AutoGenTime, MakeTime, GenFdsTime, self.ReportType)
                 Content = FileLinesSplit(File.getvalue(), gLineMaxLength)
@@ -2182,7 +2213,7 @@ class BuildReport(object):
                 EdkLogger.error("BuildReport", CODE_ERROR, "Unknown fatal error when generating build report", ExtraData=self.ReportFile, RaiseError=False)
                 EdkLogger.quiet("(Python %s on %s\n%s)" % (platform.python_version(), sys.platform, traceback.format_exc()))
             File.close()
-            
+
 # This acts like the main() function for the script, unless it is 'import'ed into another script.
 if __name__ == '__main__':
     pass
