@@ -32,7 +32,7 @@
 # Lab_Material_FW
 Lab Material for UEFI / EDK II Training
 
-To see the Slides with links to the presentations goto https://gitpitch.com/Laurie0131/Tianocore_Training_Contents/master#/
+To see the Slides with links to the presentations goto https://gitpitch.com/tianocore-training/Tianocore_Training_Contents/master#/
 
 ### Lab Material all started in the FW directory
 
