@@ -11,7 +11,7 @@
 #  functions, PKCS#7 SignedData sign functions, Diffie-Hellman functions, and
 #  authenticode signature verification functions are not supported in this instance.
 #
-#  Copyright (c) 2009 - 2018, Intel Corporation. All rights reserved.<BR>
+#  Copyright (c) 2009 - 2019, Intel Corporation. All rights reserved.<BR>
 #  This program and the accompanying materials
 #  are licensed and made available under the terms and conditions of the BSD License
 #  which accompanies this distribution.  The full text of the license may be found at
@@ -35,7 +35,7 @@
 #
 # The following information is for reference only and not required by the build tools.
 #
-#  VALID_ARCHITECTURES           = IA32 X64 IPF ARM AARCH64
+#  VALID_ARCHITECTURES           = IA32 X64 ARM AARCH64
 #
 
 [Sources]
@@ -54,7 +54,8 @@
   Pk/CryptRsaExtNull.c
   Pk/CryptPkcs5Pbkdf2Null.c
   Pk/CryptPkcs7SignNull.c
-  Pk/CryptPkcs7Verify.c
+  Pk/CryptPkcs7VerifyCommon.c
+  Pk/CryptPkcs7VerifyRuntime.c
   Pk/CryptDhNull.c
   Pk/CryptX509.c
   Pk/CryptAuthenticodeNull.c
@@ -71,9 +72,6 @@
 [Sources.X64]
   Rand/CryptRandTsc.c
 
-[Sources.IPF]
-  Rand/CryptRandItc.c
-
 [Sources.ARM]
   Rand/CryptRand.c
 
@@ -87,7 +85,6 @@
 [LibraryClasses]
   BaseLib
   BaseMemoryLib
-  MemoryAllocationLib
   UefiBootServicesTableLib
   UefiRuntimeServicesTableLib
   DebugLib
@@ -104,8 +101,6 @@
   # C4090: 'function' : different 'const' qualifiers
   #
   MSFT:*_*_*_CC_FLAGS = /wd4090
-
-  GCC:*_GCC44_IA32_CC_FLAGS = "-D__cdecl=__attribute__((cdecl))" "-D__declspec(t)=__attribute__((t))"
 
   # -JCryptoPkg/Include : To disable the use of the system includes provided by RVCT
   # --diag_remark=1     : Reduce severity of "#1-D: last line of file ends without a newline"

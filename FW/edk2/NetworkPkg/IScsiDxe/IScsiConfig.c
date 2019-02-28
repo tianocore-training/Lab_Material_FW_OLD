@@ -1,7 +1,7 @@
 /** @file
   Helper functions for configuring or getting the parameters relating to iSCSI.
 
-Copyright (c) 2004 - 2018, Intel Corporation. All rights reserved.<BR>
+Copyright (c) 2004 - 2019, Intel Corporation. All rights reserved.<BR>
 This program and the accompanying materials
 are licensed and made available under the terms and conditions of the BSD License
 which accompanies this distribution.  The full text of the license may be found at
@@ -15,8 +15,6 @@ WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 #include "IScsiImpl.h"
 
 CHAR16          mVendorStorageName[]     = L"ISCSI_CONFIG_IFR_NVDATA";
-BOOLEAN         mIScsiDeviceListUpdated  = FALSE;
-UINTN           mNumberOfIScsiDevices    = 0;
 ISCSI_FORM_CALLBACK_INFO  *mCallbackInfo = NULL;
 
 HII_VENDOR_DEVICE_PATH  mIScsiHiiVendorDevicePath = {
@@ -2294,10 +2292,6 @@ IScsiConfigDeleteAttempts (
     //
 
     AttemptConfigData = NET_LIST_USER_STRUCT (Entry, ISCSI_ATTEMPT_CONFIG_NVDATA, Link);
-    if (AttemptConfigData == NULL) {
-      Status = EFI_NOT_FOUND;
-      goto Error;
-    }
 
     //
     // Remove this attempt from UI configured attempt list.

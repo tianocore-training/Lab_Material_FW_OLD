@@ -1,7 +1,7 @@
 /** @file
   EFI PCI IO protocol functions implementation for PCI Bus module.
 
-Copyright (c) 2006 - 2018, Intel Corporation. All rights reserved.<BR>
+Copyright (c) 2006 - 2019, Intel Corporation. All rights reserved.<BR>
 This program and the accompanying materials
 are licensed and made available under the terms and conditions of the BSD License
 which accompanies this distribution.  The full text of the license may be found at
@@ -1316,7 +1316,7 @@ CheckBarType (
   @param  Operation    Set or Disable.
 
   @retval  EFI_UNSUPPORTED  If root bridge does not support change attribute.
-  @retval  EFI_SUCCESS      Successfully set new attributs.
+  @retval  EFI_SUCCESS      Successfully set new attributes.
 
 **/
 EFI_STATUS
@@ -1413,13 +1413,13 @@ SupportPaletteSnoopAttributes (
   }
 
   //
-  // Get the boot VGA on the same segement
+  // Get the boot VGA on the same Host Bridge
   //
-  Temp = ActiveVGADeviceOnTheSameSegment (PciIoDevice);
+  Temp = LocateVgaDeviceOnHostBridge (PciIoDevice->PciRootBridgeIo->ParentHandle);
 
   if (Temp == NULL) {
     //
-    // If there is no VGA device on the segement, set
+    // If there is no VGA device on the segment, set
     // this graphics card to decode the palette range
     //
     return EFI_SUCCESS;
@@ -1588,7 +1588,7 @@ PciIoAttributes (
   //
   // Just a trick for ENABLE attribute
   // EFI_PCI_DEVICE_ENABLE is not defined in UEFI spec, which is the internal usage.
-  // So, this logic doesn't confrom to UEFI spec, which should be removed.
+  // So, this logic doesn't conform to UEFI spec, which should be removed.
   // But this trick logic is still kept for some binary drivers that depend on it.
   //
   if ((Attributes & EFI_PCI_DEVICE_ENABLE) == EFI_PCI_DEVICE_ENABLE) {
@@ -1668,9 +1668,9 @@ PciIoAttributes (
       //
       if (Operation == EfiPciIoAttributeOperationEnable) {
         //
-        // Check if there have been an active VGA device on the same segment
+        // Check if there have been an active VGA device on the same Host Bridge
         //
-        Temp = ActiveVGADeviceOnTheSameSegment (PciIoDevice);
+        Temp = LocateVgaDeviceOnHostBridge (PciIoDevice->PciRootBridgeIo->ParentHandle);
         if (Temp != NULL && Temp != PciIoDevice) {
           //
           // An active VGA has been detected, so can not enable another
@@ -1725,7 +1725,7 @@ PciIoAttributes (
     Command |= EFI_PCI_COMMAND_BUS_MASTER;
   }
   //
-  // The upstream bridge should be also set to revelant attribute
+  // The upstream bridge should be also set to relevant attribute
   // expect for IO, Mem and BusMaster
   //
   UpStreamAttributes = Attributes &
@@ -1911,7 +1911,7 @@ PciIoGetBarAttributes (
 
     case PciBarTypePMem32:
       //
-      // prefechable
+      // prefetchable
       //
       Descriptor->SpecificFlag = EFI_ACPI_MEMORY_RESOURCE_SPECIFIC_FLAG_CACHEABLE_PREFETCHABLE;
       //
@@ -1930,7 +1930,7 @@ PciIoGetBarAttributes (
 
     case PciBarTypePMem64:
       //
-      // prefechable
+      // prefetchable
       //
       Descriptor->SpecificFlag = EFI_ACPI_MEMORY_RESOURCE_SPECIFIC_FLAG_CACHEABLE_PREFETCHABLE;
       //
@@ -2042,7 +2042,7 @@ PciIoSetBarAttributes (
     return EFI_UNSUPPORTED;
   }
   //
-  // Attributes must be supported.  Make sure the BAR range describd by BarIndex, Offset, and
+  // Attributes must be supported.  Make sure the BAR range described by BarIndex, Offset, and
   // Length are valid for this PCI device.
   //
   NonRelativeOffset = *Offset;
@@ -2061,47 +2061,6 @@ PciIoSetBarAttributes (
   return EFI_SUCCESS;
 }
 
-/**
-  Program parent bridge's attribute recurrently.
-
-  @param PciIoDevice  Child Pci device instance
-  @param Operation    The operation to perform on the attributes for this PCI controller.
-  @param Attributes   The mask of attributes that are used for Set, Enable, and Disable
-                      operations.
-
-  @retval EFI_SUCCESS           The operation on the PCI controller's attributes was completed.
-  @retval EFI_INVALID_PARAMETER One or more parameters are invalid.
-  @retval EFI_UNSUPPORTED       one or more of the bits set in
-                                Attributes are not supported by this PCI controller or one of
-                                its parent bridges when Operation is Set, Enable or Disable.
-
-**/
-EFI_STATUS
-UpStreamBridgesAttributes (
-  IN PCI_IO_DEVICE                            *PciIoDevice,
-  IN EFI_PCI_IO_PROTOCOL_ATTRIBUTE_OPERATION  Operation,
-  IN UINT64                                   Attributes
-  )
-{
-  PCI_IO_DEVICE       *Parent;
-  EFI_PCI_IO_PROTOCOL *PciIo;
-
-  Parent = PciIoDevice->Parent;
-
-  while (Parent != NULL && IS_PCI_BRIDGE (&Parent->Pci)) {
-
-    //
-    // Get the PciIo Protocol
-    //
-    PciIo = &Parent->PciIo;
-
-    PciIo->Attributes (PciIo, Operation, Attributes, NULL);
-
-    Parent = Parent->Parent;
-  }
-
-  return EFI_SUCCESS;
-}
 
 /**
   Test whether two Pci devices has same parent bridge.

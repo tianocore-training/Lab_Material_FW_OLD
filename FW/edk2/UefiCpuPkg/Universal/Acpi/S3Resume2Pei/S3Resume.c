@@ -4,7 +4,7 @@
   This module will execute the boot script saved during last boot and after that,
   control is passed to OS waking up handler.
 
-  Copyright (c) 2006 - 2018, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 2006 - 2019, Intel Corporation. All rights reserved.<BR>
   Copyright (c) 2017, AMD Incorporated. All rights reserved.<BR>
 
   This program and the accompanying materials
@@ -25,7 +25,6 @@
 #include <Guid/ExtendedFirmwarePerformance.h>
 #include <Guid/EndOfS3Resume.h>
 #include <Guid/S3SmmInitDone.h>
-#include <Ppi/ReadOnlyVariable2.h>
 #include <Ppi/S3Resume2.h>
 #include <Ppi/SmmAccess.h>
 #include <Ppi/PostBootScriptTable.h>
@@ -34,7 +33,6 @@
 
 #include <Library/DebugLib.h>
 #include <Library/BaseLib.h>
-#include <Library/TimerLib.h>
 #include <Library/PeimEntryPoint.h>
 #include <Library/PeiServicesLib.h>
 #include <Library/HobLib.h>
@@ -47,7 +45,7 @@
 #include <Library/DebugAgentLib.h>
 #include <Library/LocalApicLib.h>
 #include <Library/ReportStatusCodeLib.h>
-#include <Library/PrintLib.h>
+
 #include <Library/HobLib.h>
 #include <Library/LockBoxLib.h>
 #include <IndustryStandard/Acpi.h>
@@ -318,7 +316,7 @@ IsLongModeWakingVector (
   if (Facs->XFirmwareWakingVector != 0) {
     if ((Facs->Version == EFI_ACPI_4_0_FIRMWARE_ACPI_CONTROL_STRUCTURE_VERSION) &&
         ((Facs->Flags & EFI_ACPI_4_0_64BIT_WAKE_SUPPORTED_F) != 0) &&
-        ((Facs->Flags & EFI_ACPI_4_0_OSPM_64BIT_WAKE__F) != 0)) {
+        ((Facs->OspmFlags & EFI_ACPI_4_0_OSPM_64BIT_WAKE__F) != 0)) {
       // Both BIOS and OS wants 64bit vector
       if (FeaturePcdGet (PcdDxeIplSwitchToLongMode)) {
         return TRUE;
@@ -501,7 +499,7 @@ S3ResumeBootOs (
       ));
     if ((Facs->Version == EFI_ACPI_4_0_FIRMWARE_ACPI_CONTROL_STRUCTURE_VERSION) &&
         ((Facs->Flags & EFI_ACPI_4_0_64BIT_WAKE_SUPPORTED_F) != 0) &&
-        ((Facs->Flags & EFI_ACPI_4_0_OSPM_64BIT_WAKE__F) != 0)) {
+        ((Facs->OspmFlags & EFI_ACPI_4_0_OSPM_64BIT_WAKE__F) != 0)) {
       //
       // X64 long mode waking vector
       //
@@ -966,6 +964,7 @@ S3RestoreConfig2 (
   VOID                                          *GuidHob;
   BOOLEAN                                       Build4GPageTableOnly;
   BOOLEAN                                       InterruptStatus;
+  IA32_CR0                                      Cr0;
 
   TempAcpiS3Context = 0;
   TempEfiBootScriptExecutorVariable = 0;
@@ -1047,6 +1046,13 @@ S3RestoreConfig2 (
   //
   GuidHob = GetFirstGuidHob (&gEfiAcpiVariableGuid);
   if (GuidHob != NULL) {
+    //
+    // Below SwitchStack/AsmEnablePaging64 function has
+    // assumption that it's in 32 bits mode now.
+    // Add ASSERT code to indicate this assumption.
+    //
+    ASSERT(sizeof (UINTN) == sizeof (UINT32));
+
     Status = PeiServicesLocatePpi (
                               &gPeiSmmAccessPpiGuid,
                               0,
@@ -1107,6 +1113,15 @@ S3RestoreConfig2 (
       //
       SetInterruptState (InterruptStatus);
 
+      Cr0.UintN = AsmReadCr0 ();
+      if (Cr0.Bits.PG != 0) {
+        //
+        // We're in 32-bit mode, with paging enabled. We can't set CR3 to
+        // the 64-bit page tables without first disabling paging.
+        //
+        Cr0.Bits.PG = 0;
+        AsmWriteCr0 (Cr0.UintN);
+      }
       AsmWriteCr3 ((UINTN)SmmS3ResumeState->SmmS3Cr3);
 
       //

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
 # Copyright (c) 2008 - 2009, Apple Inc. All rights reserved.<BR>
-# Copyright (c) 2010 - 2017, Intel Corporation. All rights reserved.<BR>
+# Copyright (c) 2010 - 2019, Intel Corporation. All rights reserved.<BR>
 #
 # This program and the accompanying materials
 # are licensed and made available under the terms and conditions of the BSD License
@@ -83,21 +83,9 @@ case `uname` in
   Linux*)
     gcc_version=$(gcc -v 2>&1 | tail -1 | awk '{print $3}')
     case $gcc_version in
-      [1-3].*|4.[0-3].*)
-        echo OvmfPkg requires GCC4.4 or later
+      [1-3].*|4.[0-7].*)
+        echo OvmfPkg requires GCC4.8 or later
         exit 1
-        ;;
-      4.4.*)
-        TARGET_TOOLS=GCC44
-        ;;
-      4.5.*)
-        TARGET_TOOLS=GCC45
-        ;;
-      4.6.*)
-        TARGET_TOOLS=GCC46
-        ;;
-      4.7.*)
-        TARGET_TOOLS=GCC47
         ;;
       4.8.*)
         TARGET_TOOLS=GCC48
@@ -227,7 +215,7 @@ if [[ "$RUN_QEMU" == "yes" ]]; then
                    grep -o -E 'version [0-9]+\.[0-9]+\.[0-9]+' | \
                      awk '{print $2}')
   case $qemu_version in
-    1.[6-9].*|1.[1-9][0-9].*|2.*.*)
+    1.[6-9].*|[2-9].*.*|[1-9][0-9]*.*.*)
       ENABLE_FLASH=yes
       ;;
   esac

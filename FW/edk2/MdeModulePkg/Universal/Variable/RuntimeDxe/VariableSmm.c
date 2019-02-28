@@ -14,7 +14,8 @@
   VariableServiceSetVariable(), VariableServiceQueryVariableInfo(), ReclaimForOS(),
   SmmVariableGetStatistics() should also do validation based on its own knowledge.
 
-Copyright (c) 2010 - 2016, Intel Corporation. All rights reserved.<BR>
+Copyright (c) 2010 - 2019, Intel Corporation. All rights reserved.<BR>
+Copyright (c) 2018, Linaro, Ltd. All rights reserved.<BR>
 This program and the accompanying materials
 are licensed and made available under the terms and conditions of the BSD License
 which accompanies this distribution.  The full text of the license may be found at
@@ -28,23 +29,17 @@ WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 #include <Protocol/SmmVariable.h>
 #include <Protocol/SmmFirmwareVolumeBlock.h>
 #include <Protocol/SmmFaultTolerantWrite.h>
-#include <Protocol/SmmEndOfDxe.h>
+#include <Protocol/MmEndOfDxe.h>
 #include <Protocol/SmmVarCheck.h>
 
-#include <Library/SmmServicesTableLib.h>
-#include <Library/SmmMemLib.h>
+#include <Library/MmServicesTableLib.h>
 
 #include <Guid/SmmVariableCommon.h>
 #include "Variable.h"
 
-extern VARIABLE_INFO_ENTRY                           *gVariableInfo;
-EFI_HANDLE                                           mSmmVariableHandle      = NULL;
-EFI_HANDLE                                           mVariableHandle         = NULL;
 BOOLEAN                                              mAtRuntime              = FALSE;
 UINT8                                                *mVariableBufferPayload = NULL;
 UINTN                                                mVariableBufferPayloadSize;
-extern BOOLEAN                                       mEndOfDxe;
-extern VAR_CHECK_REQUEST_SOURCE                      mRequestSource;
 
 /**
   SecureBoot Hook for SetVariable.
@@ -218,7 +213,7 @@ GetFtwProtocol (
   //
   // Locate Smm Fault Tolerent Write protocol
   //
-  Status = gSmst->SmmLocateProtocol (
+  Status = gMmst->MmLocateProtocol (
                     &gEfiSmmFaultTolerantWriteProtocolGuid,
                     NULL,
                     FtwProtocol
@@ -248,7 +243,7 @@ GetFvbByHandle (
   //
   // To get the SMM FVB protocol interface on the handle
   //
-  return gSmst->SmmHandleProtocol (
+  return gMmst->MmHandleProtocol (
                   FvBlockHandle,
                   &gEfiSmmFirmwareVolumeBlockProtocolGuid,
                   (VOID **) FvBlock
@@ -287,7 +282,7 @@ GetFvbCountAndBuffer (
   BufferSize     = 0;
   *NumberHandles = 0;
   *Buffer        = NULL;
-  Status = gSmst->SmmLocateHandle (
+  Status = gMmst->MmLocateHandle (
                     ByProtocol,
                     &gEfiSmmFirmwareVolumeBlockProtocolGuid,
                     NULL,
@@ -303,7 +298,7 @@ GetFvbCountAndBuffer (
     return EFI_OUT_OF_RESOURCES;
   }
 
-  Status = gSmst->SmmLocateHandle (
+  Status = gMmst->MmLocateHandle (
                     ByProtocol,
                     &gEfiSmmFirmwareVolumeBlockProtocolGuid,
                     NULL,
@@ -500,7 +495,7 @@ SmmVariableHandler (
     return EFI_SUCCESS;
   }
 
-  if (!SmmIsBufferOutsideSmmValid ((UINTN)CommBuffer, TempCommBufferSize)) {
+  if (!VariableSmmIsBufferOutsideSmmValid ((UINTN)CommBuffer, TempCommBufferSize)) {
     DEBUG ((EFI_D_ERROR, "SmmVariableHandler: SMM communication buffer in SMRAM or overflow!\n"));
     return EFI_SUCCESS;
   }
@@ -537,6 +532,12 @@ SmmVariableHandler (
         goto EXIT;
       }
 
+      //
+      // The VariableSpeculationBarrier() call here is to ensure the previous
+      // range/content checks for the CommBuffer have been completed before the
+      // subsequent consumption of the CommBuffer content.
+      //
+      VariableSpeculationBarrier ();
       if (SmmVariableHeader->NameSize < sizeof (CHAR16) || SmmVariableHeader->Name[SmmVariableHeader->NameSize/sizeof (CHAR16) - 1] != L'\0') {
         //
         // Make sure VariableName is A Null-terminated string.
@@ -631,6 +632,12 @@ SmmVariableHandler (
         goto EXIT;
       }
 
+      //
+      // The VariableSpeculationBarrier() call here is to ensure the previous
+      // range/content checks for the CommBuffer have been completed before the
+      // subsequent consumption of the CommBuffer content.
+      //
+      VariableSpeculationBarrier ();
       if (SmmVariableHeader->NameSize < sizeof (CHAR16) || SmmVariableHeader->Name[SmmVariableHeader->NameSize/sizeof (CHAR16) - 1] != L'\0') {
         //
         // Make sure VariableName is A Null-terminated string.
@@ -766,6 +773,12 @@ SmmVariableHandler (
         goto EXIT;
       }
 
+      //
+      // The VariableSpeculationBarrier() call here is to ensure the previous
+      // range/content checks for the CommBuffer have been completed before the
+      // subsequent consumption of the CommBuffer content.
+      //
+      VariableSpeculationBarrier ();
       if (CommVariableProperty->NameSize < sizeof (CHAR16) || CommVariableProperty->Name[CommVariableProperty->NameSize/sizeof (CHAR16) - 1] != L'\0') {
         //
         // Make sure VariableName is A Null-terminated string.
@@ -827,6 +840,28 @@ SmmEndOfDxeCallback (
 }
 
 /**
+  Initializes variable write service for SMM.
+
+**/
+VOID
+VariableWriteServiceInitializeSmm (
+  VOID
+  )
+{
+  EFI_STATUS    Status;
+
+  Status = VariableWriteServiceInitialize ();
+  if (EFI_ERROR (Status)) {
+    DEBUG ((DEBUG_ERROR, "Variable write service initialization failed. Status = %r\n", Status));
+  }
+
+  //
+  // Notify the variable wrapper driver the variable write service is ready
+  //
+  VariableNotifySmmWriteReady ();
+}
+
+/**
   SMM Fault Tolerant Write protocol notification event handler.
 
   Non-Volatile variable write may needs FTW protocol to reclaim when
@@ -849,6 +884,7 @@ SmmFtwNotificationEvent (
   )
 {
   EFI_STATUS                              Status;
+  EFI_PHYSICAL_ADDRESS                    VariableStoreBase;
   EFI_SMM_FIRMWARE_VOLUME_BLOCK_PROTOCOL  *FvbProtocol;
   EFI_SMM_FAULT_TOLERANT_WRITE_PROTOCOL   *FtwProtocol;
   EFI_PHYSICAL_ADDRESS                    NvStorageVariableBase;
@@ -871,13 +907,17 @@ SmmFtwNotificationEvent (
     ASSERT (PcdGet32 (PcdFlashNvStorageVariableSize) <= FtwMaxBlockSize);
   }
 
+  NvStorageVariableBase = NV_STORAGE_VARIABLE_BASE;
+  VariableStoreBase = NvStorageVariableBase + mNvFvHeaderCache->HeaderLength;
+
+  //
+  // Let NonVolatileVariableBase point to flash variable store base directly after FTW ready.
+  //
+  mVariableModuleGlobal->VariableGlobal.NonVolatileVariableBase = VariableStoreBase;
+
   //
   // Find the proper FVB protocol for variable.
   //
-  NvStorageVariableBase = (EFI_PHYSICAL_ADDRESS) PcdGet64 (PcdFlashNvStorageVariableBase64);
-  if (NvStorageVariableBase == 0) {
-    NvStorageVariableBase = (EFI_PHYSICAL_ADDRESS) PcdGet32 (PcdFlashNvStorageVariableBase);
-  }
   Status = GetFvbInfoByAddress (NvStorageVariableBase, NULL, &FvbProtocol);
   if (EFI_ERROR (Status)) {
     return EFI_NOT_FOUND;
@@ -885,21 +925,10 @@ SmmFtwNotificationEvent (
 
   mVariableModuleGlobal->FvbInstance = FvbProtocol;
 
-  Status = VariableWriteServiceInitialize ();
-  if (EFI_ERROR (Status)) {
-    DEBUG ((DEBUG_ERROR, "Variable write service initialization failed. Status = %r\n", Status));
-  }
-
   //
-  // Notify the variable wrapper driver the variable write service is ready
+  // Initializes variable write service after FTW was ready.
   //
-  Status = gBS->InstallProtocolInterface (
-                  &mSmmVariableHandle,
-                  &gSmmVariableWriteGuid,
-                  EFI_NATIVE_INTERFACE,
-                  NULL
-                  );
-  ASSERT_EFI_ERROR (Status);
+  VariableWriteServiceInitializeSmm ();
 
   return EFI_SUCCESS;
 }
@@ -911,17 +940,13 @@ SmmFtwNotificationEvent (
   for variable read and write services being available. It also registers
   a notification function for an EVT_SIGNAL_VIRTUAL_ADDRESS_CHANGE event.
 
-  @param[in] ImageHandle    The firmware allocated handle for the EFI image.
-  @param[in] SystemTable    A pointer to the EFI System Table.
-
   @retval EFI_SUCCESS       Variable service successfully initialized.
 
 **/
 EFI_STATUS
 EFIAPI
-VariableServiceInitialize (
-  IN EFI_HANDLE                           ImageHandle,
-  IN EFI_SYSTEM_TABLE                     *SystemTable
+MmVariableServiceInitialize (
+  VOID
   )
 {
   EFI_STATUS                              Status;
@@ -939,7 +964,7 @@ VariableServiceInitialize (
   // Install the Smm Variable Protocol on a new handle.
   //
   VariableHandle = NULL;
-  Status = gSmst->SmmInstallProtocolInterface (
+  Status = gMmst->MmInstallProtocolInterface (
                     &VariableHandle,
                     &gEfiSmmVariableProtocolGuid,
                     EFI_NATIVE_INTERFACE,
@@ -947,7 +972,7 @@ VariableServiceInitialize (
                     );
   ASSERT_EFI_ERROR (Status);
 
-  Status = gSmst->SmmInstallProtocolInterface (
+  Status = gMmst->MmInstallProtocolInterface (
                     &VariableHandle,
                     &gEdkiiSmmVarCheckProtocolGuid,
                     EFI_NATIVE_INTERFACE,
@@ -958,7 +983,7 @@ VariableServiceInitialize (
   mVariableBufferPayloadSize = GetMaxVariableSize () +
                                OFFSET_OF (SMM_VARIABLE_COMMUNICATE_VAR_CHECK_VARIABLE_PROPERTY, Name) - GetVariableHeaderSize ();
 
-  Status = gSmst->SmmAllocatePool (
+  Status = gMmst->MmAllocatePool (
                     EfiRuntimeServicesData,
                     mVariableBufferPayloadSize,
                     (VOID **)&mVariableBufferPayload
@@ -969,41 +994,42 @@ VariableServiceInitialize (
   /// Register SMM variable SMI handler
   ///
   VariableHandle = NULL;
-  Status = gSmst->SmiHandlerRegister (SmmVariableHandler, &gEfiSmmVariableProtocolGuid, &VariableHandle);
+  Status = gMmst->MmiHandlerRegister (SmmVariableHandler, &gEfiSmmVariableProtocolGuid, &VariableHandle);
   ASSERT_EFI_ERROR (Status);
 
   //
   // Notify the variable wrapper driver the variable service is ready
   //
-  Status = SystemTable->BootServices->InstallProtocolInterface (
-                                        &mVariableHandle,
-                                        &gEfiSmmVariableProtocolGuid,
-                                        EFI_NATIVE_INTERFACE,
-                                        &gSmmVariable
-                                        );
-  ASSERT_EFI_ERROR (Status);
+  VariableNotifySmmReady ();
 
   //
   // Register EFI_SMM_END_OF_DXE_PROTOCOL_GUID notify function.
   //
-  Status = gSmst->SmmRegisterProtocolNotify (
-                    &gEfiSmmEndOfDxeProtocolGuid,
+  Status = gMmst->MmRegisterProtocolNotify (
+                    &gEfiMmEndOfDxeProtocolGuid,
                     SmmEndOfDxeCallback,
                     &SmmEndOfDxeRegistration
                     );
   ASSERT_EFI_ERROR (Status);
 
-  //
-  // Register FtwNotificationEvent () notify function.
-  //
-  Status = gSmst->SmmRegisterProtocolNotify (
-                    &gEfiSmmFaultTolerantWriteProtocolGuid,
-                    SmmFtwNotificationEvent,
-                    &SmmFtwRegistration
-                    );
-  ASSERT_EFI_ERROR (Status);
+  if (!PcdGetBool (PcdEmuVariableNvModeEnable)) {
+    //
+    // Register FtwNotificationEvent () notify function.
+    //
+    Status = gMmst->MmRegisterProtocolNotify (
+                      &gEfiSmmFaultTolerantWriteProtocolGuid,
+                      SmmFtwNotificationEvent,
+                      &SmmFtwRegistration
+                      );
+    ASSERT_EFI_ERROR (Status);
 
-  SmmFtwNotificationEvent (NULL, NULL, NULL);
+    SmmFtwNotificationEvent (NULL, NULL, NULL);
+  } else {
+    //
+    // Emulated non-volatile variable mode does not depend on FVB and FTW.
+    //
+    VariableWriteServiceInitializeSmm ();
+  }
 
   return EFI_SUCCESS;
 }

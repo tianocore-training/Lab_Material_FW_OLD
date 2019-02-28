@@ -51,7 +51,7 @@
 
 #string STR_TOUCH_ERROR           #language en-US "%H%s%N: Operation was not successful on '%H%s%N'\r\n"
 
-#string STR_VER_OUTPUT_SHELL      #language en-US "UEFI %s Shell v%d.%d %B-From BUILD_NEW_SHELL Switch%N\r\n"
+#string STR_VER_OUTPUT_SHELL      #language en-US "UEFI %s Shell v%d.%d %B-From BUILD_NEW_SHELL Switch  %N\r\n"
 #string STR_VER_OUTPUT_SIMPLE     #language en-US "%d.%d\r\n"
 #string STR_VER_OUTPUT_UEFI       #language en-US "UEFI v%d.%02d (%s, 0x%08x)\r\n"
 #string STR_VER_OUTPUT_SUPPLIER   #language en-US "%s\r\n"

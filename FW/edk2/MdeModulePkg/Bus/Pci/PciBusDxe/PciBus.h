@@ -1,7 +1,7 @@
 /** @file
   Header files and data structures needed by PCI Bus module.
 
-Copyright (c) 2006 - 2017, Intel Corporation. All rights reserved.<BR>
+Copyright (c) 2006 - 2019, Intel Corporation. All rights reserved.<BR>
 This program and the accompanying materials
 are licensed and made available under the terms and conditions of the BSD License
 which accompanies this distribution.  The full text of the license may be found at
@@ -44,7 +44,6 @@ WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 #include <Library/UefiBootServicesTableLib.h>
 #include <Library/DevicePathLib.h>
 #include <Library/PcdLib.h>
-#include <Library/PeCoffLib.h>
 
 #include <IndustryStandard/Pci.h>
 #include <IndustryStandard/PeImage.h>
@@ -68,6 +67,7 @@ typedef enum {
   PciBarTypePMem32,
   PciBarTypeMem64,
   PciBarTypePMem64,
+  PciBarTypeOpRom,
   PciBarTypeIo,
   PciBarTypeMem,
   PciBarTypeMaxType
@@ -237,7 +237,7 @@ struct _PCI_IO_DEVICE {
   //
   // The OptionRom Size
   //
-  UINT64                                    RomSize;
+  UINT32                                    RomSize;
 
   //
   // TRUE if all OpROM (in device or in platform specific position) have been processed

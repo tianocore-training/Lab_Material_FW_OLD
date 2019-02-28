@@ -814,7 +814,7 @@ PxeBcCreateIp4Children (
     }
 
     //
-    // Open SNP on the child handle BY_DRIVER. It will prevent any additionally
+    // Open SNP on the child handle BY_DRIVER|EXCLUSIVE. It will prevent any additionally
     // layering to perform the experiment.
     //
     Status = gBS->OpenProtocol (
@@ -823,7 +823,7 @@ PxeBcCreateIp4Children (
                     (VOID **) &Snp,
                     This->DriverBindingHandle,
                     Private->Ip4Nic->Controller,
-                    EFI_OPEN_PROTOCOL_BY_DRIVER
+                    EFI_OPEN_PROTOCOL_BY_DRIVER|EFI_OPEN_PROTOCOL_EXCLUSIVE
                     );
     if (EFI_ERROR (Status)) {
       goto ON_ERROR;
@@ -1157,7 +1157,7 @@ PxeBcCreateIp6Children (
     }
 
     //
-    // Open SNP on the child handle BY_DRIVER. It will prevent any additionally
+    // Open SNP on the child handle BY_DRIVER|EXCLUSIVE. It will prevent any additionally
     // layering to perform the experiment.
     //
     Status = gBS->OpenProtocol (
@@ -1166,7 +1166,7 @@ PxeBcCreateIp6Children (
                     (VOID **) &Snp,
                     This->DriverBindingHandle,
                     Private->Ip6Nic->Controller,
-                    EFI_OPEN_PROTOCOL_BY_DRIVER
+                    EFI_OPEN_PROTOCOL_BY_DRIVER|EFI_OPEN_PROTOCOL_EXCLUSIVE
                     );
     if (EFI_ERROR (Status)) {
       goto ON_ERROR;
@@ -1269,16 +1269,11 @@ PxeBcDriverEntryPoint (
              &gPxeBcComponentName2
              );
   if (EFI_ERROR (Status)) {
-    gBS->UninstallMultipleProtocolInterfaces (
-           ImageHandle,
-           &gEfiDriverBindingProtocolGuid,
-           &gPxeBcIp4DriverBinding,
-           &gEfiComponentName2ProtocolGuid,
-           &gPxeBcComponentName2,
-           &gEfiComponentNameProtocolGuid,
-           &gPxeBcComponentName,
-           NULL
-           );
+    EfiLibUninstallDriverBindingComponentName2 (
+      &gPxeBcIp4DriverBinding,
+      &gPxeBcComponentName,
+      &gPxeBcComponentName2
+      );
   }
 
   return Status;

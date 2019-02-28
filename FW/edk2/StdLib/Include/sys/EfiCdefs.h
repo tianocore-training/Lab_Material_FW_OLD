@@ -339,8 +339,9 @@
 
   #define __STDC__            1
   #define __STDC_VERSION__    199409L
+  #ifndef __STDC_HOSTED__
   #define __STDC_HOSTED__     1
-
+  #endif
 #endif  /* defined(_MSC_VER) */
 extern int _fltused;    // VC++ requires this if you use floating point.  KEEP for all compilers.
 

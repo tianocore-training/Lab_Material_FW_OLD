@@ -31,9 +31,6 @@
   SKUID_IDENTIFIER               = DEFAULT
 
 [BuildOptions]
-  XCODE:*_*_ARM_PLATFORM_FLAGS  == -arch armv7
-  GCC:*_*_ARM_PLATFORM_FLAGS    == -march=armv7-a -mfpu=neon
-
   RELEASE_*_*_CC_FLAGS  = -DMDEPKG_NDEBUG
   *_*_*_CC_FLAGS  = -DDISABLE_NEW_DEPRECATED_INTERFACES
 
@@ -144,7 +141,6 @@
   ArmPkg/Library/ArmGicArchSecLib/ArmGicArchSecLib.inf
   ArmPkg/Library/ArmLib/ArmBaseLib.inf
   ArmPkg/Library/ArmSoftFloatLib/ArmSoftFloatLib.inf
-  ArmPkg/Library/DefaultExceptionHandlerLib/DefaultExceptionHandlerLibBase.inf
   ArmPkg/Library/PeiServicesTablePointerLib/PeiServicesTablePointerLib.inf
   ArmPkg/Library/PlatformBootManagerLib/PlatformBootManagerLib.inf
 
@@ -152,3 +148,4 @@
 
 [Components.AARCH64]
   ArmPkg/Library/ArmMmuLib/ArmMmuPeiLib.inf
+  ArmPkg/Library/StandaloneMmMmuLib/ArmMmuStandaloneMmLib.inf

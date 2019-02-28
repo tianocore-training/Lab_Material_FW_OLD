@@ -25,7 +25,7 @@
   LIBRARY_CLASS                  = BaseLib
 
 #
-#  VALID_ARCHITECTURES           = IA32 X64 IPF EBC ARM AARCH64
+#  VALID_ARCHITECTURES           = IA32 X64 EBC ARM AARCH64
 #
 
 [Sources]
@@ -68,6 +68,7 @@
 
 [Sources.Ia32]
   Ia32/WriteTr.nasm
+  Ia32/Lfence.nasm
 
   Ia32/Wbinvd.c | MSFT
   Ia32/WriteMm7.c | MSFT
@@ -335,6 +336,7 @@
   X86DisablePaging32.c
   X86RdRand.c
   X86PatchInstruction.c
+  X86SpeculationBarrier.c
 
 [Sources.X64]
   X64/Thunk16.nasm
@@ -346,6 +348,7 @@
   X64/EnableCache.nasm
   X64/DisableCache.nasm
   X64/WriteTr.nasm
+  X64/Lfence.nasm
 
   X64/CpuBreakpoint.c | MSFT
   X64/WriteMsr64.c | MSFT
@@ -513,6 +516,7 @@
   X86DisablePaging32.c
   X86RdRand.c
   X86PatchInstruction.c
+  X86SpeculationBarrier.c
   X64/GccInline.c | GCC
   X64/Thunk16.S | XCODE
   X64/SwitchStack.nasm| GCC
@@ -537,43 +541,11 @@
   X64/RdRand.S | GCC
   ChkStkGcc.c  | GCC
 
-[Sources.IPF]
-  Ipf/AccessGp.s
-  Ipf/ReadCpuid.s
-  Ipf/ExecFc.s
-  Ipf/AsmPalCall.s
-  Ipf/AccessPsr.s
-  Ipf/AccessPmr.s
-  Ipf/AccessKr.s
-  Ipf/AccessKr7.s
-  Ipf/AccessGcr.s
-  Ipf/AccessEicr.s
-  Ipf/AccessDbr.s
-  Ipf/AccessMsr.s        | INTEL
-  Ipf/AccessMsr.s        | GCC
-  Ipf/AccessMsrDb.s      | MSFT
-  Ipf/InternalFlushCacheRange.s
-  Ipf/FlushCacheRange.c
-  Ipf/InternalSwitchStack.c
-  Ipf/GetInterruptState.s
-  Ipf/CpuPause.s
-  Ipf/CpuBreakpoint.c    | INTEL
-  Ipf/CpuBreakpointMsc.c | MSFT
-  Ipf/AsmCpuMisc.s       | GCC
-  Ipf/Unaligned.c
-  Ipf/SwitchStack.s
-  Ipf/LongJmp.s
-  Ipf/SetJmp.s
-  Ipf/ReadCr.s
-  Ipf/ReadAr.s
-  Ipf/Ia64gen.h
-  Ipf/Asm.h
-  Math64.c
-
 [Sources.EBC]
   Ebc/CpuBreakpoint.c
   Ebc/SetJumpLongJump.c
   Ebc/SwitchStack.c
+  Ebc/SpeculationBarrier.c
   Unaligned.c
   Math64.c
 
@@ -591,6 +563,7 @@
   Arm/CpuPause.asm           | RVCT
   Arm/CpuBreakpoint.asm      | RVCT
   Arm/MemoryFence.asm        | RVCT
+  Arm/SpeculationBarrier.S   | RVCT
 
   Arm/SwitchStack.asm        | MSFT
   Arm/SetJumpLongJump.asm    | MSFT
@@ -600,6 +573,7 @@
   Arm/CpuPause.asm           | MSFT
   Arm/CpuBreakpoint.asm      | MSFT
   Arm/MemoryFence.asm        | MSFT
+  Arm/SpeculationBarrier.asm | MSFT
 
   Arm/Math64.S                  | GCC
   Arm/SwitchStack.S             | GCC
@@ -609,6 +583,7 @@
   Arm/SetJumpLongJump.S         | GCC
   Arm/CpuBreakpoint.S           | GCC
   Arm/MemoryFence.S             | GCC
+  Arm/SpeculationBarrier.S      | GCC
 
 [Sources.AARCH64]
   Arm/InternalSwitchStack.c
@@ -622,6 +597,7 @@
   AArch64/GetInterruptsState.S      | GCC
   AArch64/SetJumpLongJump.S         | GCC
   AArch64/CpuBreakpoint.S           | GCC
+  AArch64/SpeculationBarrier.S      | GCC
 
   AArch64/MemoryFence.asm           | MSFT
   AArch64/SwitchStack.asm           | MSFT
@@ -630,6 +606,7 @@
   AArch64/GetInterruptsState.asm    | MSFT
   AArch64/SetJumpLongJump.asm       | MSFT
   AArch64/CpuBreakpoint.asm         | MSFT
+  AArch64/SpeculationBarrier.asm    | MSFT
 
 [Packages]
   MdePkg/MdePkg.dec
@@ -643,7 +620,6 @@
   gEfiMdePkgTokenSpaceGuid.PcdMaximumLinkedListLength      ## SOMETIMES_CONSUMES
   gEfiMdePkgTokenSpaceGuid.PcdMaximumAsciiStringLength     ## SOMETIMES_CONSUMES
   gEfiMdePkgTokenSpaceGuid.PcdMaximumUnicodeStringLength   ## SOMETIMES_CONSUMES
-  gEfiMdePkgTokenSpaceGuid.PcdDebugPropertyMask            ## SOMETIMES_CONSUMES
 
 [FeaturePcd]
   gEfiMdePkgTokenSpaceGuid.PcdVerifyNodeInList  ## CONSUMES

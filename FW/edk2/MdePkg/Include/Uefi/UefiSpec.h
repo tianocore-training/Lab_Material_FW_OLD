@@ -2190,8 +2190,6 @@ typedef struct {
 
 #if   defined (MDE_CPU_IA32)
   #define EFI_REMOVABLE_MEDIA_FILE_NAME   EFI_REMOVABLE_MEDIA_FILE_NAME_IA32
-#elif defined (MDE_CPU_IPF)
-  #define EFI_REMOVABLE_MEDIA_FILE_NAME   EFI_REMOVABLE_MEDIA_FILE_NAME_IA64
 #elif defined (MDE_CPU_X64)
   #define EFI_REMOVABLE_MEDIA_FILE_NAME   EFI_REMOVABLE_MEDIA_FILE_NAME_X64
 #elif defined (MDE_CPU_EBC)
@@ -2202,6 +2200,11 @@ typedef struct {
 #else
   #error Unknown Processor Type
 #endif
+
+//
+// The directory within the active EFI System Partition defined for delivery of capsule to firmware
+//
+#define EFI_CAPSULE_FILE_DIRECTORY            L"\\EFI\\UpdateCapsule\\"
 
 #include <Uefi/UefiPxe.h>
 #include <Uefi/UefiGpt.h>

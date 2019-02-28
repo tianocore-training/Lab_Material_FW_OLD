@@ -190,7 +190,6 @@
 !else
   CapsuleLib|MdeModulePkg/Library/DxeCapsuleLibNull/DxeCapsuleLibNull.inf
 !endif
-  EdkiiSystemCapsuleLib|SignedCapsulePkg/Library/EdkiiSystemCapsuleLib/EdkiiSystemCapsuleLib.inf
   FmpAuthenticationLib|MdeModulePkg/Library/FmpAuthenticationLibNull/FmpAuthenticationLibNull.inf
   IniParsingLib|SignedCapsulePkg/Library/IniParsingLib/IniParsingLib.inf
   PlatformFlashAccessLib|Vlv2TbltDevicePkg/Feature/Capsule/Library/PlatformFlashAccessLib/PlatformFlashAccessLib.inf
@@ -286,7 +285,7 @@
   ShellLib|ShellPkg/Library/UefiShellLib/UefiShellLib.inf
   FileHandleLib|MdePkg/Library/UefiFileHandleLib/UefiFileHandleLib.inf
   SortLib|MdeModulePkg/Library/UefiSortLib/UefiSortLib.inf
-!if $(FTPM_ENABLE) == TRUE
+!if $(FTPM_ENABLE) == TRUE || $(NETWORK_ISCSI_ENABLE) == TRUE
   BaseCryptLib|CryptoPkg/Library/BaseCryptLib/BaseCryptLib.inf
   OpensslLib|CryptoPkg/Library/OpensslLib/OpensslLib.inf
   IntrinsicLib|CryptoPkg/Library/IntrinsicLib/IntrinsicLib.inf
@@ -336,7 +335,7 @@
   DebugLib|MdePkg/Library/BaseDebugLibNull/BaseDebugLibNull.inf
   SerialPortLib|MdePkg/Library/BaseSerialPortLibNull/BaseSerialPortLibNull.inf
 !else
-  DebugLib|IntelFrameworkModulePkg/Library/PeiDxeDebugLibReportStatusCode/PeiDxeDebugLibReportStatusCode.inf
+  DebugLib|MdeModulePkg/Library/PeiDxeDebugLibReportStatusCode/PeiDxeDebugLibReportStatusCode.inf
   SerialPortLib|$(PLATFORM_PACKAGE)/Library/SerialPortLib/SerialPortLib.inf
 !endif
 
@@ -407,6 +406,7 @@
 !endif
 
 [LibraryClasses.X64.DXE_SMM_DRIVER]
+  MmServicesTableLib|MdePkg/Library/MmServicesTableLib/MmServicesTableLib.inf
   SmmServicesTableLib|MdePkg/Library/SmmServicesTableLib/SmmServicesTableLib.inf
   ReportStatusCodeLib|MdeModulePkg/Library/SmmReportStatusCodeLib/SmmReportStatusCodeLib.inf
   MemoryAllocationLib|MdePkg/Library/SmmMemoryAllocationLib/SmmMemoryAllocationLib.inf
@@ -664,10 +664,8 @@
   gEfiMdeModulePkgTokenSpaceGuid.PcdMaxHardwareErrorVariableSize|0x400
   gEfiCpuTokenSpaceGuid.PcdCpuIEDRamSize|0x400000
   gEfiIntelFrameworkModulePkgTokenSpaceGuid.PcdS3AcpiReservedMemorySize|0x10000
-  gEfiMdeModulePkgTokenSpaceGuid.PcdPeiCoreMaxPeimPerFv|50
   gEfiMdeModulePkgTokenSpaceGuid.PcdSrIovSupport|FALSE
   gEfiMdeModulePkgTokenSpaceGuid.PcdAriSupport|FALSE
-  gEfiMdeModulePkgTokenSpaceGuid.PcdPeiCoreMaxPpiSupported|128
   gEfiCpuTokenSpaceGuid.PcdCpuSmmApSyncTimeout|1000
 !if $(S4_ENABLE) == TRUE
   gEfiMdeModulePkgTokenSpaceGuid.PcdResetOnMemoryTypeInformationChange|TRUE
@@ -706,7 +704,23 @@
   #
   gUefiCpuPkgTokenSpaceGuid.PcdCpuSmmStackSize|0x4000
 
-[PcdsFixedAtBuild.IA32.PEIM, PcdsFixedAtBuild.IA32.PEI_CORE, PcdsFixedAtBuild.IA32.SEC]
+  #
+  # Clear unused single certificate PCD
+  #
+  gEfiSecurityPkgTokenSpaceGuid.PcdPkcs7CertBuffer|{0}
+
+  #
+  # Lock all updatable firmware devices at End of DXE
+  #
+  gFmpDevicePkgTokenSpaceGuid.PcdFmpDeviceLockEventGuid|{GUID(gEfiEndOfDxeEventGroupGuid)}
+#  gFmpDevicePkgTokenSpaceGuid.PcdFmpDeviceLockEventGuid|{GUID(gEfiEventReadyToBootGuid)}
+
+  #
+  # Set PcdFmpDeviceTestKeySha256Digest to {0} to disable test key detection
+  #
+#  gFmpDevicePkgTokenSpaceGuid.PcdFmpDeviceTestKeySha256Digest|{0}
+
+[PcdsFixedAtBuild.IA32]
 !if $(TARGET) == RELEASE
   gEfiMdePkgTokenSpaceGuid.PcdDebugPropertyMask|0x0
   gEfiMdePkgTokenSpaceGuid.PcdReportStatusCodePropertyMask|0x3
@@ -910,10 +924,10 @@
   gEfiVLVTokenSpaceGuid.PcdCpuSmramCpuDataAddress|0
   gEfiVLVTokenSpaceGuid.PcdCpuLockBoxSize|0
 
-!if $(CAPSULE_ENABLE) || $(RECOVERY_ENABLE)
-  gEfiSignedCapsulePkgTokenSpaceGuid.PcdEdkiiSystemFirmwareImageDescriptor|{0x0}|VOID*|0x100
-  gEfiMdeModulePkgTokenSpaceGuid.PcdSystemFmpCapsuleImageTypeIdGuid|{0x7b, 0x26, 0x96, 0x40, 0x0a, 0xda, 0xeb, 0x42, 0xb5, 0xeb, 0xfe, 0xf3, 0x1d, 0x20, 0x7c, 0xb4}
-  gEfiSignedCapsulePkgTokenSpaceGuid.PcdEdkiiSystemFirmwareFileGuid|{0xb2, 0x9e, 0x9c, 0xaf, 0xad, 0x12, 0x3e, 0x4d, 0xa4, 0xd4, 0x96, 0xf6, 0xc9, 0x96, 0x62, 0x15}
+[PcdsDynamicExDefault.X64.DEFAULT]
+!if $(RECOVERY_ENABLE)
+  gEfiSignedCapsulePkgTokenSpaceGuid.PcdEdkiiSystemFirmwareFileGuid|{GUID("AF9C9EB2-12AD-4D3E-A4D4-96F6C9966215")}|VOID*|0x10
+  gEfiMdeModulePkgTokenSpaceGuid.PcdSystemFmpCapsuleImageTypeIdGuid|{GUID("4096267b-da0a-42eb-b5eb-fef31d207cb4")}|VOID*|0x10
 !endif
 
 [Components.IA32]
@@ -936,14 +950,6 @@
     !endif
   }
   !endif
-
-!if $(CAPSULE_ENABLE) || $(RECOVERY_ENABLE)
-  # FMP image decriptor
-  Vlv2TbltDevicePkg/Feature/Capsule/SystemFirmwareDescriptor/SystemFirmwareDescriptor.inf {
-    <LibraryClasses>
-      PcdLib|MdePkg/Library/PeiPcdLib/PeiPcdLib.inf
-  }
-!endif
 
   MdeModulePkg/Core/Pei/PeiMain.inf {
 !if $(TARGET) == DEBUG
@@ -1199,11 +1205,6 @@ $(PLATFORM_BINARY_PACKAGE)/$(DXE_ARCHITECTURE)$(TARGET)/IA32/fTPMInitPeim.inf
       DebugLib|MdePkg/Library/BaseDebugLibSerialPort/BaseDebugLibSerialPort.inf
       PcdLib|MdePkg/Library/DxePcdLib/DxePcdLib.inf
       SerialPortLib|$(PLATFORM_PACKAGE)/Library/SerialPortLib/SerialPortLib.inf
-!if $(CAPSULE_ENABLE)
-      FmpAuthenticationLib|SecurityPkg/Library/FmpAuthenticationLibPkcs7/FmpAuthenticationLibPkcs7.inf
-!else
-      FmpAuthenticationLib|MdeModulePkg/Library/FmpAuthenticationLibNull/FmpAuthenticationLibNull.inf
-!endif
     !if $(FTPM_ENABLE) == TRUE
       Tpm2DeviceLib|Vlv2TbltDevicePkg/Library/Tpm2DeviceLibSeCDxe/Tpm2DeviceLibSeC.inf
     !else
@@ -1460,6 +1461,7 @@ $(PLATFORM_BINARY_PACKAGE)/$(DXE_ARCHITECTURE)$(TARGET)/IA32/fTPMInitPeim.inf
   MdeModulePkg/Universal/Disk/PartitionDxe/PartitionDxe.inf
   MdeModulePkg/Universal/Disk/UnicodeCollation/EnglishDxe/EnglishDxe.inf
   FatPkg/EnhancedFatDxe/Fat.inf
+  ShellPkg/Application/Shell/Shell.inf
 !if $(SATA_ENABLE) == TRUE
   $(PLATFORM_BINARY_PACKAGE)/$(DXE_ARCHITECTURE)$(TARGET)/$(DXE_ARCHITECTURE)/SataController.inf
 !endif
@@ -1526,11 +1528,7 @@ $(PLATFORM_BINARY_PACKAGE)/$(DXE_ARCHITECTURE)$(TARGET)/IA32/fTPMInitPeim.inf
 
 !if $(NETWORK_ENABLE) == TRUE
   !if $(NETWORK_ISCSI_ENABLE) == TRUE
-    !if $(NETWORK_IP6_ENABLE) == TRUE
-      NetworkPkg/IScsiDxe/IScsiDxe.inf
-    !else
-      MdeModulePkg/Universal/Network/IScsiDxe/IScsiDxe.inf
-    !endif
+    NetworkPkg/IScsiDxe/IScsiDxe.inf
   !endif
   !if $(NETWORK_VLAN_ENABLE) == TRUE
     MdeModulePkg/Universal/Network/VlanConfigDxe/VlanConfigDxe.inf
@@ -1552,27 +1550,17 @@ $(PLATFORM_BINARY_PACKAGE)/$(DXE_ARCHITECTURE)$(TARGET)/IA32/fTPMInitPeim.inf
     MdeModulePkg/Universal/Network/Dhcp4Dxe/Dhcp4Dxe.inf
     MdeModulePkg/Universal/Network/Ip4Dxe/Ip4Dxe.inf
     MdeModulePkg/Universal/Network/Mtftp4Dxe/Mtftp4Dxe.inf
-    MdeModulePkg/Universal/Network/Tcp4Dxe/Tcp4Dxe.inf {
-      <PcdsPatchableInModule>
-      gEfiMdePkgTokenSpaceGuid.PcdDebugPrintErrorLevel|0x80000000
-    }
+    NetworkPkg/UefiPxeBcDxe/UefiPxeBcDxe.inf
+    NetworkPkg/TcpDxe/TcpDxe.inf
     MdeModulePkg/Universal/Network/Udp4Dxe/Udp4Dxe.inf
     !if $(NETWORK_IP6_ENABLE) == TRUE
       NetworkPkg/Ip6Dxe/Ip6Dxe.inf
       NetworkPkg/Dhcp6Dxe/Dhcp6Dxe.inf
       NetworkPkg/IpSecDxe/IpSecDxe.inf
-      NetworkPkg/TcpDxe/TcpDxe.inf
       NetworkPkg/Udp6Dxe/Udp6Dxe.inf
       NetworkPkg/Mtftp6Dxe/Mtftp6Dxe.inf
     !endif
-    !if $(NETWORK_IP6_ENABLE) == TRUE
-      NetworkPkg/UefiPxeBcDxe/UefiPxeBcDxe.inf
-    !else
-      MdeModulePkg/Universal/Network/UefiPxeBcDxe/UefiPxeBcDxe.inf
-    !endif
 !endif
-
-  Vlv2TbltDevicePkg/Application/FirmwareUpdate/FirmwareUpdate.inf
 
 !if $(CAPSULE_ENABLE) || $(MICOCODE_CAPSULE_ENABLE)
   MdeModulePkg/Universal/EsrtFmpDxe/EsrtFmpDxe.inf
@@ -1580,24 +1568,14 @@ $(PLATFORM_BINARY_PACKAGE)/$(DXE_ARCHITECTURE)$(TARGET)/IA32/fTPMInitPeim.inf
 !endif
 
 !if $(CAPSULE_ENABLE)
-  SignedCapsulePkg/Universal/SystemFirmwareUpdate/SystemFirmwareReportDxe.inf {
-    <LibraryClasses>
-      DebugLib|MdePkg/Library/BaseDebugLibSerialPort/BaseDebugLibSerialPort.inf
-      PcdLib|MdePkg/Library/DxePcdLib/DxePcdLib.inf
-      SerialPortLib|$(PLATFORM_PACKAGE)/Library/SerialPortLib/SerialPortLib.inf
-      FmpAuthenticationLib|SecurityPkg/Library/FmpAuthenticationLibPkcs7/FmpAuthenticationLibPkcs7.inf
-  }
-  SignedCapsulePkg/Universal/SystemFirmwareUpdate/SystemFirmwareUpdateDxe.inf {
-    <LibraryClasses>
-      DebugLib|MdePkg/Library/BaseDebugLibSerialPort/BaseDebugLibSerialPort.inf
-      PcdLib|MdePkg/Library/DxePcdLib/DxePcdLib.inf
-      SerialPortLib|$(PLATFORM_PACKAGE)/Library/SerialPortLib/SerialPortLib.inf
-      FmpAuthenticationLib|SecurityPkg/Library/FmpAuthenticationLibPkcs7/FmpAuthenticationLibPkcs7.inf
-  }
+  !include Vlv2TbltDevicePkg/FmpMinnowMaxSystem.dsc
+  !include Vlv2TbltDevicePkg/FmpGreenSampleDevice.dsc
+  !include Vlv2TbltDevicePkg/FmpBlueSampleDevice.dsc
+  !include Vlv2TbltDevicePkg/FmpRedSampleDevice.dsc
 !endif
 
 !if $(MICOCODE_CAPSULE_ENABLE)
-  UefiCpuPkg/Feature/Capsule/MicrocodeUpdateDxe/MicrocodeUpdateDxe.inf {
+  IntelSiliconPkg/Feature/Capsule/MicrocodeUpdateDxe/MicrocodeUpdateDxe.inf {
     <LibraryClasses>
       DebugLib|MdePkg/Library/BaseDebugLibSerialPort/BaseDebugLibSerialPort.inf
       PcdLib|MdePkg/Library/DxePcdLib/DxePcdLib.inf
@@ -1787,8 +1765,6 @@ $(PLATFORM_BINARY_PACKAGE)/$(DXE_ARCHITECTURE)$(TARGET)/IA32/fTPMInitPeim.inf
 
 
 [Components.X64]
- $(PLATFORM_BINARY_PACKAGE)/$(DXE_ARCHITECTURE)$(TARGET)/$(DXE_ARCHITECTURE)/SysFwUpdateCapsuleDxe.inf
-
   $(PLATFORM_BINARY_PACKAGE)/$(DXE_ARCHITECTURE)$(TARGET)/$(DXE_ARCHITECTURE)/I2cBus.inf {
     <PcdsPatchableInModule>
       gEfiMdePkgTokenSpaceGuid.PcdDebugPrintErrorLevel|0xF0000043

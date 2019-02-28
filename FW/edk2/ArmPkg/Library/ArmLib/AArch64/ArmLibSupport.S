@@ -124,15 +124,15 @@ ASM_FUNC(ArmSetMAIR)
 //  IN VOID  *MVA                    // X1
 //  );
 ASM_FUNC(ArmUpdateTranslationTableEntry)
-   dc      civac, x0             // Clean and invalidate data line
-   dsb     sy
+   dsb     nshst
+   lsr     x1, x1, #12
    EL1_OR_EL2_OR_EL3(x0)
 1: tlbi    vaae1, x1             // TLB Invalidate VA , EL1
    b       4f
 2: tlbi    vae2, x1              // TLB Invalidate VA , EL2
    b       4f
 3: tlbi    vae3, x1              // TLB Invalidate VA , EL3
-4: dsb     sy
+4: dsb     nsh
    isb
    ret
 
@@ -195,5 +195,22 @@ ASM_FUNC(ArmWriteSctlr)
   ret
 3:msr   sctlr_el3, x0
 4:ret
+
+ASM_FUNC(ArmGetPhysicalAddressBits)
+  mrs   x0, id_aa64mmfr0_el1
+  adr   x1, .LPARanges
+  and   x0, x0, #0xf
+  ldrb  w0, [x1, x0]
+  ret
+
+//
+// Bits 0..3 of the AA64MFR0_EL1 system register encode the size of the
+// physical address space support on this CPU:
+// 0 == 32 bits, 1 == 36 bits, etc etc
+// 7 and up are reserved
+//
+.LPARanges:
+  .byte 32, 36, 40, 42, 44, 48, 52,  0
+  .byte  0,  0,  0,  0,  0,  0,  0,  0
 
 ASM_FUNCTION_REMOVE_IF_UNREFERENCED

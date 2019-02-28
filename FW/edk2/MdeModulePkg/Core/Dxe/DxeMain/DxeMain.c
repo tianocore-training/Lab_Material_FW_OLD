@@ -249,7 +249,6 @@ DxeMain (
   EFI_VECTOR_HANDOFF_INFO       *VectorInfoList;
   EFI_VECTOR_HANDOFF_INFO       *VectorInfo;
   VOID                          *EntryPoint;
-  DEBUG((EFI_D_INFO, "\n\n>>>>>>[DxeMain]Start of DxeMain with Entry point at:  0x%08x \n", DxeMain));
 
   //
   // Setup the default exception handlers
@@ -560,28 +559,6 @@ DxeMain (
 }
 
 
-
-/**
-  Place holder function until all the Boot Services and Runtime Services are
-  available.
-
-  @return EFI_NOT_AVAILABLE_YET
-
-**/
-EFI_STATUS
-EFIAPI
-CoreEfiNotAvailableYetArg0 (
-  VOID
-  )
-{
-  //
-  // This function should never be executed.  If it does, then the architectural protocols
-  // have not been designed correctly.  The CpuBreakpoint () is commented out for now until the
-  // DXE Core and all the Architectural Protocols are complete.
-  //
-
-  return EFI_NOT_AVAILABLE_YET;
-}
 
 
 /**

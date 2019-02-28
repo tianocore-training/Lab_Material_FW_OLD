@@ -2,7 +2,7 @@
   Implement ReadOnly Variable Services required by PEIM and install
   PEI ReadOnly Varaiable2 PPI. These services operates the non volatile storage space.
 
-Copyright (c) 2006 - 2018, Intel Corporation. All rights reserved.<BR>
+Copyright (c) 2006 - 2019, Intel Corporation. All rights reserved.<BR>
 This program and the accompanying materials
 are licensed and made available under the terms and conditions of the BSD License
 which accompanies this distribution.  The full text of the license may be found at
@@ -57,7 +57,7 @@ PeimInitializeVariableServices (
 
   @param VarStoreHeader  Pointer to the Variable Store Header.
 
-  @return Pointer to the first variable header
+  @return Pointer to the first variable header.
 
 **/
 VARIABLE_HEADER *
@@ -66,18 +66,22 @@ GetStartPointer (
   )
 {
   //
-  // The end of variable store
+  // The start of variable store
   //
   return (VARIABLE_HEADER *) HEADER_ALIGN (VarStoreHeader + 1);
 }
 
 
 /**
-  This code gets the pointer to the last variable memory pointer byte.
 
-  @param  VarStoreHeader  Pointer to the Variable Store Header.
+  Gets the pointer to the end of the variable storage area.
 
-  @return VARIABLE_HEADER* pointer to last unavailable Variable Header.
+  This function gets pointer to the end of the variable storage
+  area, according to the input variable store header.
+
+  @param VarStoreHeader  Pointer to the Variable Store Header.
+
+  @return Pointer to the end of the variable storage area.
 
 **/
 VARIABLE_HEADER *
@@ -580,9 +584,9 @@ GetVariableStore (
       break;
 
     case VariableStoreTypeNv:
-      if (GetBootModeHob () != BOOT_IN_RECOVERY_MODE) {
+      if (!PcdGetBool (PcdEmuVariableNvModeEnable)) {
         //
-        // The content of NV storage for variable is not reliable in recovery boot mode.
+        // Emulated non-volatile variable mode is not enabled.
         //
 
         NvStorageSize = PcdGet32 (PcdFlashNvStorageVariableSize);
@@ -590,6 +594,8 @@ GetVariableStore (
                                                 PcdGet64 (PcdFlashNvStorageVariableBase64) :
                                                 PcdGet32 (PcdFlashNvStorageVariableBase)
                                                );
+        ASSERT (NvStorageBase != 0);
+
         //
         // First let FvHeader point to NV storage base.
         //
