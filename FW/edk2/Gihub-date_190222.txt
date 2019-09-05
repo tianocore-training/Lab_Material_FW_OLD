@@ -1,2 +1,0 @@
-use the following to also get the openssl library
-git clone --recursive https://github.com/tianocore/edk2
