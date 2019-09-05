@@ -1,4 +1,2 @@
-mkdir C:\FW\edk2\SampleApp
-copy C:\FW\LabSampleCode\LabSolutions\LessonB.2\*.c C:\FW\edk2\SampleApp
-copy C:\FW\LabSampleCode\LabSolutions\LessonB.2\*.inf C:\FW\edk2\SampleApp
-copy C:\FW\LabSampleCode\LabSolutions\LessonB.2\*.dsc C:\FW\edk2\NT32Pkg
+Echo Copy the SampleApp.inf and SampleApp.c to %WORKSPACE%\edk2\SampleApp
+Echo Copy EmulatorPkg.dsc to %WORKSPACE%\edk2\EmulatorPkg

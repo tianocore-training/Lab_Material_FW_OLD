@@ -36,9 +36,14 @@ To see the Slides with links to the presentations goto https://gitpitch.com/tian
 
 ### Lab Material all started in the FW directory
 
-- FW
+- **FW**
   - Documentation
   - DriverWizard
-  - edk2 - Same as https://github.com/tianocore/edk2 
+  - edk2-ws 
+      - edk2 - Same as https://github.com/tianocore/edk2 
+      - edk2-libc
   - LabSampleCode
-
+  
+####  From Presentations_FW
+- **FW**
+  - Presentations   

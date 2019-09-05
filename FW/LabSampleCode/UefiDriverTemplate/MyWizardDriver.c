@@ -10,14 +10,6 @@
 **/
 
 #include "MyWizardDriver.h"
-EFI_GUID   mMyWizardDriverVarGuid = MYWIZARDDRIVER_VAR_GUID;
-
-CHAR16     mVariableName[] = L"MWD_NVData";
-MYWIZARDDRIVER_CONFIGURATION   mMyWizDrv_Conf_buffer;
-MYWIZARDDRIVER_CONFIGURATION   *mMyWizDrv_Conf = &mMyWizDrv_Conf_buffer;  //use the pointer 
-
-#define  DUMMY_SIZE 100*16		// Dummy buffer
-CHAR16	*DummyBufferfromStart = NULL;
 
 ///
 /// Driver Support EFI Version Protocol instance
@@ -116,46 +108,8 @@ MyWizardDriverUnload (
   //
   // Do any additional cleanup that is required for this driver
   //
-  if (DummyBufferfromStart != NULL) {
-	  FreePool(DummyBufferfromStart);
-	  DEBUG((EFI_D_INFO, "[MyWizardDriver] Unload, clear buffer\r\n"));
-  }
-  DEBUG((EFI_D_INFO, "[MyWizardDriver] Unload success\r\n"));
 
   return EFI_SUCCESS;
-}
-
-
-EFI_STATUS
-EFIAPI
-CreateNVVariable()
-{
-	EFI_STATUS            	Status;
-	UINTN                  BufferSize;
-
-	BufferSize = sizeof (MYWIZARDDRIVER_CONFIGURATION);
-	Status = gRT->GetVariable(
-		mVariableName,
-		&mMyWizardDriverVarGuid,
-		NULL,
-		&BufferSize,
-		mMyWizDrv_Conf
-		);
-	if (EFI_ERROR(Status)) {  // Not definded yet so add it to the NV Variables.
-		if (Status == EFI_NOT_FOUND) {
-			Status = gRT->SetVariable(
-				mVariableName,
-				&mMyWizardDriverVarGuid,
-				EFI_VARIABLE_NON_VOLATILE | EFI_VARIABLE_BOOTSERVICE_ACCESS,
-				sizeof (MYWIZARDDRIVER_CONFIGURATION),
-				mMyWizDrv_Conf   //  buffer is 000000  now for first time set
-				);
-			DEBUG((EFI_D_INFO, "[MyWizardDriver]   Variable %s created in NVRam Var\r\n", mVariableName));
-			return EFI_SUCCESS;
-		}
-	}
-	// already defined once so this time through unsupported
-	return EFI_UNSUPPORTED;
 }
 
 /**
@@ -244,7 +198,6 @@ MyWizardDriverDriverEntryPoint (
   return Status;
 }
 
-
 /**
   Tests to see if this driver supports a given controller. If a child device is provided, 
   it further tests to see if this driver supports creating a handle for the specified child device.
@@ -295,42 +248,7 @@ MyWizardDriverDriverBindingSupported (
   IN EFI_DEVICE_PATH_PROTOCOL     *RemainingDevicePath OPTIONAL
   )
 {
-	EFI_STATUS                Status;
-	EFI_SERIAL_IO_PROTOCOL    *SerialIo;
-	Status = gBS->OpenProtocol(
-		ControllerHandle,
-		&gEfiSerialIoProtocolGuid,
-		(VOID **)&SerialIo,
-		This->DriverBindingHandle,
-		ControllerHandle,
-		EFI_OPEN_PROTOCOL_BY_DRIVER | EFI_OPEN_PROTOCOL_EXCLUSIVE
-		);
-
-	if (EFI_ERROR(Status)) {
-		//DEBUG((EFI_D_INFO, "[MyWizardDriver] Not Supported \r\n"));
-		//return Status; // Bail out if OpenProtocol returns an error
-		Status = CreateNVVariable();
-		if (EFI_ERROR(Status)) {
-			DEBUG((EFI_D_ERROR, "[MyWizardDriver] Not Supported \r\n"));
-		}
-		else{
-			DEBUG((EFI_D_ERROR, "[MyWizardDriver] Supported \r\n"));
-		}
-		return Status; // Status now depends on CreateNVVariable Function
-
-
-	}
-
-	// We're here because OpenProtocol was a success, so clean up
-	gBS->CloseProtocol(
-		ControllerHandle,
-		&gEfiSerialIoProtocolGuid,
-		This->DriverBindingHandle,
-		ControllerHandle
-		);
-	DEBUG((EFI_D_INFO, "[MyWizardDriver] Supported SUCCESS\r\n"));
-	return EFI_SUCCESS;
-  //return EFI_UNSUPPORTED;
+  return EFI_UNSUPPORTED;
 }
 
 /**
@@ -376,20 +294,7 @@ MyWizardDriverDriverBindingStart (
   IN EFI_DEVICE_PATH_PROTOCOL     *RemainingDevicePath OPTIONAL
   )
 {
-
-	if (DummyBufferfromStart == NULL) {     // was buffer already allocated?
-		DummyBufferfromStart = (CHAR16*)AllocateZeroPool(DUMMY_SIZE * sizeof(CHAR16));
-	}
-
-	if (DummyBufferfromStart == NULL) {
-		return EFI_OUT_OF_RESOURCES;    // Exit if the buffer isn’t there
-	}
-
-	SetMem16(DummyBufferfromStart, (DUMMY_SIZE * sizeof(CHAR16)), 0x0042);  // Fill buffer
-	DEBUG((EFI_D_INFO, "[MyWizardDriver] Buffer pointer 0x%p  \r\n",  DummyBufferfromStart));
-	return EFI_SUCCESS;
-
-	//return EFI_UNSUPPORTED;
+  return EFI_UNSUPPORTED;
 }
 
 /**
@@ -427,14 +332,5 @@ MyWizardDriverDriverBindingStop (
   IN EFI_HANDLE                   *ChildHandleBuffer OPTIONAL
   )
 {
-	if (DummyBufferfromStart != NULL) {
-		FreePool(DummyBufferfromStart);
-		DEBUG((EFI_D_INFO, "[MyWizardDriver] Stop, clear buffer\r\n"));
-	}
-
-	DEBUG((EFI_D_INFO, "[MyWizardDriver] Stop, EFI_SUCCESS\r\n"));
-
-	return EFI_SUCCESS;
-
-  //return EFI_UNSUPPORTED;
+  return EFI_UNSUPPORTED;
 }

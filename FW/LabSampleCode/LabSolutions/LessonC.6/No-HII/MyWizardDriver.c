@@ -122,6 +122,9 @@ MyWizardDriverUnload (
   }
   DEBUG((EFI_D_INFO, "[MyWizardDriver] Unload success\r\n"));
 
+  return EFI_SUCCESS;
+}
+
 
 EFI_STATUS
 EFIAPI
@@ -345,7 +348,7 @@ MyWizardDriverDriverBindingStart (
 	}
 
 	SetMem16(DummyBufferfromStart, (DUMMY_SIZE * sizeof(CHAR16)), 0x0042);  // Fill buffer
-	DEBUG((EFI_D_INFO, "[MyWizardDriver] Buffer 0x%08x\r\n", DummyBufferfromStart));
+	DEBUG((EFI_D_INFO, "[MyWizardDriver] Buffer pointer 0x%p  \r\n",  DummyBufferfromStart));
 	return EFI_SUCCESS;
 
 	//return EFI_UNSUPPORTED;
