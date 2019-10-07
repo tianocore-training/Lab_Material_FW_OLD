@@ -189,7 +189,7 @@
 
 [PcdsFixedAtBuild]
 # UEFI / EDK II Training
-# gEfiMdeModulePkgTokenSpaceGuid.PcdHelloWorldPrintTimes|3
+  gEfiMdeModulePkgTokenSpaceGuid.PcdHelloWorldPrintTimes|3
 #   Here is where you would put the HelloWorldPrintString PCD
 #    HINT, Look at the MdeModulePkg.Dec file 
   
@@ -437,10 +437,6 @@
 # UEFI / EDK II Training Class
 
 # Add new modules here
-
- SampleApp/SampleApp.inf
-
-
 [BuildOptions]
   #
   # Disable deprecated APIs.

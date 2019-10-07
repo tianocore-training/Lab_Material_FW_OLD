@@ -228,7 +228,7 @@
 
   # For a CD-ROM/DVD use L"diag.dmg:RO:2048"
   gEmulatorPkgTokenSpaceGuid.PcdEmuVirtualDisk|L"disk.dmg:FW"
-  gEmulatorPkgTokenSpaceGuid.PcdEmuGop|L"GOP Window 1!GOP Window 2"
+  gEmulatorPkgTokenSpaceGuid.PcdEmuGop|L"My EDK II 1!My EDK II 2"
   gEmulatorPkgTokenSpaceGuid.PcdEmuFileSystem|L"."
   gEmulatorPkgTokenSpaceGuid.PcdEmuSerialPort|L"/dev/ttyS0"
   gEmulatorPkgTokenSpaceGuid.PcdEmuNetworkInterface|L"en0"
@@ -437,10 +437,6 @@
 # UEFI / EDK II Training Class
 
 # Add new modules here
-
- SampleApp/SampleApp.inf
-
-
 [BuildOptions]
   #
   # Disable deprecated APIs.

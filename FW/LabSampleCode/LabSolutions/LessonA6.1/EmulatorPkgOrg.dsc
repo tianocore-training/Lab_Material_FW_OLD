@@ -437,10 +437,6 @@
 # UEFI / EDK II Training Class
 
 # Add new modules here
-
- SampleApp/SampleApp.inf
-
-
 [BuildOptions]
   #
   # Disable deprecated APIs.

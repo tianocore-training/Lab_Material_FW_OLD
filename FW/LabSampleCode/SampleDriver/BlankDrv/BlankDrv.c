@@ -526,8 +526,7 @@ UefiMain(
 
 	ZeroMem (&Key, sizeof (EFI_INPUT_KEY));
  
-	Print(L"System Table: 0x%08x",SystemTable); 
-	Print(L"\n\n Press any Key to continue : \n\n");
+  	Print(L"System Table: 0x%p\n",SystemTable); 
 
 	gBS->WaitForEvent (1, &gST->ConIn->WaitForKey, &EventIndex);
 	gST->ConIn->ReadKeyStroke (gST->ConIn, &Key);

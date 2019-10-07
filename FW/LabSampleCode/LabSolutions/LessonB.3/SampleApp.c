@@ -33,6 +33,6 @@ UefiMain (
   IN EFI_SYSTEM_TABLE  *SystemTable
   )
 {
-  Print(L"System Table: 0x%08x\n",SystemTable); 
-  return EFI_SUCCESS;
+  	Print(L"System Table: 0x%p\n",SystemTable); 
+	return EFI_SUCCESS;
 }

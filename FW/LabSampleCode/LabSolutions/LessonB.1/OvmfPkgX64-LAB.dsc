@@ -28,7 +28,7 @@
 # This flag is to enable a different ver string for building of the ShellPkg
 # These can be changed on the command line.
 #  
-  DEFINE  ADD_SHELL_STRING         = TRUE
+  DEFINE  ADD_SHELL_STRING         = FALSE
   
   #
   # Defines for default states.  These can be changed on the command line.
@@ -442,6 +442,9 @@
 !endif
 
 [PcdsFixedAtBuild]
+  gEfiMdeModulePkgTokenSpaceGuid.PcdHelloWorldPrintTimes|3
+#   Here is where you would put the HelloWorldPrintString PCD
+#    HINT, Look at the MdeModulePkg.Dec file 
   gEfiMdeModulePkgTokenSpaceGuid.PcdStatusCodeMemorySize|1
   gEfiMdeModulePkgTokenSpaceGuid.PcdResetOnMemoryTypeInformationChange|FALSE
   gEfiMdePkgTokenSpaceGuid.PcdMaximumGuidedExtractHandler|0x10
@@ -943,8 +946,4 @@
 # Add new modules here
 
 
- SampleApp/SampleApp.inf{
-<LibraryClasses>
-DebugLib|MdePkg/Library/UefiDebugLibConOut/UefiDebugLibConOut.inf
-}
-
+MdeModulePkg/Application/HelloWorld/HelloWorld.inf

@@ -438,8 +438,7 @@
 
 # Add new modules here
 
- SampleApp/SampleApp.inf
-
+ MyWizardDriver/MyWizardDriver.inf
 
 [BuildOptions]
   #

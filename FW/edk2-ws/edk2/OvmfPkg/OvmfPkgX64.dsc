@@ -442,6 +442,10 @@
 !endif
 
 [PcdsFixedAtBuild]
+# UEFI / EDK II Training Class
+#  gEfiMdeModulePkgTokenSpaceGuid.PcdHelloWorldPrintTimes|3
+#   Here is where you would put the HelloWorldPrintString PCD
+#    HINT, Look at the MdeModulePkg.Dec file 
   gEfiMdeModulePkgTokenSpaceGuid.PcdStatusCodeMemorySize|1
   gEfiMdeModulePkgTokenSpaceGuid.PcdResetOnMemoryTypeInformationChange|FALSE
   gEfiMdePkgTokenSpaceGuid.PcdMaximumGuidedExtractHandler|0x10

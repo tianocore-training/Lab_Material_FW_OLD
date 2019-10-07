@@ -36,7 +36,7 @@ UefiMain (
   	UINTN          EventIndex;
  
  
-	Print(L"System Table: 0x%08x\n",SystemTable); 
+  	Print(L"System Table: 0x%p\n",SystemTable); 
 	Print(L"\nPress any Key to continue : \n");
 
 	gBS->WaitForEvent (1, &gST->ConIn->WaitForKey, &EventIndex);

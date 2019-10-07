@@ -438,7 +438,11 @@
 
 # Add new modules here
 
- SampleApp/SampleApp.inf
+
+ SampleApp/SampleApp.inf{
+<LibraryClasses>
+DebugLib|MdePkg/Library/BaseDebugLibNull/BaseDebugLibNull.inf
+}
 
 
 [BuildOptions]

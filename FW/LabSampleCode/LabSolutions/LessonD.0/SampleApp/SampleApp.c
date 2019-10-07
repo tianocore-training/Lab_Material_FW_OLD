@@ -42,7 +42,7 @@ UefiMain (
 
     
 	//1 7.3
-  	Print(L"System Table: 0x%08x\n",SystemTable); 
+   	Print(L"System Table: 0x%p\n",SystemTable); 
 	
 	//2 7.4
 	Print(L"\nPress any Key to continue : \n\n");

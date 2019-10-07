@@ -27,7 +27,7 @@
 # This flag is to enable a different ver string for building of the ShellPkg
 # These can be changed on the command line.
 #
-  DEFINE  ADD_SHELL_STRING         = FALSE
+  DEFINE  ADD_SHELL_STRING         = TRUE
 
   #
   # Network definition
@@ -438,8 +438,7 @@
 
 # Add new modules here
 
- SampleApp/SampleApp.inf
-
+SampleApp/SampleApp.inf
 
 [BuildOptions]
   #
