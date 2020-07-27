@@ -206,7 +206,7 @@ QemuVideoControllerDriverStart (
   OldTpl = gBS->RaiseTPL (TPL_CALLBACK);
 
   //
-  // Allocate Private context data for GOP inteface.
+  // Allocate Private context data for GOP interface.
   //
   Private = AllocateZeroPool (sizeof (QEMU_VIDEO_PRIVATE_DATA));
   if (Private == NULL) {
@@ -292,7 +292,7 @@ QemuVideoControllerDriverStart (
   }
 
   SupportedVgaIo &= (UINT64)(EFI_PCI_IO_ATTRIBUTE_VGA_IO | EFI_PCI_IO_ATTRIBUTE_VGA_IO_16);
-  if (SupportedVgaIo == 0) {
+  if (SupportedVgaIo == 0 && IS_PCI_VGA (&Pci)) {
     Status = EFI_UNSUPPORTED;
     goto ClosePciIo;
   }

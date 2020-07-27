@@ -127,7 +127,8 @@
 #### Un-comment the following line to build Lua.
 #  AppPkg/Applications/Lua/Lua.inf
 
-
+#### Un-comment the following line to build SampleCApp
+# AppPkg/Applications/SampleCApp/SampleCApp.inf
 ##############################################################################
 #
 # Specify whether we are running in an emulation environment, or not.

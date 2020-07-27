@@ -7,7 +7,7 @@
   It would expose EFI_SD_MMC_PASS_THRU_PROTOCOL for upper layer use.
 
   Copyright (c) 2018-2019, NVIDIA CORPORATION. All rights reserved.
-  Copyright (c) 2015 - 2019, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 2015 - 2020, Intel Corporation. All rights reserved.<BR>
   SPDX-License-Identifier: BSD-2-Clause-Patent
 
 **/
@@ -759,15 +759,39 @@ SdMmcHcStopClock (
 }
 
 /**
+  Start the SD clock.
+
+  @param[in] PciIo  The PCI IO protocol instance.
+  @param[in] Slot   The slot number.
+
+  @retval EFI_SUCCESS  Succeeded to start the SD clock.
+  @retval Others       Failed to start the SD clock.
+**/
+EFI_STATUS
+SdMmcHcStartSdClock (
+  IN EFI_PCI_IO_PROTOCOL  *PciIo,
+  IN UINT8                Slot
+  )
+{
+  UINT16                    ClockCtrl;
+
+  //
+  // Set SD Clock Enable in the Clock Control register to 1
+  //
+  ClockCtrl = BIT2;
+  return SdMmcHcOrMmio (PciIo, Slot, SD_MMC_HC_CLOCK_CTRL, sizeof (ClockCtrl), &ClockCtrl);
+}
+
+/**
   SD/MMC card clock supply.
 
   Refer to SD Host Controller Simplified spec 3.0 Section 3.2.1 for details.
 
-  @param[in] PciIo          The PCI IO protocol instance.
-  @param[in] Slot           The slot number of the SD card to send the command to.
-  @param[in] ClockFreq      The max clock frequency to be set. The unit is KHz.
-  @param[in] BaseClkFreq    The base clock frequency of host controller in MHz.
-  @param[in] ControllerVer  The version of host controller.
+  @param[in] Private         A pointer to the SD_MMC_HC_PRIVATE_DATA instance.
+  @param[in] Slot            The slot number of the SD card to send the command to.
+  @param[in] BusTiming       BusTiming at which the frequency change is done.
+  @param[in] FirstTimeSetup  Flag to indicate whether the clock is being setup for the first time.
+  @param[in] ClockFreq       The max clock frequency to be set. The unit is KHz.
 
   @retval EFI_SUCCESS       The clock is supplied successfully.
   @retval Others            The clock isn't supplied successfully.
@@ -775,11 +799,11 @@ SdMmcHcStopClock (
 **/
 EFI_STATUS
 SdMmcHcClockSupply (
-  IN EFI_PCI_IO_PROTOCOL    *PciIo,
-  IN UINT8                  Slot,
-  IN UINT64                 ClockFreq,
-  IN UINT32                 BaseClkFreq,
-  IN UINT16                 ControllerVer
+  IN SD_MMC_HC_PRIVATE_DATA  *Private,
+  IN UINT8                   Slot,
+  IN SD_MMC_BUS_MODE         BusTiming,
+  IN BOOLEAN                 FirstTimeSetup,
+  IN UINT64                  ClockFreq
   )
 {
   EFI_STATUS                Status;
@@ -787,13 +811,15 @@ SdMmcHcClockSupply (
   UINT32                    Divisor;
   UINT32                    Remainder;
   UINT16                    ClockCtrl;
+  UINT32                    BaseClkFreq;
+  UINT16                    ControllerVer;
+  EFI_PCI_IO_PROTOCOL       *PciIo;
 
-  //
-  // Calculate a divisor for SD clock frequency
-  //
-  ASSERT (BaseClkFreq != 0);
+  PciIo = Private->PciIo;
+  BaseClkFreq = Private->BaseClkFreq[Slot];
+  ControllerVer = Private->ControllerVersion[Slot];
 
-  if (ClockFreq == 0) {
+  if (BaseClkFreq == 0 || ClockFreq == 0) {
     return EFI_INVALID_PARAMETER;
   }
 
@@ -877,11 +903,33 @@ SdMmcHcClockSupply (
     return Status;
   }
 
+  Status = SdMmcHcStartSdClock (PciIo, Slot);
+  if (EFI_ERROR (Status)) {
+    return Status;
+  }
+
   //
-  // Set SD Clock Enable in the Clock Control register to 1
+  // We don't notify the platform on first time setup to avoid changing
+  // legacy behavior. During first time setup we also don't know what type
+  // of the card slot it is and which enum value of BusTiming applies.
   //
-  ClockCtrl = BIT2;
-  Status = SdMmcHcOrMmio (PciIo, Slot, SD_MMC_HC_CLOCK_CTRL, sizeof (ClockCtrl), &ClockCtrl);
+  if (!FirstTimeSetup && mOverride != NULL && mOverride->NotifyPhase != NULL) {
+    Status = mOverride->NotifyPhase (
+                          Private->ControllerHandle,
+                          Slot,
+                          EdkiiSdMmcSwitchClockFreqPost,
+                          &BusTiming
+                          );
+    if (EFI_ERROR (Status)) {
+      DEBUG ((
+        DEBUG_ERROR,
+        "%a: SD/MMC switch clock freq post notifier callback failed - %r\n",
+        __FUNCTION__,
+        Status
+        ));
+      return Status;
+    }
+  }
 
   return Status;
 }
@@ -1039,49 +1087,6 @@ SdMmcHcInitV4Enhancements (
 }
 
 /**
-  Supply SD/MMC card with lowest clock frequency at initialization.
-
-  @param[in] PciIo          The PCI IO protocol instance.
-  @param[in] Slot           The slot number of the SD card to send the command to.
-  @param[in] BaseClkFreq    The base clock frequency of host controller in MHz.
-  @param[in] ControllerVer  The version of host controller.
-
-  @retval EFI_SUCCESS       The clock is supplied successfully.
-  @retval Others            The clock isn't supplied successfully.
-
-**/
-EFI_STATUS
-SdMmcHcInitClockFreq (
-  IN EFI_PCI_IO_PROTOCOL    *PciIo,
-  IN UINT8                  Slot,
-  IN UINT32                 BaseClkFreq,
-  IN UINT16                 ControllerVer
-  )
-{
-  EFI_STATUS                Status;
-  UINT32                    InitFreq;
-
-  //
-  // According to SDHCI specification ver. 4.2, BaseClkFreq field value of
-  // the Capability Register 1 can be zero, which means a need for obtaining
-  // the clock frequency via another method. Fail in case it is not updated
-  // by SW at this point.
-  //
-  if (BaseClkFreq == 0) {
-    //
-    // Don't support get Base Clock Frequency information via another method
-    //
-    return EFI_UNSUPPORTED;
-  }
-  //
-  // Supply 400KHz clock frequency at initialization phase.
-  //
-  InitFreq = 400;
-  Status = SdMmcHcClockSupply (PciIo, Slot, InitFreq, BaseClkFreq, ControllerVer);
-  return Status;
-}
-
-/**
   Supply SD/MMC card with maximum voltage at initialization.
 
   Refer to SD Host Controller Simplified spec 3.0 Section 3.3 for details.
@@ -1216,7 +1221,14 @@ SdMmcHcInitHost (
     return Status;
   }
 
-  Status = SdMmcHcInitClockFreq (PciIo, Slot, Private->BaseClkFreq[Slot], Private->ControllerVersion[Slot]);
+  //
+  // Perform first time clock setup with 400 KHz frequency.
+  // We send the 0 as the BusTiming value because at this time
+  // we still do not know the slot type and which enum value will apply.
+  // Since it is a first time setup SdMmcHcClockSupply won't notify
+  // the platofrm driver anyway so it doesn't matter.
+  //
+  Status = SdMmcHcClockSupply (Private, Slot, 0, TRUE, 400);
   if (EFI_ERROR (Status)) {
     return Status;
   }
@@ -1532,6 +1544,8 @@ BuildAdmaDescTable (
       PciIo,
       Trb->AdmaMap
     );
+    Trb->AdmaMap = NULL;
+
     PciIo->FreeBuffer (
       PciIo,
       EFI_SIZE_TO_PAGES (TableSize),
@@ -1671,6 +1685,7 @@ SdMmcCreateTrb (
   Trb->Event     = Event;
   Trb->Started   = FALSE;
   Trb->Timeout   = Packet->Timeout;
+  Trb->Retries   = SD_MMC_TRB_RETRIES;
   Trb->Private   = Private;
 
   if ((Packet->InTransferLength != 0) && (Packet->InDataBuffer != NULL)) {
@@ -1740,7 +1755,6 @@ SdMmcCreateTrb (
       }
       Status = BuildAdmaDescTable (Trb, Private->ControllerVersion[Slot]);
       if (EFI_ERROR (Status)) {
-        PciIo->Unmap (PciIo, Trb->DataMap);
         goto Error;
       }
     } else if (Private->Capability[Slot].Sdma != 0) {
@@ -2126,6 +2140,137 @@ SdMmcExecTrb (
 }
 
 /**
+  Performs SW reset based on passed error status mask.
+
+  @param[in]  Private       Pointer to driver private data.
+  @param[in]  Slot          Index of the slot to reset.
+  @param[in]  ErrIntStatus  Error interrupt status mask.
+
+  @retval EFI_SUCCESS  Software reset performed successfully.
+  @retval Other        Software reset failed.
+**/
+EFI_STATUS
+SdMmcSoftwareReset (
+  IN SD_MMC_HC_PRIVATE_DATA  *Private,
+  IN UINT8                   Slot,
+  IN UINT16                  ErrIntStatus
+  )
+{
+  UINT8       SwReset;
+  EFI_STATUS  Status;
+
+  SwReset = 0;
+  if ((ErrIntStatus & 0x0F) != 0) {
+    SwReset |= BIT1;
+  }
+  if ((ErrIntStatus & 0x70) != 0) {
+    SwReset |= BIT2;
+  }
+
+  Status  = SdMmcHcRwMmio (
+              Private->PciIo,
+              Slot,
+              SD_MMC_HC_SW_RST,
+              FALSE,
+              sizeof (SwReset),
+              &SwReset
+              );
+  if (EFI_ERROR (Status)) {
+    return Status;
+  }
+
+  Status = SdMmcHcWaitMmioSet (
+             Private->PciIo,
+             Slot,
+             SD_MMC_HC_SW_RST,
+             sizeof (SwReset),
+             0xFF,
+             0,
+             SD_MMC_HC_GENERIC_TIMEOUT
+             );
+  if (EFI_ERROR (Status)) {
+    return Status;
+  }
+
+  return EFI_SUCCESS;
+}
+
+/**
+  Checks the error status in error status register
+  and issues appropriate software reset as described in
+  SD specification section 3.10.
+
+  @param[in] Private    Pointer to driver private data.
+  @param[in] Slot       Index of the slot for device.
+  @param[in] IntStatus  Normal interrupt status mask.
+
+  @retval EFI_CRC_ERROR  CRC error happened during CMD execution.
+  @retval EFI_SUCCESS    No error reported.
+  @retval Others         Some other error happened.
+
+**/
+EFI_STATUS
+SdMmcCheckAndRecoverErrors (
+  IN SD_MMC_HC_PRIVATE_DATA  *Private,
+  IN UINT8                   Slot,
+  IN UINT16                  IntStatus
+  )
+{
+  UINT16      ErrIntStatus;
+  EFI_STATUS  Status;
+  EFI_STATUS  ErrorStatus;
+
+  if ((IntStatus & BIT15) == 0) {
+    return EFI_SUCCESS;
+  }
+
+  Status = SdMmcHcRwMmio (
+             Private->PciIo,
+             Slot,
+             SD_MMC_HC_ERR_INT_STS,
+             TRUE,
+             sizeof (ErrIntStatus),
+             &ErrIntStatus
+             );
+  if (EFI_ERROR (Status)) {
+    return Status;
+  }
+
+  //
+  // If the data timeout error is reported
+  // but data transfer is signaled as completed we
+  // have to ignore data timeout. We also assume that no
+  // other error is present on the link since data transfer
+  // completed successfully. Error interrupt status
+  // register is going to be reset when the next command
+  // is started.
+  //
+  if (((ErrIntStatus & BIT4) != 0) && ((IntStatus & BIT1) != 0)) {
+    return EFI_SUCCESS;
+  }
+
+  //
+  // We treat both CMD and DAT CRC errors and
+  // end bits errors as EFI_CRC_ERROR. This will
+  // let higher layer know that the error possibly
+  // happened due to random bus condition and the
+  // command can be retried.
+  //
+  if ((ErrIntStatus & (BIT1 | BIT2 | BIT5 | BIT6)) != 0) {
+    ErrorStatus = EFI_CRC_ERROR;
+  } else {
+    ErrorStatus = EFI_DEVICE_ERROR;
+  }
+
+  Status = SdMmcSoftwareReset (Private, Slot, ErrIntStatus);
+  if (EFI_ERROR (Status)) {
+    return Status;
+  }
+
+  return ErrorStatus;
+}
+
+/**
   Check the TRB execution result.
 
   @param[in] Private        A pointer to the SD_MMC_HC_PRIVATE_DATA instance.
@@ -2148,10 +2293,8 @@ SdMmcCheckTrbResult (
   UINT32                              Response[4];
   UINT64                              SdmaAddr;
   UINT8                               Index;
-  UINT8                               SwReset;
   UINT32                              PioLength;
 
-  SwReset = 0;
   Packet  = Trb->Packet;
   //
   // Check Trb execution result by reading Normal Interrupt Status register.
@@ -2167,87 +2310,23 @@ SdMmcCheckTrbResult (
   if (EFI_ERROR (Status)) {
     goto Done;
   }
+
+  //
+  // Check if there are any errors reported by host controller
+  // and if neccessary recover the controller before next command is executed.
+  //
+  Status = SdMmcCheckAndRecoverErrors (Private, Trb->Slot, IntStatus);
+  if (EFI_ERROR (Status)) {
+    goto Done;
+  }
+
   //
   // Check Transfer Complete bit is set or not.
   //
   if ((IntStatus & BIT1) == BIT1) {
-    if ((IntStatus & BIT15) == BIT15) {
-      //
-      // Read Error Interrupt Status register to check if the error is
-      // Data Timeout Error.
-      // If yes, treat it as success as Transfer Complete has higher
-      // priority than Data Timeout Error.
-      //
-      Status = SdMmcHcRwMmio (
-                 Private->PciIo,
-                 Trb->Slot,
-                 SD_MMC_HC_ERR_INT_STS,
-                 TRUE,
-                 sizeof (IntStatus),
-                 &IntStatus
-                 );
-      if (!EFI_ERROR (Status)) {
-        if ((IntStatus & BIT4) == BIT4) {
-          Status = EFI_SUCCESS;
-        } else {
-          Status = EFI_DEVICE_ERROR;
-        }
-      }
-    }
-
     goto Done;
   }
-  //
-  // Check if there is a error happened during cmd execution.
-  // If yes, then do error recovery procedure to follow SD Host Controller
-  // Simplified Spec 3.0 section 3.10.1.
-  //
-  if ((IntStatus & BIT15) == BIT15) {
-    Status = SdMmcHcRwMmio (
-               Private->PciIo,
-               Trb->Slot,
-               SD_MMC_HC_ERR_INT_STS,
-               TRUE,
-               sizeof (IntStatus),
-               &IntStatus
-               );
-    if (EFI_ERROR (Status)) {
-      goto Done;
-    }
-    if ((IntStatus & 0x0F) != 0) {
-      SwReset |= BIT1;
-    }
-    if ((IntStatus & 0xF0) != 0) {
-      SwReset |= BIT2;
-    }
 
-    Status  = SdMmcHcRwMmio (
-                Private->PciIo,
-                Trb->Slot,
-                SD_MMC_HC_SW_RST,
-                FALSE,
-                sizeof (SwReset),
-                &SwReset
-                );
-    if (EFI_ERROR (Status)) {
-      goto Done;
-    }
-    Status = SdMmcHcWaitMmioSet (
-               Private->PciIo,
-               Trb->Slot,
-               SD_MMC_HC_SW_RST,
-               sizeof (SwReset),
-               0xFF,
-               0,
-               SD_MMC_HC_GENERIC_TIMEOUT
-               );
-    if (EFI_ERROR (Status)) {
-      goto Done;
-    }
-
-    Status = EFI_DEVICE_ERROR;
-    goto Done;
-  }
   //
   // Check if DMA interrupt is signalled for the SDMA transfer.
   //

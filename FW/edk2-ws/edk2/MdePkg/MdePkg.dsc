@@ -18,6 +18,8 @@
   BUILD_TARGETS                  = DEBUG|RELEASE|NOOPT
   SKUID_IDENTIFIER               = DEFAULT
 
+!include UnitTestFrameworkPkg/UnitTestFrameworkPkgTarget.dsc.inc
+
 [PcdsFeatureFlag]
   gEfiMdePkgTokenSpaceGuid.PcdUgaConsumeSupport|TRUE
 
@@ -26,7 +28,11 @@
   gEfiMdePkgTokenSpaceGuid.PcdDebugPrintErrorLevel|0x80000000
   gEfiMdePkgTokenSpaceGuid.PcdPciExpressBaseAddress|0xE0000000
 
+[LibraryClasses]
+  SafeIntLib|MdePkg/Library/BaseSafeIntLib/BaseSafeIntLib.inf
+
 [Components]
+  MdePkg/Library/UefiFileHandleLib/UefiFileHandleLib.inf
   MdePkg/Library/BaseCacheMaintenanceLib/BaseCacheMaintenanceLib.inf
   MdePkg/Library/BaseCpuLib/BaseCpuLib.inf
   MdePkg/Library/BaseDebugLibNull/BaseDebugLibNull.inf
@@ -60,6 +66,7 @@
   MdePkg/Library/BaseUefiDecompressLib/BaseUefiTianoCustomDecompressLib.inf
   MdePkg/Library/BaseSmbusLibNull/BaseSmbusLibNull.inf
   MdePkg/Library/BaseSafeIntLib/BaseSafeIntLib.inf
+  MdePkg/Library/BaseRngLibNull/BaseRngLibNull.inf
 
   MdePkg/Library/DxeCoreEntryPoint/DxeCoreEntryPoint.inf
   MdePkg/Library/DxeCoreHobLib/DxeCoreHobLib.inf
@@ -112,6 +119,20 @@
 
   MdePkg/Library/StandaloneMmDriverEntryPoint/StandaloneMmDriverEntryPoint.inf
   MdePkg/Library/StandaloneMmServicesTableLib/StandaloneMmServicesTableLib.inf
+
+[Components.IA32, Components.X64, Components.ARM, Components.AARCH64]
+  #
+  # Add UEFI Target Based Unit Tests
+  #
+  MdePkg/Test/UnitTest/Library/BaseLib/BaseLibUnitTestsUefi.inf
+
+  #
+  # Build PEIM, DXE_DRIVER, SMM_DRIVER, UEFI Shell components that test SafeIntLib
+  #
+  MdePkg/Test/UnitTest/Library/BaseSafeIntLib/TestBaseSafeIntLibPei.inf
+  MdePkg/Test/UnitTest/Library/BaseSafeIntLib/TestBaseSafeIntLibDxe.inf
+  MdePkg/Test/UnitTest/Library/BaseSafeIntLib/TestBaseSafeIntLibSmm.inf
+  MdePkg/Test/UnitTest/Library/BaseSafeIntLib/TestBaseSafeIntLibUefiShell.inf
 
 [Components.IA32, Components.X64]
   MdePkg/Library/BaseIoLibIntrinsic/BaseIoLibIntrinsic.inf

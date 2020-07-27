@@ -519,6 +519,7 @@ SECTIONS_HAVE_ITEM_AFTER_ARCH_SET = {TAB_LIBRARY_CLASSES.upper(), TAB_DEPEX.uppe
                                  PCDS_DYNAMICEX_VPD.upper(),
                                  PCDS_DYNAMICEX_HII.upper(),
                                  TAB_BUILD_OPTIONS.upper(),
+                                 TAB_PACKAGES.upper(),
                                  TAB_INCLUDES.upper()}
 
 #
@@ -532,4 +533,4 @@ PACK_CODE_BY_SIZE = {8:'=Q',
                      0:'=B',
                     16:""}
 
-TAB_COMPILER_MSFT = 'MSFT'
+TAB_COMPILER_MSFT = 'MSFT'

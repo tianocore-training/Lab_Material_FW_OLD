@@ -118,7 +118,7 @@ typedef int Bool;
 #define MY_STD_CALL
 #endif
 
-#ifdef _MSC_VER
+#if defined(_MSC_VER) && !defined(__clang__)
 
 #if _MSC_VER >= 1300
 #define MY_NO_INLINE __declspec(noinline)
@@ -245,10 +245,10 @@ typedef struct
 {
   ILookInStream vt;
   const ISeekInStream *realStream;
- 
+
   size_t pos;
   size_t size; /* it's data size */
-  
+
   /* the following variables must be set outside */
   Byte *buf;
   size_t bufSize;

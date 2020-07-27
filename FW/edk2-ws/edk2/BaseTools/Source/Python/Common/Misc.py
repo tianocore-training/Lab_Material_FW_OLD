@@ -81,19 +81,22 @@ def GetVariableOffset(mapfilepath, efifilepath, varnames):
 
     if len(lines) == 0: return None
     firstline = lines[0].strip()
+    if re.match('^\s*Address\s*Size\s*Align\s*Out\s*In\s*Symbol\s*$', firstline):
+        return _parseForXcodeAndClang9(lines, efifilepath, varnames)
     if (firstline.startswith("Archive member included ") and
         firstline.endswith(" file (symbol)")):
         return _parseForGCC(lines, efifilepath, varnames)
     if firstline.startswith("# Path:"):
-        return _parseForXcode(lines, efifilepath, varnames)
+        return _parseForXcodeAndClang9(lines, efifilepath, varnames)
     return _parseGeneral(lines, efifilepath, varnames)
 
-def _parseForXcode(lines, efifilepath, varnames):
+def _parseForXcodeAndClang9(lines, efifilepath, varnames):
     status = 0
     ret = []
     for line in lines:
         line = line.strip()
-        if status == 0 and line == "# Symbols:":
+        if status == 0 and (re.match('^\s*Address\s*Size\s*Align\s*Out\s*In\s*Symbol\s*$', line) \
+            or line == "# Symbols:"):
             status = 1
             continue
         if status == 1 and len(line) != 0:
@@ -492,13 +495,9 @@ def SaveFileOnChange(File, Content, IsBinaryFile=True, FileLock=None):
 
 
     if GlobalData.gIsWindows and not os.path.exists(File):
-        # write temp file, then rename the temp file to the real file
-        # to make sure the file be immediate saved to disk
-        with tempfile.NamedTemporaryFile(OpenMode, dir=os.path.dirname(File), delete=False) as tf:
-            tf.write(Content)
-            tempname = tf.name
         try:
-            os.rename(tempname, File)
+            with open(File, OpenMode) as tf:
+                tf.write(Content)
         except IOError as X:
             if GlobalData.gBinCacheSource:
                 EdkLogger.quiet("[cache error]:fails to save file with error: %s" % (X))
@@ -540,7 +539,8 @@ def CopyFileOnChange(SrcFile, Dst, FileLock=None):
     SrcFile = LongFilePath(SrcFile)
     Dst = LongFilePath(Dst)
 
-    if not os.path.exists(SrcFile):
+    if os.path.isdir(SrcFile):
+        EdkLogger.error(None, FILE_COPY_FAILURE, ExtraData='CopyFileOnChange SrcFile is a dir, not a file: %s' % SrcFile)
         return False
 
     if os.path.isdir(Dst):
@@ -566,21 +566,8 @@ def CopyFileOnChange(SrcFile, Dst, FileLock=None):
     if FileLock:
         FileLock.acquire()
 
-    # os.replace and os.rename are the atomic operations in python 3 and 2.
-    # we use these two atomic operations to ensure the file copy is atomic:
-    # copy the src to a temp file in the dst same folder firstly, then
-    # replace or rename the temp file to the destination file.
-    with tempfile.NamedTemporaryFile(dir=DirName, delete=False) as tf:
-        CopyLong(SrcFile, tf.name)
-        tempname = tf.name
     try:
-        if hasattr(os, 'replace'):
-            os.replace(tempname, DstFile)
-        else:
-            # os.rename reqire to remove the dst on Windows, otherwise OSError will be raised.
-            if GlobalData.gIsWindows and os.path.exists(DstFile):
-                os.remove(DstFile)
-            os.rename(tempname, DstFile)
+        CopyLong(SrcFile, DstFile)
     except IOError as X:
         if GlobalData.gBinCacheSource:
             EdkLogger.quiet("[cache error]:fails to copy file with error: %s" % (X))

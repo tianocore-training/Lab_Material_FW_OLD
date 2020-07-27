@@ -33,6 +33,8 @@
   Main/isinff_ieee754.c
   Main/isnand_ieee754.c
   Main/isnanf_ieee754.c
+  Main/fpclassifyd_ieee754.c
+
   Main/infinityf_ieee754.c
   Main/Main.c
   Main/HtoNtoH.c

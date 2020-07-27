@@ -48,7 +48,7 @@ UINTN                                     gFdInfoCount = 0;
 NT_FD_INFO                                *gFdInfo;
 
 //
-// Array that supports seperate memory rantes.
+// Array that supports separate memory ranges.
 //  The memory ranges are set by PcdWinNtMemorySizeForSecMain.
 //  The number of array elements is allocated base on parsing
 //  PcdWinNtMemorySizeForSecMain value and the memory is never freed.
@@ -105,7 +105,7 @@ WinPeiAutoScan (
 
 Routine Description:
   Return the FD Size and base address. Since the FD is loaded from a
-  file into host memory only the SEC will know it's address.
+  file into host memory only the SEC will know its address.
 
 Arguments:
   Index  - Which FD, starts at zero.
@@ -273,7 +273,7 @@ Arguments:
 Returns:
   EFI_SUCCESS      - The file was opened and mapped.
   EFI_NOT_FOUND    - FileName was not found in the current directory
-  EFI_DEVICE_ERROR - An error occured attempting to map the opened file
+  EFI_DEVICE_ERROR - An error occurred attempting to map the opened file
 
 --*/
 {
@@ -356,7 +356,7 @@ Returns:
 INTN
 EFIAPI
 main (
-  IN  INTN  Argc,
+  IN  INT  Argc,
   IN  CHAR8 **Argv,
   IN  CHAR8 **Envp
   )
@@ -391,8 +391,8 @@ Returns:
   VOID                  *SecFile;
   CHAR16                *MemorySizeStr;
   CHAR16                *FirmwareVolumesStr;
-  UINT32                ProcessAffinityMask;
-  UINT32                SystemAffinityMask;
+  UINTN                 ProcessAffinityMask;
+  UINTN                 SystemAffinityMask;
   INT32                 LowBit;
 
   //
@@ -414,7 +414,7 @@ Returns:
   // Determine the first thread available to this process.
   //
   if (GetProcessAffinityMask (GetCurrentProcess (), &ProcessAffinityMask, &SystemAffinityMask)) {
-    LowBit = (INT32)LowBitSet32 (ProcessAffinityMask);
+    LowBit = (INT32)LowBitSet32 ((UINT32)ProcessAffinityMask);
     if (LowBit != -1) {
       //
       // Force the system to bind the process to a single thread to work
@@ -625,7 +625,7 @@ Arguments:
   SecCorePe32File         - SEC Core PE32
 
 Returns:
-  Success means control is transfered and thus we should never return
+  Success means control is transferred and thus we should never return
 
 --*/
 {
@@ -993,7 +993,7 @@ PeCoffLoaderRelocateImageExtraAction (
   //  the *.dll file as a library using Windows* APIs. This allows
   //  source level debug. The image is still loaded and relocated
   //  in the Framework memory space like on a real system (by the code above),
-  //  but the entry point points into the DLL loaded by the code bellow.
+  //  but the entry point points into the DLL loaded by the code below.
   //
 
   DllEntryPoint = NULL;

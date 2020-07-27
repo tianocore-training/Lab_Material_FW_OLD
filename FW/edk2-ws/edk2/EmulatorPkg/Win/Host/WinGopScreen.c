@@ -297,7 +297,7 @@ WinNtWndSize (
   @param  X                      X location on graphics screen.
   @param  Y                      Y location on the graphics screen.
   @param  Width                  Width of BltBuffer.
-  @param  Height                 Hight of BltBuffer
+  @param  Height                 Height of BltBuffer
   @param  BltOperation           Operation to perform on BltBuffer and video memory
   @param  BltBuffer              Buffer containing data to blt into video buffer.
                                  This  buffer has a size of
@@ -311,7 +311,7 @@ WinNtWndSize (
 
   @retval EFI_SUCCESS            The palette is updated with PaletteArray.
   @retval EFI_INVALID_PARAMETER  BltOperation is not valid.
-  @retval EFI_DEVICE_ERROR       A hardware error occured writting to the video
+  @retval EFI_DEVICE_ERROR       A hardware error occurred writing to the video
                                  buffer.
 
 **/
@@ -399,6 +399,8 @@ WinNtGopThreadWindowProc (
   LPARAM                Index;
   EFI_INPUT_KEY         Key;
   BOOLEAN               AltIsPress;
+  INT32                 PosX;
+  INT32                 PosY;
 
   //
   // Use mTlsIndex global to get a Thread Local Storage version of Private.
@@ -527,6 +529,45 @@ WinNtGopThreadWindowProc (
     WinNtGopConvertParamToEfiKeyShiftState (Private, &wParam, &lParam, FALSE);
     return 0;
 
+  case WM_MOUSEMOVE:
+    PosX = GET_X_LPARAM (lParam);
+    PosY = GET_Y_LPARAM (lParam);
+
+    if (Private->PointerPreviousX != PosX) {
+      Private->PointerState.RelativeMovementX += (PosX - Private->PointerPreviousX);
+      Private->PointerPreviousX                = PosX;
+      Private->PointerStateChanged             = TRUE;
+    }
+
+    if (Private->PointerPreviousY != PosY) {
+      Private->PointerState.RelativeMovementY += (PosY - Private->PointerPreviousY);
+      Private->PointerPreviousY                = PosY;
+      Private->PointerStateChanged             = TRUE;
+    }
+
+    Private->PointerState.RelativeMovementZ  = 0;
+    return 0;
+
+  case WM_LBUTTONDOWN:
+    Private->PointerState.LeftButton = TRUE;
+    Private->PointerStateChanged     = TRUE;
+    return 0;
+
+  case WM_LBUTTONUP:
+    Private->PointerState.LeftButton = FALSE;
+    Private->PointerStateChanged     = TRUE;
+    return 0;
+
+  case WM_RBUTTONDOWN:
+    Private->PointerState.RightButton = TRUE;
+    Private->PointerStateChanged      = TRUE;
+    return 0;
+
+  case WM_RBUTTONUP:
+    Private->PointerState.RightButton = FALSE;
+    Private->PointerStateChanged      = TRUE;
+    return 0;
+
   case WM_CLOSE:
     //
     // This close message is issued by user, core is not aware of this,
@@ -552,11 +593,11 @@ WinNtGopThreadWindowProc (
 
 
 /**
-  This thread simulates the end of WinMain () aplication. Each Winow nededs
-  to process it's events. The messages are dispatched to
+  This thread simulates the end of WinMain () application. Each Window needs
+  to process its events. The messages are dispatched to
   WinNtGopThreadWindowProc ().
-  Be very careful sine WinNtGopThreadWinMain () and WinNtGopThreadWindowProc ()
-  are running in a seperate thread. We have to do this to process the events.
+  Be very careful since WinNtGopThreadWinMain () and WinNtGopThreadWindowProc ()
+  are running in a separate thread. We have to do this to process the events.
 
   @param  lpParameter            Handle of window to manage.
 
@@ -638,7 +679,7 @@ WinNtGopThreadWinMain (
                             );
 
   //
-  // The reset of this thread is the standard winows program. We need a sperate
+  // The reset of this thread is the standard windows program. We need a separate
   // thread since we must process the message loop to make windows act like
   // windows.
   //

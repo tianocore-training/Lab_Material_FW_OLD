@@ -189,7 +189,7 @@
 
 [PcdsFixedAtBuild]
 # UEFI / EDK II Training
-# gEfiMdeModulePkgTokenSpaceGuid.PcdHelloWorldPrintTimes|3
+#gEfiMdeModulePkgTokenSpaceGuid.PcdHelloWorldPrintTimes|3
 #   Here is where you would put the HelloWorldPrintString PCD
 #    HINT, Look at the MdeModulePkg.Dec file 
   
@@ -251,9 +251,11 @@
 
 [Components]
 !if "IA32" in $(ARCH) || "X64" in $(ARCH)
-  !if "MSFT" in $(FAMILY)
+  !if "MSFT" in $(FAMILY) || $(WIN_HOST_BUILD) == TRUE
     ##
     #  Emulator, OS WIN application
+    #  CLANGPDB is cross OS tool chain. It depends on WIN_HOST_BUILD flag
+    #  to build WinHost application.
     ##
     EmulatorPkg/Win/Host/WinHost.inf
   !else
@@ -399,7 +401,7 @@
 !endif
 
 # For UEFI / EDK II Training  
- ShellPkg/Application/Shell/Shell.inf {
+  ShellPkg/Application/Shell/Shell.inf {
     <LibraryClasses>
       ShellCommandLib|ShellPkg/Library/UefiShellCommandLib/UefiShellCommandLib.inf
       NULL|ShellPkg/Library/UefiShellLevel2CommandsLib/UefiShellLevel2CommandsLib.inf
@@ -429,7 +431,7 @@
       gEfiMdePkgTokenSpaceGuid.PcdUefiLibMaxPrintBufferSize|8000
   }
 
-!endif  # Skip Main BUild
+!endif
 
 !include NetworkPkg/Network.dsc.inc
 
@@ -437,6 +439,9 @@
 # UEFI / EDK II Training Class
 
 # Add new modules here
+
+
+
 [BuildOptions]
   #
   # Disable deprecated APIs.
@@ -445,7 +450,17 @@
 
   MSFT:DEBUG_*_*_CC_FLAGS = /Od /Oy-
   MSFT:NOOPT_*_*_CC_FLAGS = /Od /Oy-
+  GCC:DEBUG_CLANGPDB_*_CC_FLAGS =-O0 -Wno-unused-command-line-argument -Wno-incompatible-pointer-types -Wno-enum-conversion -Wno-incompatible-pointer-types -Wno-sometimes-uninitialized -Wno-constant-conversion -Wno-main-return-type
 
   MSFT:*_*_*_DLINK_FLAGS     = /ALIGN:4096 /FILEALIGN:4096 /SUBSYSTEM:CONSOLE
   MSFT:DEBUG_*_*_DLINK_FLAGS = /EXPORT:InitializeDriver=$(IMAGE_ENTRY_POINT) /BASE:0x10000
   MSFT:NOOPT_*_*_DLINK_FLAGS = /EXPORT:InitializeDriver=$(IMAGE_ENTRY_POINT) /BASE:0x10000
+
+!if $(WIN_HOST_BUILD) == TRUE
+  #
+  # CLANGPDB tool chain depends on WIN_HOST_BUILD flag to generate the windows application.
+  #
+  GCC:*_CLANGPDB_*_DLINK_FLAGS     = /ALIGN:4096 /FILEALIGN:4096 /SUBSYSTEM:CONSOLE
+  GCC:DEBUG_CLANGPDB_*_DLINK_FLAGS = /EXPORT:InitializeDriver=$(IMAGE_ENTRY_POINT) /BASE:0x10000
+  GCC:NOOPT_CLANGPDB_*_DLINK_FLAGS = /EXPORT:InitializeDriver=$(IMAGE_ENTRY_POINT) /BASE:0x10000
+!endif
