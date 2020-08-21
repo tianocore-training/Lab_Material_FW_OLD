@@ -1,3 +1,0 @@
-export WORKSPACE=$PWD
-export PACKAGES_PATH=$WORKSPACE/edk2:$WORKSPACE/edk2-libc
-
