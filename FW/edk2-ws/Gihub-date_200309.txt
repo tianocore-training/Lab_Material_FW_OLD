@@ -1,8 +1,0 @@
-use the following to also get the openssl library
-Lib C progject
-$> git clone https://github.com/tianocore/edk2-libc.git
-edk2 master
-$> git clone --recursive https://github.com/tianocore/edk2
-$> cd edk2
-$> git checkout stable202002
-

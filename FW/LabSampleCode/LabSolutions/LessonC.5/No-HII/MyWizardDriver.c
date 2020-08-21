@@ -264,16 +264,8 @@ MyWizardDriverDriverBindingSupported (
 		);
 
 	if (EFI_ERROR(Status)) {
-		//DEBUG((EFI_D_INFO, "[MyWizardDriver] Not Supported \r\n"));
-		//return Status; // Bail out if OpenProtocol returns an error
-		Status = CreateNVVariable();
-		if (EFI_ERROR(Status)) {
-			DEBUG((EFI_D_ERROR, "[MyWizardDriver] Not Supported \r\n"));
-		}
-		else{
-			DEBUG((EFI_D_ERROR, "[MyWizardDriver] Supported \r\n"));
-		}
-		return Status; // Status now depends on CreateNVVariable Function
+		DEBUG((EFI_D_INFO, "[MyWizardDriver] Not Supported \r\n"));
+		return Status; // Bail out if OpenProtocol returns an error
 
 
 	}
@@ -333,6 +325,7 @@ MyWizardDriverDriverBindingStart (
   IN EFI_DEVICE_PATH_PROTOCOL     *RemainingDevicePath OPTIONAL
   )
 {
+	EFI_STATUS                Status;
 
 	if (DummyBufferfromStart == NULL) {     // was buffer already allocated?
 		DummyBufferfromStart = (CHAR16*)AllocateZeroPool(DUMMY_SIZE * sizeof(CHAR16));
@@ -344,6 +337,14 @@ MyWizardDriverDriverBindingStart (
 
 	SetMem16(DummyBufferfromStart, (DUMMY_SIZE * sizeof(CHAR16)), 0x0042);  // Fill buffer
 	DEBUG((EFI_D_INFO, "[MyWizardDriver] Buffer pointer 0x%p  \r\n",  DummyBufferfromStart));
+	Status = CreateNVVariable();
+	if (EFI_ERROR(Status)) {
+		DEBUG((EFI_D_ERROR, "[MyWizardDriver] NV Variable already created \r\n"));
+	}
+	else {
+		DEBUG((EFI_D_ERROR, "[MyWizardDriver] Created NV Variable in the Start \r\n"));
+	}
+
 	return EFI_SUCCESS;
 
 	//return EFI_UNSUPPORTED;

@@ -1,7 +1,7 @@
 <!--- @file
   Readme.md for UEFI / EDK II Training  Lab Material FW
 
-  Copyright (c) 2019, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 2020, Intel Corporation. All rights reserved.<BR>
 
   Redistribution and use in source (original document form) and 'compiled'
   forms (converted to PDF, epub, HTML and other formats) with or without
@@ -41,7 +41,7 @@ To see the Slides with links to the presentations goto https://gitpitch.com/tian
   - DriverWizard
   - edk2-ws 
       - edk2 - Same as https://github.com/tianocore/edk2 
-      - edk2-libc
+      - edk2-libc Same as https://github.com/tianocore/edk2-libc 
   - LabSampleCode
   
 ####  From Presentations_FW

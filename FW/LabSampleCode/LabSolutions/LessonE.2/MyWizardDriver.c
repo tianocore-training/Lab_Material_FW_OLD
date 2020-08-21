@@ -154,8 +154,40 @@ MyWizardDriverUnload (
 	}
   DEBUG ((EFI_D_INFO,"[MyWizardDriver] Unload success\r\n"));
 
-
   return EFI_SUCCESS;
+}
+
+
+EFI_STATUS
+EFIAPI
+CreateNVVariable()
+{
+	EFI_STATUS            	Status;
+	UINTN                  BufferSize;
+
+	BufferSize = sizeof (MYWIZARDDRIVER_CONFIGURATION);
+	Status = gRT->GetVariable(
+		mVariableName,
+		&mMyWizardDriverVarGuid,
+		NULL,
+		&BufferSize,
+		mMyWizDrv_Conf
+		);
+	if (EFI_ERROR(Status)) {  // Not definded yet so add it to the NV Variables.
+		if (Status == EFI_NOT_FOUND) {
+			Status = gRT->SetVariable(
+				mVariableName,
+				&mMyWizardDriverVarGuid,
+				EFI_VARIABLE_NON_VOLATILE | EFI_VARIABLE_BOOTSERVICE_ACCESS,
+				sizeof (MYWIZARDDRIVER_CONFIGURATION),
+				mMyWizDrv_Conf   //  buffer is 000000  now for first time set
+				);
+			DEBUG((EFI_D_INFO, "[MyWizardDriver] Variable %s created in NVRam Var\r\n", mVariableName));
+  return EFI_SUCCESS;
+}
+	}
+	// already defined once so this time through unsupported
+	return EFI_UNSUPPORTED;
 }
 
 /**
@@ -348,38 +380,6 @@ MyWizardDriverDriverEntryPoint (
 }
 
 
-EFI_STATUS
-EFIAPI
-CreateNVVariable()
-{
-	 EFI_STATUS            	Status;
-	 UINTN                  BufferSize;
-
-	 BufferSize = sizeof (MYWIZARDDRIVER_CONFIGURATION);
-	 Status = gRT->GetVariable (
-            mVariableName,
-            &mMyWizardDriverVarGuid,
-            NULL,
-            &BufferSize,
-		mMyWizDrv_Conf
-            );
-	if (EFI_ERROR (Status)) {  // Not definded yet so add it to the NV Variables.
-		if (Status == EFI_NOT_FOUND) {
-			  Status = gRT->SetVariable(
-                  mVariableName,
-                  &mMyWizardDriverVarGuid,
-		   EFI_VARIABLE_NON_VOLATILE | EFI_VARIABLE_BOOTSERVICE_ACCESS,
-                  sizeof (MYWIZARDDRIVER_CONFIGURATION),
-				mMyWizDrv_Conf   //  buffer is 000000  now for first time set
-                  );
-			DEBUG((EFI_D_INFO, "[MyWizardDriver] Supported SUCCESS,  Variable %s created in NVRam Var\r\n", mVariableName));
-			  return EFI_SUCCESS;
-		 }
-	}
-	// already defined once so this time through unsupported
-	return EFI_UNSUPPORTED;
-}
-
 /**
   Tests to see if this driver supports a given controller. If a child device is provided, 
   it further tests to see if this driver supports creating a handle for the specified child device.
@@ -442,13 +442,9 @@ MyWizardDriverDriverBindingSupported (
                   );
 
   if (EFI_ERROR (Status)) {
-	  //DEBUG ((EFI_D_INFO, "[MyWizardDriver] Not Supported \r\n")  );
-	 //return Status; // Bail out if OpenProtocol returns an error
-		Status = CreateNVVariable();
-		if (EFI_ERROR(Status)) {
-			DEBUG((EFI_D_ERROR, "[MyWizardDriver] Not Supported \r\n"));
-		}
-		return Status; // Status now depends on CreateNVVariable Function
+		DEBUG((EFI_D_INFO, "[MyWizardDriver] Not Supported \r\n"));
+		return Status; // Bail out if OpenProtocol returns an error
+	
 
   }
 
@@ -461,7 +457,6 @@ MyWizardDriverDriverBindingSupported (
         );
   DEBUG ((EFI_D_INFO,"[MyWizardDriver] Supported SUCCESS\r\n") );	
      return EFI_SUCCESS; 
-
   //return EFI_UNSUPPORTED;
 }
 
@@ -508,6 +503,7 @@ MyWizardDriverDriverBindingStart (
   IN EFI_DEVICE_PATH_PROTOCOL     *RemainingDevicePath OPTIONAL
   )
 {
+	EFI_STATUS                Status;
 	
 	if (DummyBufferfromStart == NULL) {     // was buffer already allocated?
 		DummyBufferfromStart = (CHAR16*)AllocateZeroPool (DUMMY_SIZE * sizeof(CHAR16));
@@ -518,7 +514,15 @@ MyWizardDriverDriverBindingStart (
 	}
 
 	SetMem16 (DummyBufferfromStart, (DUMMY_SIZE * sizeof(CHAR16)), 0x0042);  // Fill buffer
-	DEBUG ((EFI_D_INFO, "[MyWizardDriver] Buffer 0x%08x\r\n", DummyBufferfromStart));
+	DEBUG((EFI_D_INFO, "[MyWizardDriver] Buffer pointer 0x%p  \r\n",  DummyBufferfromStart));
+	Status = CreateNVVariable();
+	if (EFI_ERROR(Status)) {
+		DEBUG((EFI_D_ERROR, "[MyWizardDriver] NV Variable already created \r\n"));
+	}
+	else {
+		DEBUG((EFI_D_ERROR, "[MyWizardDriver] Created NV Variable in the Start \r\n"));
+	}
+
 	return EFI_SUCCESS;
 
   //return EFI_UNSUPPORTED;
